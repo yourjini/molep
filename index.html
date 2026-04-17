@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOLEP - Global Game Portal</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <!-- ===== DEMO CONTROL BAR ===== -->
+  <div id="demo-bar">
+    <div class="demo-bar-inner">
+      <span class="demo-label">DEMO</span>
+      <span class="demo-text" data-i18n="demoCountrySelect">접속 국가 시뮬레이션</span>
+      <select id="country-select">
+        <option value="KR" selected>🇰🇷 한국 (Korea)</option>
+        <option value="US">🇺🇸 미국 (United States)</option>
+        <option value="TW">🇹🇼 대만 (Taiwan)</option>
+        <option value="JP">🇯🇵 일본 (Japan)</option>
+        <option value="CN">🇨🇳 중국 (China)</option>
+      </select>
+      <button id="btn-review-panel" class="demo-btn" onclick="toggleReviewPanel()">
+        📋 기획/정책/개발 고려사항
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== HEADER ===== -->
+  <header id="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-text">MOLEP</span>
+        <span class="logo-tagline" data-i18n="siteTagline">글로벌 게임 포털</span>
+      </div>
+      <nav class="header-nav">
+        <span id="detected-country-display"></span>
+        <button id="btn-login" class="btn btn-outline" onclick="showScreen('login')" data-i18n="login">로그인</button>
+        <button id="btn-signup" class="btn btn-primary" onclick="showScreen('signup-auth')" data-i18n="signup">회원가입</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== MAIN CONTENT AREA ===== -->
+  <main id="main-content">
+
+    <!-- SCREEN: Landing Page -->
+    <section id="screen-landing" class="screen active">
+      <div class="hero">
+        <div class="hero-content">
+          <h1 data-i18n="heroTitle">MOLEP에 오신 것을 환영합니다</h1>
+          <p data-i18n="heroSubtitle">전 세계 최고의 게임을 만나보세요</p>
+          <button class="btn btn-primary btn-large" onclick="showScreen('signup-auth')" data-i18n="signup">회원가입</button>
+        </div>
+      </div>
+
+      <div class="container">
+        <h2 data-i18n="featuredGames">추천 게임</h2>
+        <div id="game-grid" class="game-grid">
+          <!-- Filled by JS -->
+        </div>
+
+        <h2 data-i18n="latestNews">최신 소식</h2>
+        <div id="news-list" class="news-list">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN: Login -->
+    <section id="screen-login" class="screen">
+      <div class="form-container">
+        <h2 data-i18n="loginTitle">로그인</h2>
+        <div id="login-auth-buttons" class="auth-buttons">
+          <!-- Filled by JS -->
+        </div>
+        <button class="btn btn-text" onclick="showScreen('landing')" data-i18n="backBtn">뒤로</button>
+      </div>
+    </section>
+
+    <!-- SCREEN: Signup - Auth Selection -->
+    <section id="screen-signup-auth" class="screen">
+      <div class="form-container">
+        <div class="step-indicator">
+          <div class="step active">1</div>
+          <div class="step-line"></div>
+          <div class="step">2</div>
+          <div class="step-line"></div>
+          <div class="step">3</div>
+          <div class="step-line"></div>
+          <div class="step">4</div>
+        </div>
+        <h2 data-i18n="signupTitle">회원가입</h2>
+        <p class="form-subtitle" data-i18n="signupSubtitle">가입 방법을 선택하세요</p>
+        <div id="signup-auth-buttons" class="auth-buttons">
+          <!-- Filled by JS -->
+        </div>
+        <!-- Email form (KR only) -->
+        <div id="email-form" class="email-form hidden">
+          <div class="form-divider"><span data-i18n="orDivider">또는</span></div>
+          <input type="email" id="input-email" class="form-input" data-i18n-placeholder="emailPlaceholder" placeholder="이메일 주소">
+          <input type="password" id="input-password" class="form-input" data-i18n-placeholder="passwordPlaceholder" placeholder="비밀번호">
+          <input type="password" id="input-password-confirm" class="form-input" data-i18n-placeholder="passwordConfirmPlaceholder" placeholder="비밀번호 확인">
+        </div>
+        <!-- CN: National ID for real-name -->
+        <div id="cn-realname-form" class="cn-realname-form hidden">
+          <div class="info-box warning">
+            <strong>实名认证</strong><br>
+            根据国家新闻出版署规定，所有用户必须进行实名认证。
+          </div>
+          <input type="text" id="input-cn-realname" class="form-input" placeholder="真实姓名">
+          <input type="text" id="input-cn-nationalid" class="form-input" placeholder="身份证号码（18位）" maxlength="18">
+        </div>
+        <button class="btn btn-primary btn-full" id="btn-to-age" onclick="goToAgeVerify()" data-i18n="continueBtn">계속</button>
+        <button class="btn btn-text" onclick="showScreen('landing')" data-i18n="backBtn">뒤로</button>
+      </div>
+    </section>
+
+    <!-- SCREEN: Age Verification -->
+    <section id="screen-age-verify" class="screen">
+      <div class="form-container">
+        <div class="step-indicator">
+          <div class="step done">✓</div>
+          <div class="step-line done"></div>
+          <div class="step active">2</div>
+          <div class="step-line"></div>
+          <div class="step">3</div>
+          <div class="step-line"></div>
+          <div class="step">4</div>
+        </div>
+        <h2 data-i18n="ageVerifyTitle">본인 확인</h2>
+
+        <!-- KR: CI Verification -->
+        <div id="age-verify-ci" class="hidden">
+          <div class="info-box">
+            본인인증을 통해 연령을 확인합니다.
+          </div>
+          <button class="btn btn-outline btn-full" onclick="simulateCIVerify()" data-i18n="ciVerifyBtn">본인인증 (PASS/NICE)</button>
+        </div>
+
+        <!-- General: Birth date input -->
+        <div id="age-verify-dob" class="hidden">
+          <label data-i18n="birthDateLabel">생년월일</label>
+          <div class="dob-inputs">
+            <select id="dob-year" class="form-select"></select>
+            <select id="dob-month" class="form-select"></select>
+            <select id="dob-day" class="form-select"></select>
+          </div>
+          <p class="form-help" data-i18n="birthDateHelp">정확한 생년월일을 입력해주세요.</p>
+        </div>
+
+        <!-- CN: Already collected national ID, extract DOB -->
+        <div id="age-verify-cn" class="hidden">
+          <div class="info-box success">
+            <strong>实名认证完成</strong><br>
+            <span id="cn-verified-info"></span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-full" onclick="checkAge()" data-i18n="ageConfirm">확인</button>
+        <button class="btn btn-text" onclick="showScreen('signup-auth')" data-i18n="backBtn">뒤로</button>
+      </div>
+    </section>
+
+    <!-- SCREEN: Minor Protection -->
+    <section id="screen-minor" class="screen">
+      <div class="form-container">
+        <div class="step-indicator">
+          <div class="step done">✓</div>
+          <div class="step-line done"></div>
+          <div class="step done">✓</div>
+          <div class="step-line done"></div>
+          <div class="step active">2.5</div>
+          <div class="step-line"></div>
+          <div class="step">3</div>
+        </div>
+        <h2 data-i18n="minorTitle">미성년자 보호</h2>
+        <div id="minor-notice" class="info-box warning"></div>
+        <div id="minor-restrictions" class="restrictions-list"></div>
+
+        <!-- Guardian consent form -->
+        <div id="guardian-form" class="guardian-form">
+          <h3 data-i18n="guardianInfoTitle">보호자 정보 입력</h3>
+          <input type="text" class="form-input" data-i18n-placeholder="guardianName" placeholder="보호자 이름">
+          <input type="tel" class="form-input" data-i18n-placeholder="guardianPhone" placeholder="보호자 연락처">
+          <!-- CN: Guardian national ID -->
+          <div id="guardian-cn-fields" class="hidden">
+            <input type="text" class="form-input" placeholder="监护人身份证号码（18位）" maxlength="18">
+          </div>
+          <select class="form-select" id="guardian-relation">
+            <option value="" data-i18n="guardianRelation">관계</option>
+          </select>
+        </div>
+
+        <!-- Minor-specific terms -->
+        <div id="minor-terms-list" class="terms-list"></div>
+
+        <button class="btn btn-primary btn-full" onclick="completeMinorConsent()" data-i18n="guardianConsentBtn">보호자 동의 완료</button>
+        <button class="btn btn-text" onclick="showScreen('age-verify')" data-i18n="backBtn">뒤로</button>
+      </div>
+    </section>
+
+    <!-- SCREEN: Terms -->
+    <section id="screen-terms" class="screen">
+      <div class="form-container">
+        <div class="step-indicator">
+          <div class="step done">✓</div>
+          <div class="step-line done"></div>
+          <div class="step done">✓</div>
+          <div class="step-line done"></div>
+          <div class="step active">3</div>
+          <div class="step-line"></div>
+          <div class="step">4</div>
+        </div>
+        <h2 data-i18n="termsTitle">약관 동의</h2>
+
+        <div class="terms-agree-all">
+          <label class="checkbox-label">
+            <input type="checkbox" id="agree-all" onchange="toggleAllTerms()">
+            <span data-i18n="agreeAll">전체 동의</span>
+          </label>
+        </div>
+        <div class="divider"></div>
+        <div id="terms-list" class="terms-list">
+          <!-- Filled by JS -->
+        </div>
+        <div id="terms-error" class="error-text hidden" data-i18n="mustAgreeRequired">필수 약관에 모두 동의해주세요.</div>
+        <button class="btn btn-primary btn-full" onclick="submitTerms()" data-i18n="agreeAndSignup">동의하고 가입하기</button>
+        <button class="btn btn-text" onclick="goBackFromTerms()" data-i18n="backBtn">뒤로</button>
+      </div>
+    </section>
+
+    <!-- SCREEN: Complete -->
+    <section id="screen-complete" class="screen">
+      <div class="form-container complete-screen">
+        <div class="step-indicator">
+          <div class="step done">✓</div>
+          <div class="step-line done"></div>
+          <div class="step done">✓</div>
+          <div class="step-line done"></div>
+          <div class="step done">✓</div>
+          <div class="step-line done"></div>
+          <div class="step done">✓</div>
+        </div>
+        <div class="complete-icon">✓</div>
+        <h2 data-i18n="completeTitle">가입 완료!</h2>
+        <p data-i18n="completeMessage">MOLEP 회원이 되신 것을 환영합니다.</p>
+        <div id="complete-info" class="complete-info">
+          <!-- Filled by JS -->
+        </div>
+        <button class="btn btn-primary btn-full" onclick="resetToLanding()" data-i18n="goToHome">홈으로 이동</button>
+      </div>
+    </section>
+  </main>
+
+    <!-- SCREEN: Alternative Flow B - Manual Country Override -->
+    <section id="screen-flow-alt" class="screen">
+      <div class="container">
+        <div class="flow-alt-header">
+          <h2>🔀 대안 플로우 B: 수동 국가 변경 허용 (에픽게임즈 방식)</h2>
+          <p class="form-subtitle">IP 자동 감지 + 수동 변경 옵션을 제공하는 방식. 현재 플로우 A(IP 고정)와 비교용.</p>
+          <button class="btn btn-outline" onclick="showScreen('landing')" style="margin-bottom:24px">← 메인 플로우 A로 돌아가기</button>
+        </div>
+
+        <div class="flow-comparison">
+          <!-- Flow A -->
+          <div class="flow-card">
+            <div class="flow-card-header flow-a">
+              <h3>플로우 A: IP 고정 (현재 채택)</h3>
+              <span class="terms-badge">채택</span>
+            </div>
+            <div class="flow-diagram">
+              <div class="flow-node">사이트 접속</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-node highlight">IP 감지 → 국가 확정 (변경 불가)</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-node">해당 국가 언어/인증/약관 표시</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-node">회원가입 진행</div>
+            </div>
+            <div class="flow-pros-cons">
+              <div class="flow-pros">
+                <h4>✅ 장점</h4>
+                <ul>
+                  <li>법적 관할권 자동 매칭 (안전)</li>
+                  <li>어뷰징 원천 차단</li>
+                  <li>구현 단순</li>
+                  <li>약관 혼선 없음</li>
+                </ul>
+              </div>
+              <div class="flow-cons">
+                <h4>❌ 단점</h4>
+                <ul>
+                  <li>VPN/해외교민 UX 저하</li>
+                  <li>IP 오탐 시 대응 없음</li>
+                  <li>출장자가 원래 국가 서비스 이용 불가</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flow B -->
+          <div class="flow-card">
+            <div class="flow-card-header flow-b">
+              <h3>플로우 B: 수동 변경 허용 (에픽 방식)</h3>
+              <span class="terms-badge optional">선택지</span>
+            </div>
+            <div class="flow-diagram">
+              <div class="flow-node">사이트 접속</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-node highlight">IP 감지 → 국가 자동 선택</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-node" style="border-color:var(--warning)">
+                "🇰🇷 한국이 맞나요?" <br>
+                <small>[맞습니다] [다른 국가 선택 ▾]</small>
+              </div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-branch">
+                <div class="flow-node" style="border-color:var(--success)">맞습니다 → 그대로 진행</div>
+                <div class="flow-node" style="border-color:var(--warning)">다른 국가 → 국가 선택 후 진행<br><small>⚠️ 가입 후 변경 불가 고지</small></div>
+              </div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-node">선택한 국가 기준 인증/약관 표시</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-node">회원가입 완료 (국가 고정)</div>
+            </div>
+            <div class="flow-pros-cons">
+              <div class="flow-pros">
+                <h4>✅ 장점</h4>
+                <ul>
+                  <li>VPN/교민/출장자 대응 가능</li>
+                  <li>IP 오탐 시 사용자가 직접 수정</li>
+                  <li>에픽게임즈 등 글로벌 선례 있음</li>
+                  <li>UX 유연성 높음</li>
+                </ul>
+              </div>
+              <div class="flow-cons">
+                <h4>❌ 단점</h4>
+                <ul>
+                  <li>어뷰징 가능 (가격 차별화 우회)</li>
+                  <li>잘못된 국가 선택 시 약관 불일치 법적 리스크</li>
+                  <li>미성년자 규제 우회 가능성 (KR→US 선택 시 14세→13세)</li>
+                  <li>CS 부담 증가</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="info-box warning" style="margin-top:16px">
+              <strong>⚠️ 플로우 B 채택 시 필수 안전장치</strong>
+              <ul style="margin:8px 0 0 16px;font-size:13px">
+                <li>가입 후 국가 변경 불가 (또는 1회 제한, CS 통해서만)</li>
+                <li>국가 변경 시 "선택한 국가의 법률이 적용됩니다" 고지 + 재동의</li>
+                <li>CN 선택 시 반드시 실명인증 강제 (우회 불가)</li>
+                <li>가격 어뷰징 방지: 결제 시 현재 IP 국가와 가입 국가 불일치 감지 → 제한</li>
+                <li>변경 이력 감사 로그 남기기</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Decision matrix -->
+        <div class="flow-decision" style="margin-top:32px">
+          <h3>🎯 의사결정 기준</h3>
+          <table class="risk-table" style="margin-top:12px">
+            <thead>
+              <tr><th>기준</th><th>플로우 A (IP 고정)</th><th>플로우 B (수동 허용)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>법적 안전성</td><td><span class="risk-badge LOW">안전</span></td><td><span class="risk-badge MEDIUM">주의</span></td></tr>
+              <tr><td>어뷰징 방지</td><td><span class="risk-badge LOW">강함</span></td><td><span class="risk-badge HIGH">약함</span></td></tr>
+              <tr><td>UX 유연성</td><td><span class="risk-badge HIGH">낮음</span></td><td><span class="risk-badge LOW">높음</span></td></tr>
+              <tr><td>구현 복잡도</td><td><span class="risk-badge LOW">단순</span></td><td><span class="risk-badge MEDIUM">중간</span></td></tr>
+              <tr><td>글로벌 선례</td><td>대부분 게임사</td><td>에픽게임즈, 스팀</td></tr>
+              <tr><td>교민/출장자 대응</td><td><span class="risk-badge HIGH">불가</span></td><td><span class="risk-badge LOW">가능</span></td></tr>
+            </tbody>
+          </table>
+          <div class="info-box" style="margin-top:16px">
+            <strong>💡 권장안</strong>: 플로우 A(IP 고정)로 런칭 후, 교민/출장자 CS 문의 비율 모니터링.
+            일정 비율 초과 시 플로우 B로 전환 검토. 또는 <strong>하이브리드</strong>: IP 고정이되, 가입 전 "국가가 맞지 않나요?" 링크를 두어
+            클릭 시 CS/고객센터로 연결 (수동 변경은 CS에서만 처리).
+          </div>
+        </div>
+
+        <button class="btn btn-outline" onclick="showScreen('landing')" style="margin-top:24px">← 메인 플로우로 돌아가기</button>
+      </div>
+    </section>
+
+  <!-- ===== REVIEW PANEL (Slide-out) ===== -->
+  <div id="review-panel" class="review-panel hidden">
+    <div class="review-panel-header">
+      <h2>📋 기획/정책/설계/개발/QA 고려사항</h2>
+      <button class="btn-close" onclick="toggleReviewPanel()">✕</button>
+    </div>
+    <div class="review-panel-body">
+      <!-- Tab navigation -->
+      <div class="review-tabs">
+        <button class="review-tab active" onclick="switchReviewTab('planning')">🎯 기획</button>
+        <button class="review-tab" onclick="switchReviewTab('policy')">📜 정책/약관</button>
+        <button class="review-tab" onclick="switchReviewTab('design')">🎨 설계/UX</button>
+        <button class="review-tab" onclick="switchReviewTab('dev')">💻 개발</button>
+        <button class="review-tab" onclick="switchReviewTab('qa')">🔍 QA</button>
+        <button class="review-tab" onclick="switchReviewTab('risk')">⚠️ 리스크</button>
+        <button class="review-tab" onclick="switchReviewTab('questions')">❓ 문의사항</button>
+        <button class="review-tab" onclick="switchReviewTab('db')">🗄️ DB설계</button>
+      </div>
+
+      <!-- Tab contents -->
+      <div id="review-content" class="review-content">
+        <!-- Filled by JS based on selected tab and country -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: Terms Detail ===== -->
+  <div id="modal-terms-detail" class="modal hidden">
+    <div class="modal-backdrop" onclick="closeTermsModal()"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-terms-title"></h3>
+        <button class="btn-close" onclick="closeTermsModal()">✕</button>
+      </div>
+      <div id="modal-terms-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/review-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

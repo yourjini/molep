@@ -1,0 +1,81 @@
+/* ===== AUTH PROVIDER SPECIFIC STYLES ===== */
+.auth-btn[data-provider="naver"] .auth-btn-icon { background: #03C75A; }
+.auth-btn[data-provider="email"] .auth-btn-icon { background: #333; }
+.auth-btn[data-provider="google"] .auth-btn-icon { background: #4285F4; }
+.auth-btn[data-provider="apple"] .auth-btn-icon { background: #000; }
+.auth-btn[data-provider="x"] .auth-btn-icon { background: #000; }
+.auth-btn[data-provider="wechat"] .auth-btn-icon { background: #07C160; }
+.auth-btn[data-provider="qq"] .auth-btn-icon { background: #12B7F5; }
+
+/* Provider icon text */
+.auth-btn[data-provider="naver"] .auth-btn-icon::after { content: 'N'; }
+.auth-btn[data-provider="email"] .auth-btn-icon::after { content: '@'; }
+.auth-btn[data-provider="google"] .auth-btn-icon::after { content: 'G'; }
+.auth-btn[data-provider="apple"] .auth-btn-icon::after { content: ''; }
+.auth-btn[data-provider="x"] .auth-btn-icon::after { content: 'X'; }
+.auth-btn[data-provider="wechat"] .auth-btn-icon::after { content: 'W'; }
+.auth-btn[data-provider="qq"] .auth-btn-icon::after { content: 'Q'; }
+
+/* ===== FLOW DIAGRAM (in review panel) ===== */
+.flow-diagram {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 12px; background: var(--bg); border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+}
+.flow-node {
+  padding: 8px 12px; border-radius: 6px;
+  background: var(--bg-surface); border: 1px solid var(--border);
+  font-size: 13px; text-align: center; position: relative;
+}
+.flow-node.highlight { border-color: var(--warning); background: rgba(253,203,110,0.1); }
+.flow-arrow { text-align: center; color: var(--text-dim); font-size: 16px; }
+.flow-branch {
+  display: flex; gap: 8px; margin: 4px 0;
+}
+.flow-branch .flow-node { flex: 1; font-size: 12px; }
+
+/* ===== QUESTION CARDS ===== */
+.question-card {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px;
+}
+.question-card-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.question-priority {
+  padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 700;
+}
+.question-priority.must { background: var(--critical); color: #fff; }
+.question-priority.should { background: var(--warning); color: #000; }
+.question-priority.could { background: var(--text-dim); color: #fff; }
+.question-card-title { font-size: 14px; font-weight: 600; }
+.question-card-body { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.question-card-target {
+  margin-top: 6px; font-size: 11px; color: var(--text-dim);
+}
+
+/* ===== RISK TABLE ===== */
+.risk-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
+.risk-table th, .risk-table td {
+  padding: 8px 6px; border: 1px solid var(--border); text-align: center;
+}
+.risk-table th { background: var(--bg-surface); font-weight: 700; font-size: 11px; }
+.risk-table td:first-child { text-align: left; font-weight: 600; }
+
+/* ===== LOADING SPINNER ===== */
+.spinner {
+  width: 24px; height: 24px; border: 3px solid var(--border);
+  border-top-color: var(--primary); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--bg-card); border: 1px solid var(--primary);
+  padding: 12px 24px; border-radius: var(--radius-sm);
+  font-size: 14px; z-index: 3000; box-shadow: var(--shadow);
+  animation: toastIn 0.3s ease;
+}
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
