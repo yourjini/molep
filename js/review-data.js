@@ -9,13 +9,21 @@ const REVIEW_DATA = {
     title: '🎯 기획 단계 고려사항',
     sections: [
       {
+        title: '📌 내부회의 확정사항 (2026-04-17)',
+        items: [
+          { level: 'critical', text: '<span class="terms-badge">확정</span> <strong>MaxMind GeoIP2 DB 필수 운영</strong>: IP→국가 매핑용. <u>주 2회 자동 갱신</u> 권장 (최소 월 1회). IP 대역대 수시 변경되므로 미갱신 시 국가 오탐률 증가. Fallback: Cloudflare CF-IPCountry 헤더.', country: 'ALL' },
+          { level: 'critical', text: '<span class="terms-badge">확정</span> <strong>기본 언어 한국어 고정</strong>: 어느 나라에서 접속해도 한국어. 국가별 자체 번역 제공 없음. 사용자가 필요 시 <u>구글 번역(Google Translate) 위젯</u> 사용. ⚠️ 약관의 구글 번역 법적 효력 확인 필요.', country: 'ALL' },
+          { level: 'critical', text: '<span class="terms-badge">확정</span> <strong>가입 시 국가 선택 + 쿠키 검증</strong>: 가입 단계에서 사용자가 국가 선택. 프론트 쿠키(IP 감지 국가)와 비교 → 불일치 시 "다시 선택해주세요" 안내. 가입 후 국가 변경 불가.', country: 'ALL' },
+          { level: 'critical', text: '<span class="terms-badge">확정</span> <strong>Auth에 쿠키 국가 전달</strong>: Auth 서버는 국가 정보 직접 확인 불가. 프론트 쿠키의 국가 정보를 Auth 가입 단계에 전달하여 참조하도록 구현.', country: 'ALL' }
+        ]
+      },
+      {
         title: '비즈니스 의사결정 필요 사항',
         items: [
           { level: 'critical', text: '<strong>중국 사업 구조</strong>: 중국 법인 설립 or 현지 퍼블리셔 파트너십? 版号(판호) 신청 주체 결정 필수. 판호 발급 6~18개월 소요로 최우선 착수 필요.', country: 'CN' },
           { level: 'critical', text: '<strong>계정 이식성 정책</strong>: KR 가입자가 US로 이민 시 계정 전환 가능? 구매 내역 이전? 아님 새 계정 필요? 이 결정이 DB 설계에 직접 영향.', country: 'ALL' },
           { level: 'high', text: '<strong>글로벌 서버 vs 지역 서버</strong>: KR-JP 유저가 같은 게임 서버에서 플레이 가능? 레이턴시 vs 글로벌 커뮤니티 트레이드오프.', country: 'ALL' },
           { level: 'high', text: '<strong>결제 지역화</strong>: KR=카카오페이/토스, CN=위챗페이/알리페이, JP=콘비니 결제. 각국 PG사 연동 범위 결정.', country: 'ALL' },
-          { level: 'medium', text: '<strong>IP 오탐 시 수동 변경 허용?</strong>: 허용 시 게임 아이템/가격 차별화 어뷰징 벡터. 불허 시 VPN/해외교민 UX 저하.', country: 'ALL' },
           { level: 'medium', text: '<strong>친구 목록 리전 간 허용 여부</strong>: KR 유저와 JP 유저 친구 추가 가능? 리전 간 소셜 기능 범위 정의.', country: 'ALL' }
         ]
       },
@@ -245,7 +253,9 @@ const REVIEW_DATA = {
           { priority: 'must', title: '계정 이식성 (Region Transfer)', body: 'KR 가입자가 US로 이민 시 계정 전환 가능? 구매 내역/게임 데이터 이전 정책? → DB 설계에 직접 영향.', target: '기획팀/사업팀' },
           { priority: 'must', title: 'GDPR 역외 적용 대응', body: 'EU 사용자 접근 시 GDPR 적용됨. EU 서비스 geo-blocking 할지, GDPR 준수할지? → 전체 아키텍처에 영향.', target: '법무팀' },
           { priority: 'must', title: '한국 개인정보 국외이전 적법근거', body: '개인정보보호법 제28조의8 (2024.03 시행). 동의 vs 표준계약 vs 동등성 인정국 선택 필요.', target: '법무팀' },
-          { priority: 'must', title: 'IP 오탐 시 수동 국가 변경 허용 여부', body: '허용 시 게임 가격 차별화 어뷰징 가능. 불허 시 VPN/교민 UX 저하. 정책 결정 필요.', target: '기획팀/보안팀' }
+          { priority: 'must', title: '쿠키 국가 ≠ 선택 국가 시 강제 차단 vs 경고 후 허용?', body: '현재 "다시 선택" 안내만 확정. 불일치 시에도 강제로 진행 가능한지, 완전 차단인지 결정 필요.', target: '기획팀/보안팀' },
+          { priority: 'must', title: '약관 언어: 한국어만? 영문/중문 공식 번역 필요?', body: '기본 언어 한국어 확정. 구글 번역의 약관 번역 시 법적 효력 문제 가능. 최소 영문 약관 별도 마련 필요할 수 있음.', target: '법무팀' },
+          { priority: 'must', title: '쿠키 국가 정보 조작 대응 방안', body: '개발자 도구로 쿠키 변조 가능. 서버사이드 2차 검증? 또는 감사 로그로 사후 추적?', target: '개발팀/보안팀' }
         ]
       },
       {
