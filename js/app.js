@@ -24,21 +24,29 @@ document.addEventListener('DOMContentLoaded', () => {
 function onCountryChange() {
   const config = COUNTRY_CONFIG[currentCountry];
 
-  // Update HTML lang
-  document.documentElement.lang = config.lang;
+  // 기본 언어는 항상 한국어 (확정 요건)
+  document.documentElement.lang = 'ko';
 
-  // Update all i18n texts
+  // UI 텍스트는 항상 한국어 — 사용자가 필요 시 크롬 번역기 사용
   updateI18N();
 
   // Update detected country display
-  document.getElementById('detected-country-display').textContent =
-    `${config.flag} ${config.name}`;
+  const countryDisplay = document.getElementById('detected-country-display');
+  countryDisplay.textContent = `접속국가: ${config.flag} ${config.name}`;
 
-  // Update landing content
+  // 쿠키에 국가 저장 (시뮬레이션)
+  document.cookie = `molep_geo_country=${currentCountry};path=/;max-age=86400`;
+
+  // 콘텐츠 필터 표시 업데이트
+  const filterDisplay = document.getElementById('content-filter-country');
+  if (filterDisplay) filterDisplay.textContent = `${config.flag} ${config.name} 대상 콘텐츠`;
+
+  // 콘텐츠는 접속 국가의 노출국가 기준으로 필터링
   renderGameGrid();
   renderNews();
+  renderNotices();
 
-  // Update auth buttons
+  // 인증수단은 가입 국가 기준 (가입 단계에서 국가 선택)
   renderAuthButtons('signup-auth-buttons', true);
   renderAuthButtons('login-auth-buttons', false);
 
@@ -54,14 +62,15 @@ function onCountryChange() {
 }
 
 // ===== I18N UPDATE =====
+// 기본 언어 한국어 고정: 항상 'KR' 기준 텍스트 사용
 function updateI18N() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    el.textContent = t(key, currentCountry);
+    el.textContent = t(key, 'KR'); // 항상 한국어
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const key = el.getAttribute('data-i18n-placeholder');
-    el.placeholder = t(key, currentCountry);
+    el.placeholder = t(key, 'KR'); // 항상 한국어
   });
 }
 
@@ -82,9 +91,14 @@ function showScreen(name) {
 
 // ===== LANDING CONTENT =====
 function renderGameGrid() {
-  const config = COUNTRY_CONFIG[currentCountry];
   const games = getLocalizedGames(currentCountry);
   const grid = document.getElementById('game-grid');
+
+  if (games.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);padding:40px">해당 국가에 노출 설정된 게임이 없습니다.</div>';
+    return;
+  }
+
   grid.innerHTML = games.map(g => `
     <div class="game-card">
       <div class="game-card-img" style="background: linear-gradient(135deg, ${g.gradient[0]}, ${g.gradient[1]})">
@@ -93,7 +107,10 @@ function renderGameGrid() {
       <div class="game-card-body">
         <div class="game-card-title">${g.title}</div>
         <div class="game-card-genre">${g.genre}</div>
-        ${g.badge ? `<span class="game-card-badge">${g.badge}</span>` : ''}
+        <div class="game-card-meta">
+          ${g.badge ? `<span class="game-card-badge">${g.badge}</span>` : ''}
+          <span class="game-target-countries">${g.targetCountries.includes('ALL') ? '🌐 전체' : g.targetCountries.map(c => COUNTRY_CONFIG[c]?.flag || c).join(' ')}</span>
+        </div>
       </div>
     </div>
   `).join('');
@@ -581,82 +598,75 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// ===== LOCALIZED DATA =====
+// ===== CONTENT DATA (어드민 등록 시뮬레이션) =====
+// 모든 콘텐츠는 한국어. targetCountries = 어드민에서 설정한 노출국가.
+const ADMIN_GAMES = [
+  { id: 'g1', title: '테일즈런너', genre: '레이싱 / 캐주얼', icon: '🏃', gradient: ['#FF6B6B', '#FF8E53'], badge: 'HOT', targetCountries: ['KR', 'TW', 'JP', 'CN'] },
+  { id: 'g2', title: '블레이드 오브 아레나', genre: 'MMORPG', icon: '⚔️', gradient: ['#667eea', '#764ba2'], badge: 'NEW', targetCountries: ['ALL'] },
+  { id: 'g3', title: '드래곤 스카이', genre: '전략 RPG', icon: '🐉', gradient: ['#11998e', '#38ef7d'], badge: '', targetCountries: ['KR', 'US', 'JP'] },
+  { id: 'g4', title: '스타 디펜더', genre: '디펜스', icon: '🛡️', gradient: ['#FC5C7D', '#6A82FB'], badge: '', targetCountries: ['KR'] },
+  { id: 'g5', title: '코즈믹 레이서', genre: '레이싱', icon: '🚀', gradient: ['#f093fb', '#f5576c'], badge: 'NEW', targetCountries: ['US', 'TW'] },
+  { id: 'g6', title: '삼국지 온라인', genre: '전략 MMORPG', icon: '🏯', gradient: ['#4facfe', '#00f2fe'], badge: '', targetCountries: ['CN', 'TW'] },
+  { id: 'g7', title: '사무라이 블레이드', genre: '액션 RPG', icon: '⛩️', gradient: ['#a18cd1', '#fbc2eb'], badge: '', targetCountries: ['JP'] },
+  { id: 'g8', title: '글로벌 챔피언십', genre: 'e스포츠', icon: '🏆', gradient: ['#ffecd2', '#fcb69f'], badge: 'GLOBAL', targetCountries: ['ALL'] }
+];
+
+const ADMIN_NEWS = [
+  { id: 'n1', title: '[공지] MOLEP 오픈 베타 테스트 안내', date: '2026.04.18', targetCountries: ['ALL'] },
+  { id: 'n2', title: '[이벤트] 사전등록 보상 수령 안내', date: '2026.04.16', targetCountries: ['ALL'] },
+  { id: 'n3', title: '[한국] 네이버 로그인 점검 안내 (4/20)', date: '2026.04.17', targetCountries: ['KR'] },
+  { id: 'n4', title: '[대만] 遊戲分級 등급 표시 업데이트', date: '2026.04.15', targetCountries: ['TW'] },
+  { id: 'n5', title: '[일본] ゴールデンウィーク 이벤트 안내', date: '2026.04.14', targetCountries: ['JP'] },
+  { id: 'n6', title: '[중국] 실명인증 시스템 업그레이드 안내', date: '2026.04.13', targetCountries: ['CN'] },
+  { id: 'n7', title: '[미국] ESRB Rating Update Notice', date: '2026.04.12', targetCountries: ['US'] },
+  { id: 'n8', title: '[업데이트] v1.2 패치 노트 — 전 서버 적용', date: '2026.04.10', targetCountries: ['ALL'] }
+];
+
+const ADMIN_NOTICES = [
+  { id: 'ntc1', title: '서비스 이용약관 개정 안내 (2026.05.01 시행)', type: '약관', targetCountries: ['ALL'] },
+  { id: 'ntc2', title: '한국 개인정보보호법 개정에 따른 안내', type: '정책', targetCountries: ['KR'] },
+  { id: 'ntc3', title: '대만 야간 게임 이용 제한 안내 (22:00~08:00)', type: '정책', targetCountries: ['TW'] },
+  { id: 'ntc4', title: '중국 방침미(防沉迷) 시스템 적용 안내', type: '정책', targetCountries: ['CN'] },
+  { id: 'ntc5', title: '일본 特定商取引法 표기 업데이트', type: '정책', targetCountries: ['JP'] },
+  { id: 'ntc6', title: 'CCPA/CPRA 개인정보 처리방침 업데이트', type: '정책', targetCountries: ['US'] },
+  { id: 'ntc7', title: '글로벌 서버 정기점검 안내 (매주 수 06:00~08:00 KST)', type: '점검', targetCountries: ['ALL'] }
+];
+
+// 콘텐츠 필터: 노출국가에 해당 국가 또는 'ALL' 포함된 것만 표시
+function filterByCountry(items, country) {
+  return items.filter(item =>
+    item.targetCountries.includes(country) || item.targetCountries.includes('ALL')
+  );
+}
+
 function getLocalizedGames(country) {
-  const games = {
-    KR: [
-      { title: '테일즈런너', genre: '레이싱 / 캐주얼', icon: '🏃', gradient: ['#FF6B6B', '#FF8E53'], badge: 'HOT' },
-      { title: '블레이드 오브 아레나', genre: 'MMORPG', icon: '⚔️', gradient: ['#667eea', '#764ba2'], badge: 'NEW' },
-      { title: '드래곤 스카이', genre: '전략 RPG', icon: '🐉', gradient: ['#11998e', '#38ef7d'], badge: '' },
-      { title: '스타크래프트 리마스터', genre: 'RTS', icon: '🌟', gradient: ['#FC5C7D', '#6A82FB'], badge: '' }
-    ],
-    US: [
-      { title: 'Tales Runner', genre: 'Racing / Casual', icon: '🏃', gradient: ['#FF6B6B', '#FF8E53'], badge: 'HOT' },
-      { title: 'Blade of Arena', genre: 'MMORPG', icon: '⚔️', gradient: ['#667eea', '#764ba2'], badge: 'NEW' },
-      { title: 'Dragon Sky', genre: 'Strategy RPG', icon: '🐉', gradient: ['#11998e', '#38ef7d'], badge: '' },
-      { title: 'Cosmic Defenders', genre: 'Action', icon: '🚀', gradient: ['#FC5C7D', '#6A82FB'], badge: '' }
-    ],
-    TW: [
-      { title: '跑跑大冒險', genre: '競速 / 休閒', icon: '🏃', gradient: ['#FF6B6B', '#FF8E53'], badge: '熱門' },
-      { title: '競技之刃', genre: 'MMORPG', icon: '⚔️', gradient: ['#667eea', '#764ba2'], badge: '新作' },
-      { title: '龍之天空', genre: '策略 RPG', icon: '🐉', gradient: ['#11998e', '#38ef7d'], badge: '' },
-      { title: '星際守護者', genre: '動作', icon: '🚀', gradient: ['#FC5C7D', '#6A82FB'], badge: '' }
-    ],
-    JP: [
-      { title: 'テイルズランナー', genre: 'レーシング / カジュアル', icon: '🏃', gradient: ['#FF6B6B', '#FF8E53'], badge: '人気' },
-      { title: 'ブレードオブアリーナ', genre: 'MMORPG', icon: '⚔️', gradient: ['#667eea', '#764ba2'], badge: '新作' },
-      { title: 'ドラゴンスカイ', genre: '戦略RPG', icon: '🐉', gradient: ['#11998e', '#38ef7d'], badge: '' },
-      { title: 'コズミックディフェンダー', genre: 'アクション', icon: '🚀', gradient: ['#FC5C7D', '#6A82FB'], badge: '' }
-    ],
-    CN: [
-      { title: '跑跑大冒险', genre: '竞速 / 休闲', icon: '🏃', gradient: ['#FF6B6B', '#FF8E53'], badge: '热门' },
-      { title: '竞技之刃', genre: 'MMORPG', icon: '⚔️', gradient: ['#667eea', '#764ba2'], badge: '新游' },
-      { title: '龙之天空', genre: '策略 RPG', icon: '🐉', gradient: ['#11998e', '#38ef7d'], badge: '' },
-      { title: '星际守卫', genre: '动作', icon: '🚀', gradient: ['#FC5C7D', '#6A82FB'], badge: '' }
-    ]
-  };
-  return games[country] || games['US'];
+  return filterByCountry(ADMIN_GAMES, country);
 }
 
 function getLocalizedNews(country) {
-  const config = COUNTRY_CONFIG[country];
-  const today = new Date();
-  const formatDate = (daysAgo) => {
-    const d = new Date(today);
-    d.setDate(d.getDate() - daysAgo);
-    if (config.dateFormat === 'MM/DD/YYYY') return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
-    if (config.dateFormat === 'YYYY.MM.DD') return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
-    return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
-  };
+  return filterByCountry(ADMIN_NEWS, country);
+}
 
-  const news = {
-    KR: [
-      { title: '[공지] MOLEP 오픈 베타 테스트 안내', date: formatDate(0) },
-      { title: '[이벤트] 사전등록 보상 수령 안내', date: formatDate(2) },
-      { title: '[업데이트] v1.2 패치 노트', date: formatDate(5) }
-    ],
-    US: [
-      { title: '[Notice] MOLEP Open Beta Launch', date: formatDate(0) },
-      { title: '[Event] Pre-registration Rewards', date: formatDate(2) },
-      { title: '[Update] v1.2 Patch Notes', date: formatDate(5) }
-    ],
-    TW: [
-      { title: '[公告] MOLEP 公開測試開始', date: formatDate(0) },
-      { title: '[活動] 預先註冊獎勵領取', date: formatDate(2) },
-      { title: '[更新] v1.2 更新說明', date: formatDate(5) }
-    ],
-    JP: [
-      { title: '[お知らせ] MOLEPオープンベータ開始', date: formatDate(0) },
-      { title: '[イベント] 事前登録特典配布', date: formatDate(2) },
-      { title: '[アップデート] v1.2 パッチノート', date: formatDate(5) }
-    ],
-    CN: [
-      { title: '[公告] MOLEP 公测开始', date: formatDate(0) },
-      { title: '[活动] 预注册奖励领取', date: formatDate(2) },
-      { title: '[更新] v1.2 更新说明', date: formatDate(5) }
-    ]
-  };
-  return news[country] || news['US'];
+// 공지사항 렌더 (국가별 필터)
+function renderNotices() {
+  const notices = filterByCountry(ADMIN_NOTICES, currentCountry);
+  const container = document.getElementById('notice-list');
+  if (!container) return;
+
+  if (notices.length === 0) {
+    container.innerHTML = '<div class="news-item" style="color:var(--text-dim)">해당 국가 대상 공지가 없습니다.</div>';
+    return;
+  }
+  container.innerHTML = notices.map(n => `
+    <div class="news-item">
+      <span class="news-item-title">
+        <span class="notice-type-badge">${n.type}</span> ${n.title}
+      </span>
+      <span class="news-item-date">
+        ${n.targetCountries.includes('ALL') ? '🌐 전체' : n.targetCountries.map(c => COUNTRY_CONFIG[c]?.flag || c).join(' ')}
+      </span>
+    </div>
+  `).join('');
 }
 
 function getLocalizedRelations(country) {

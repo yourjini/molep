@@ -55,14 +55,26 @@
       </div>
 
       <div class="container">
-        <h2 data-i18n="featuredGames">추천 게임</h2>
-        <div id="game-grid" class="game-grid">
-          <!-- Filled by JS -->
+        <!-- 콘텐츠 필터링 안내 (데모용) -->
+        <div class="content-filter-info">
+          <span class="demo-label">DEMO</span>
+          <span>아래 콘텐츠는 어드민에서 설정한 <strong>노출국가</strong>에 따라 필터링됩니다. 국가를 바꾸면 해당 국가 대상 콘텐츠만 표시됩니다.</span>
+          <span id="content-filter-country" class="content-filter-country"></span>
         </div>
 
-        <h2 data-i18n="latestNews">최신 소식</h2>
+        <h2>📢 공지사항</h2>
+        <div id="notice-list" class="news-list">
+          <!-- Filled by JS: 노출국가 필터 -->
+        </div>
+
+        <h2>🎮 추천 게임</h2>
+        <div id="game-grid" class="game-grid">
+          <!-- Filled by JS: 노출국가 필터 -->
+        </div>
+
+        <h2>📰 최신 소식</h2>
         <div id="news-list" class="news-list">
-          <!-- Filled by JS -->
+          <!-- Filled by JS: 노출국가 필터 -->
         </div>
       </div>
     </section>
