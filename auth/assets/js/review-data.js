@@ -1431,32 +1431,156 @@ const REVIEW_DATA = {
       {
         title: '반드시 결정 필요 (MUST)',
         items: [
-          { level: 'critical', text: '중국 사업 진출 구조: 자체 법인 설립? 현지 퍼블리셔 파트너십? 版号 신청 주체? → 없이는 중국 인프라/인증 설계 불가.', country: 'CN' },
-          { level: 'critical', text: '계정 이식성 (Region Transfer): KR→US 이민 시 계정/구매 이전? DB 설계에 직접 영향.', country: 'ALL' },
-          { level: 'critical', text: 'GDPR 역외 적용 대응: EU geo-blocking할지, GDPR 준수할지? 전체 아키텍처에 영향.', country: 'ALL' },
-          { level: 'critical', text: '한국 개인정보 국외이전 적법근거: 동의 vs 표준계약 vs 동등성 인정국.', country: 'KR' },
-          { level: 'critical', text: '쿠키 국가 ≠ 선택 국가 시: 강제 차단? 경고 후 허용?', country: 'ALL' },
-          { level: 'critical', text: '약관 언어: 한국어만? 영문/중문 공식 번역 필요? 구글 번역의 법적 효력?', country: 'ALL' },
-          { level: 'critical', text: '쿠키 국가 정보 조작 대응: 서버사이드 2차 검증? 감사 로그로 사후 추적?', country: 'ALL' }
+          {
+            level: 'critical', country: 'CN',
+            text: '중국 사업 진출 구조: 자체 법인 설립? 현지 퍼블리셔 파트너십? 版号 신청 주체? → 없이는 중국 인프라/인증 설계 불가.',
+            detail: `<h4>📌 질문 의도</h4>
+<p>기획 탭 "중국 사업 구조" 항목 참조. 경영진 결정 필요.</p>
+<h4>결정 주체·시점</h4>
+<ul><li><strong>결정 주체</strong>: 경영진 + 법무 + 사업개발</li>
+<li><strong>시점</strong>: 런칭 <strong>최소 6개월 전</strong> — 판호 발급 기간 고려</li></ul>
+<h4>회의에서 확인</h4>
+<ul><li>중국 시장 진출 의지 (시장 규모 vs 규제 부담)</li>
+<li>투자 가능 규모 (WFOE = 1~5M USD / 파트너십 = 매출 배분)</li>
+<li>Tencent/NetEase 접촉 가능성</li></ul>`
+          },
+          {
+            level: 'critical', country: 'ALL',
+            text: '계정 이식성 (Region Transfer): KR→US 이민 시 계정/구매 이전? DB 설계에 직접 영향.',
+            detail: `<h4>📌 질문 의도</h4>
+<p>기획 탭 "계정 이식성 정책" 참조. DB 스키마 결정 전 필요.</p>
+<h4>회의에서 확인</h4>
+<ul><li>지원 여부 (Yes/No)</li>
+<li>지원 시 조건: 증빙 필요? 횟수 제한? 수수료?</li>
+<li>구매 이력 이전 범위 (게임 전체? 포인트만?)</li></ul>`
+          },
+          {
+            level: 'critical', country: 'ALL',
+            text: 'GDPR 역외 적용 대응: EU geo-blocking할지, GDPR 준수할지? 전체 아키텍처에 영향.',
+            detail: `<h4>📌 질문 의도</h4>
+<p>정책 탭 "GDPR 역외 적용" 참조. 사업 범위 결정.</p>
+<h4>회의에서 확인</h4>
+<ul><li>EU 시장 진출 의지 (현재 5개국 외)</li>
+<li>진출 시 DPO 지정, SCC, 쿠키 동의 인프라 준비 가능성</li>
+<li>진출 안 하면 geo-block 기술적 방안 (CF Workers 등)</li></ul>`
+          },
+          {
+            level: 'critical', country: 'KR',
+            text: '한국 개인정보 국외이전 적법근거: 동의 vs 표준계약 vs 동등성 인정국.',
+            detail: `<h4>📌 질문 의도</h4>
+<p>정책 탭 "§28조의8" 참조. 데이터 저장 위치·인프라 리전 결정.</p>
+<h4>회의에서 확인</h4>
+<ul><li>KR 데이터 보관 위치 (AWS Seoul vs 해외)</li>
+<li>해외 이전 시 근거 (가입 시 동의 받을지, 표준계약)</li></ul>`
+          },
+          {
+            level: 'critical', country: 'ALL',
+            text: '쿠키 국가 ≠ 선택 국가 시: 강제 차단? 경고 후 허용?',
+            detail: `<h4>📌 질문 의도</h4>
+<p>가입 플로우 첫 단계 동작 확정. 현재 PLAN = "재선택 안내" 수준.</p>
+<h4>선택지</h4>
+<ul><li><strong>A) 완전 차단</strong> — IP와 선택 국가 일치해야 가입 가능 (안전, UX 저하)</li>
+<li><strong>B) 경고 후 허용</strong> — 경고 표시 후 사용자 선택 허용 (현 PLAN)</li>
+<li><strong>C) 자동 교정 (IP 기준으로 강제)</strong> — 교민 소외</li></ul>
+<h4>회의에서 확인</h4>
+<ul><li>리스크 감수 수준 (A가 법적 안전, B가 현실적)</li></ul>`
+          },
+          {
+            level: 'critical', country: 'ALL',
+            text: '약관 언어: 한국어만? 영문/중문 공식 번역 필요? 구글 번역의 법적 효력?',
+            detail: `<h4>📌 질문 의도</h4>
+<p>현재 PLAN = 기본 언어 한국어 고정 + 구글 번역 위젯. 그러나 약관의 구글 번역은 법적 효력 불확실.</p>
+<h4>회의에서 확인</h4>
+<ul><li>각국 공식 약관 번역 준비 가능 여부 (법무 비용·시간)</li>
+<li>최소: 영문 공식 약관 1종 (글로벌 표준)</li>
+<li>CN은 반드시 중문 공식 (PIPL 명시 의무)</li></ul>`
+          },
+          {
+            level: 'critical', country: 'ALL',
+            text: '쿠키 국가 정보 조작 대응: 서버사이드 2차 검증? 감사 로그로 사후 추적?',
+            detail: `<h4>📌 질문 의도</h4>
+<p>프론트 쿠키는 개발자 도구로 조작 가능. 서버측 대응 전략 결정 필요.</p>
+<h4>선택지</h4>
+<ul><li><strong>A) 서버사이드 2차 검증</strong> — 매 API 호출마다 GeoIP 재확인 (비용 ↑)</li>
+<li><strong>B) 주요 이벤트만 검증</strong> — 가입·결제·실명 시점에만</li>
+<li><strong>C) 감사 로그 사후 추적</strong> — 이상 탐지 후 계정 제한</li></ul>
+<h4>추천</h4>
+<ul><li>B + C 조합. 비용·보안 균형</li></ul>`
+          }
         ]
       },
       {
         title: '결정 권장 (SHOULD)',
         items: [
-          { level: 'high', text: '글로벌 서버 vs 지역 서버: KR-JP 같은 게임 서버 가능? 레이턴시 vs 글로벌 커뮤니티.', country: 'ALL' },
-          { level: 'high', text: '이메일 인증 전 국가 제공: KR만? US/JP에도 Fallback?', country: 'ALL' },
-          { level: 'high', text: '미성년 기준 연령 통일 vs 각국 적용: 구현 복잡도 vs 법적 정확성.', country: 'ALL' },
-          { level: 'high', text: 'KR 미성년 결제한도 자사 기준 (업계 관행 ₩70,000 vs 자체).', country: 'KR' },
-          { level: 'high', text: 'Multi-auth 계정 병합: 같은 이메일로 Google/Naver 각각 가입 시 병합?', country: 'ALL' }
+          {
+            level: 'high', country: 'ALL',
+            text: '글로벌 서버 vs 지역 서버: KR-JP 같은 게임 서버 가능? 레이턴시 vs 글로벌 커뮤니티.',
+            detail: `<p>기획 탭 동명 항목 참조. 게임별로 다르게 결정 가능.</p>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: '이메일 인증 전 국가 제공: KR만? US/JP에도 Fallback?',
+            detail: `<h4>📌 질문 의도</h4>
+<p>현재 KR만 이메일 가입 옵션. 소셜 제공자 장애 대비로 다른 국가에도 제공할지.</p>
+<h4>추천</h4>
+<ul><li>US/JP/TW에도 이메일 Fallback 제공 — 단, 주 옵션은 소셜</li></ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: '미성년 기준 연령 통일 vs 각국 적용: 구현 복잡도 vs 법적 정확성.',
+            detail: `<h4>📌 질문 의도</h4>
+<p>KR 14 / US 13 / TW·JP·CN 18. 각국 적용이 법적으로 맞으나 구현 복잡.</p>
+<h4>추천</h4>
+<ul><li>각국 적용 (현 PLAN) — 법적 리스크 최소화. 복잡도는 룰 엔진으로 해결</li></ul>`
+          },
+          {
+            level: 'high', country: 'KR',
+            text: 'KR 미성년 결제한도 자사 기준 (업계 관행 ₩70,000 vs 자체).',
+            detail: `<p>정책 탭 "KR 미성년 결제한도" 항목 참조. 업계 관행 ₩70,000 권장.</p>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: 'Multi-auth 계정 병합: 같은 이메일로 Google/Naver 각각 가입 시 병합?',
+            detail: `<h4>📌 질문 의도</h4>
+<p>같은 사람이 Google·Naver 각각으로 가입하면 동일인 vs 별계정 처리.</p>
+<h4>선택지</h4>
+<ul><li><strong>A) 자동 병합 (동일 이메일)</strong> — UX 좋으나 이메일 변경 시 취약</li>
+<li><strong>B) 수동 병합 (사용자 요청)</strong> — 안전, UX 번거</li>
+<li><strong>C) 별계정 유지</strong> — 단순, UX ↓</li></ul>
+<h4>추천</h4>
+<ul><li>B — 로그인 후 "다른 계정 연결" 메뉴로 수동 병합. 보안·UX 균형</li></ul>`
+          }
         ]
       },
       {
         title: '검토 필요 (COULD)',
         items: [
-          { level: 'medium', text: '친구 목록 리전 간 허용: KR-JP 친구 추가 가능?', country: 'ALL' },
-          { level: 'medium', text: '일본 포인트 공탁 의무 (자금결제법): 포인트/코인 설계 전 법무 확인.', country: 'JP' },
-          { level: 'medium', text: '대만 야간접속 제한 구현: ISP 레벨? 서비스 자체?', country: 'TW' },
-          { level: 'medium', text: '런칭 국가 순서/타임라인: 5개국 동시 vs 순차. CN 판호 기간 별도 일정.', country: 'ALL' }
+          {
+            level: 'medium', country: 'ALL',
+            text: '친구 목록 리전 간 허용: KR-JP 친구 추가 가능?',
+            detail: `<p>기획 탭 "친구 목록 리전 간 허용" 항목 참조. B(4국 자유 + CN 분리) 추천.</p>`
+          },
+          {
+            level: 'medium', country: 'JP',
+            text: '일본 포인트 공탁 의무 (자금결제법): 포인트/코인 설계 전 법무 확인.',
+            detail: `<p>정책 탭 "資金決済法" 항목 참조. 포인트 시스템 미운영 또는 IAP 의존 추천.</p>`
+          },
+          {
+            level: 'medium', country: 'TW',
+            text: '대만 야간접속 제한 구현: ISP 레벨? 서비스 자체?',
+            detail: `<p>정책 탭 "미성년자 야간접속 제한" 항목 참조. 서비스 자체 차단 권장.</p>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: '런칭 국가 순서/타임라인: 5개국 동시 vs 순차. CN 판호 기간 별도 일정.',
+            detail: `<h4>📌 질문 의도</h4>
+<p>5개국 동시 런칭은 리소스 부담 큼. CN은 판호 기간 때문에 별도 일정 필수.</p>
+<h4>추천 로드맵</h4>
+<ul><li>Phase 1: KR (본사 시장, 가장 빠름)</li>
+<li>Phase 2: JP + TW (1~3개월 후)</li>
+<li>Phase 3: US (3~6개월 후, 법무 심화)</li>
+<li>Phase 4: CN (퍼블리셔 계약·판호 발급 후 6~18개월)</li></ul>`
+          }
         ]
       }
     ]
