@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko" data-country="KR" data-locale="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOLEP — Global Game Portal (시연용 프로토타입)</title>
+  <meta name="description" content="molep 글로벌 게임 포털 · 가입/로그인 플로우 프로토타입 · 차주 내부회의 시연용">
+  <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+  <!-- =========================================
+       DEMO 바 (상단) — 회사 시연 컨트롤
+       ========================================= -->
+  <div id="demo-bar" role="region" aria-label="Demo control">
+    <div class="demo-bar-inner">
+      <span class="demo-badge" data-i18n="demo">DEMO</span>
+      <span class="demo-text" data-i18n="demoCountrySelect">접속 국가 시뮬레이션 (IP 강제 변경)</span>
+      <select id="demo-country-select" aria-label="Force country">
+        <option value="KR">🇰🇷 한국 (Korea)</option>
+        <option value="US">🇺🇸 미국 (United States)</option>
+        <option value="TW">🇹🇼 대만 (Taiwan)</option>
+        <option value="JP">🇯🇵 일본 (Japan)</option>
+        <option value="CN">🇨🇳 중국 (China)</option>
+      </select>
+      <select id="demo-lang-select" aria-label="UI language">
+        <option value="ko">한국어 (ko)</option>
+        <option value="en">English (en)</option>
+      </select>
+      <div class="demo-right">
+        <a href="#/review" class="demo-btn" data-i18n="reviewPageBtn">📋 고려사항 (별도 페이지)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================
+       헤더 (글로벌 포털 GNB)
+       ========================================= -->
+  <header id="site-header">
+    <div class="header-inner">
+      <div class="logo" style="cursor:pointer" onclick="location.hash='#/landing'">
+        <span class="logo-mark">MOLEP</span>
+        <span class="logo-tag">GLOBAL PORTAL</span>
+      </div>
+      <nav class="header-nav">
+        <span id="detected-country" class="header-detected">🇰🇷 KR · ko</span>
+        <button class="header-nav-link" onclick="location.hash='#/landing'" data-i18n="login">로그인</button>
+        <button class="btn btn-primary" onclick="location.hash='#/signup/method'" data-i18n="signup">회원가입</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="app">
+
+    <!-- =======================================
+         #/landing
+         ======================================= -->
+    <section id="screen-landing" class="screen">
+      <div class="hero">
+        <div class="hero-content">
+          <div class="hero-badge">GLOBAL · 5 REGIONS · ONE PORTAL</div>
+          <h1 data-i18n="heroTitle">Global Game Portal</h1>
+          <p class="hero-sub" data-i18n="heroSubtitle">전 세계 최고의 게임, 이제 하나의 포털에서</p>
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-large" onclick="location.hash='#/signup/method'" data-i18n="heroCta">지금 시작하기</button>
+            <a href="#/review" class="btn btn-outline btn-large">📋 고려사항 보기</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <!-- 콘텐츠 필터 안내 (구 프로토타입 살린 UI) -->
+        <div class="content-filter-info" id="content-filter-info">
+          <span class="filter-chip" id="content-filter-chip">KR</span>
+          <span data-i18n="contentFilterInfo">아래 콘텐츠는 어드민에서 설정한 노출국가에 따라 필터링됩니다. 상단에서 국가를 바꾸면 해당 국가 대상 콘텐츠만 표시됩니다.</span>
+        </div>
+
+        <div class="section-title">
+          <span data-i18n="noticesTitle">📢 공지사항</span>
+          <small><span data-i18n="currentCountry">현재 국가</span>: <span id="notices-country-label">KR</span></small>
+        </div>
+        <div id="notices-list" class="notice-list"></div>
+
+        <div class="section-title">
+          <span data-i18n="gamesTitle">🎮 추천 게임</span>
+        </div>
+        <div id="games-grid" class="game-grid"></div>
+
+        <div class="section-title">
+          <span data-i18n="newsTitle">📰 최신 소식</span>
+        </div>
+        <div id="news-list" class="news-list"></div>
+      </div>
+    </section>
+
+    <!-- =======================================
+         #/signup/method — 가입 수단 선택
+         ======================================= -->
+    <section id="screen-method" class="screen">
+      <div class="form-container">
+        <div class="step-indicator">
+          <span class="step-pill active">1 · Method</span>
+          <span class="step-pill">2 · Auth</span>
+          <span class="step-pill">3 · Terms</span>
+          <span class="step-pill">4 · Age</span>
+          <span class="step-pill">5+ · …</span>
+        </div>
+        <h2 data-i18n="methodTitle">가입 방법 선택</h2>
+        <p class="form-subtitle"><span data-i18n="methodSub">선호하는 방법으로 가입하세요</span> · <span id="method-country-note" class="text-cyan"></span></p>
+
+        <div id="cn-method-banner" class="cn-sim-banner hidden"></div>
+
+        <div id="method-auth-buttons" class="auth-buttons"></div>
+
+        <div class="form-actions">
+          <button class="btn btn-text" onclick="location.hash='#/landing'" data-i18n="back">뒤로</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================
+         #/signup/auth — OAuth 시뮬레이션
+         ======================================= -->
+    <section id="screen-auth" class="screen">
+      <div class="form-container">
+        <div class="step-indicator">
+          <span class="step-pill done">1 ✓</span>
+          <span class="step-pill active">2 · Auth</span>
+          <span class="step-pill">3 · Terms</span>
+          <span class="step-pill">4 · Age</span>
+          <span class="step-pill">5+ · …</span>
+        </div>
+        <h2 data-i18n="authTitle">인증 진행 중</h2>
+        <p class="form-subtitle" data-i18n="authSub">선택한 제공자에서 인증을 완료해주세요 (시뮬레이션)</p>
+
+        <div class="oauth-sim">
+          <div class="oauth-sim-logo" id="auth-provider-logo">?</div>
+          <h3 id="auth-provider-name">Provider</h3>
+          <div class="oauth-sim-spinner"></div>
+          <p class="form-help" data-i18n="authSimulating">로그인 시뮬레이션 중...</p>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-text" onclick="location.hash='#/signup/method'" data-i18n="back">뒤로</button>
+          <button class="btn btn-primary btn-full" onclick="App.completeAuth()" data-i18n="authCompleteBtn">로그인 완료 (시뮬레이션)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================
+         #/signup/terms — 약관 동의
+         ======================================= -->
+    <section id="screen-terms" class="screen">
+      <div class="form-container">
+        <div class="step-indicator">
+          <span class="step-pill done">1 ✓</span>
+          <span class="step-pill done">2 ✓</span>
+          <span class="step-pill active">3 · Terms</span>
+          <span class="step-pill">4 · Age</span>
+          <span class="step-pill">5+ · …</span>
+        </div>
+        <h2 data-i18n="termsTitle">약관 동의</h2>
+        <p class="form-subtitle" data-i18n="termsSub">아래 약관을 확인하고 동의해주세요</p>
+
+        <div class="info-box warning">
+          ⚠️ <span data-i18n="jurisdictionFixed">가입 후에는 관할 국가를 변경할 수 없습니다</span> — <span id="terms-country-label">KR</span>
+        </div>
+
+        <div class="terms-agree-all">
+          <label class="checkbox-label">
+            <input type="checkbox" id="terms-agree-all">
+            <span data-i18n="agreeAll">전체 동의</span>
+          </label>
+        </div>
+        <div id="terms-list" class="terms-list"></div>
+
+        <div id="terms-error" class="error-text hidden" data-i18n="agreeRequired">필수 약관에 모두 동의해주세요</div>
+
+        <div class="form-actions">
+          <button class="btn btn-text" onclick="location.hash='#/signup/auth'" data-i18n="back">뒤로</button>
+          <button class="btn btn-primary btn-full" onclick="App.submitTerms()" data-i18n="next">다음</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================
+         #/signup/age-gate — 생년월일
+         ======================================= -->
+    <section id="screen-age-gate" class="screen">
+      <div class="form-container">
+        <div class="step-indicator">
+          <span class="step-pill done">1 ✓</span>
+          <span class="step-pill done">2 ✓</span>
+          <span class="step-pill done">3 ✓</span>
+          <span class="step-pill active">4 · Age</span>
+          <span class="step-pill">5+ · …</span>
+        </div>
+        <h2 data-i18n="ageTitle">생년월일 입력</h2>
+        <p class="form-subtitle" data-i18n="ageSub">만 나이 확인 (국가별 법규에 따라 미성년 분기)</p>
+
+        <div id="age-country-rule" class="info-box"></div>
+
+        <label class="form-label">Date of Birth</label>
+        <div class="form-row">
+          <select class="form-select" id="dob-year"></select>
+          <select class="form-select" id="dob-month"></select>
+          <select class="form-select" id="dob-day"></select>
+        </div>
+        <p class="form-help">만 나이 기준 미성년 판정 (국가: <strong id="age-country-label">KR</strong>, 기준 연령: <strong id="age-threshold">14</strong>세)</p>
+
+        <div id="age-verdict" class="info-box hidden"></div>
+
+        <div class="form-actions">
+          <button class="btn btn-text" onclick="location.hash='#/signup/terms'" data-i18n="back">뒤로</button>
+          <button class="btn btn-primary btn-full" onclick="App.submitAge()" data-i18n="next">다음</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================
+         #/signup/guardian — 법정대리인
+         ======================================= -->
+    <section id="screen-guardian" class="screen">
+      <div class="form-container">
+        <div class="step-indicator">
+          <span class="step-pill done">1 ✓</span>
+          <span class="step-pill done">2 ✓</span>
+          <span class="step-pill done">3 ✓</span>
+          <span class="step-pill done">4 ✓</span>
+          <span class="step-pill active">5 · Guardian</span>
+        </div>
+        <h2 data-i18n="guardianTitle">법정대리인 동의</h2>
+        <p class="form-subtitle" data-i18n="guardianSub">미성년자는 법정대리인의 동의가 필요합니다</p>
+
+        <div id="guardian-country-note" class="info-box"></div>
+
+        <label class="form-label" data-i18n="guardianName">보호자 이름</label>
+        <input type="text" class="form-input" id="guardian-name" placeholder="홍길동">
+
+        <label class="form-label" data-i18n="guardianPhone">보호자 연락처</label>
+        <input type="tel" class="form-input" id="guardian-phone" placeholder="010-1234-5678">
+
+        <label class="form-label" data-i18n="guardianRelation">관계</label>
+        <select class="form-select" id="guardian-relation">
+          <option>부</option><option>모</option><option>조부모</option><option>기타 법정대리인</option>
+        </select>
+
+        <div id="guardian-cn-extra" class="hidden mt-16">
+          <label class="form-label" data-i18n="guardianCnId">监护人身份证号码 (18자리)</label>
+          <input type="text" class="form-input" id="guardian-cn-id" maxlength="18" placeholder="110101YYYYMMDDxxxx">
+        </div>
+
+        <div id="guardian-verify-actions" class="mt-16"></div>
+
+        <div class="form-actions">
+          <button class="btn btn-text" onclick="location.hash='#/signup/age-gate'" data-i18n="back">뒤로</button>
+          <button class="btn btn-primary btn-full" onclick="App.submitGuardian()" data-i18n="next">다음</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================
+         #/signup/realname — 실명인증
+         ======================================= -->
+    <section id="screen-realname" class="screen">
+      <div class="form-container">
+        <div class="step-indicator">
+          <span class="step-pill done">1 ✓</span>
+          <span class="step-pill done">2 ✓</span>
+          <span class="step-pill done">3 ✓</span>
+          <span class="step-pill done">4 ✓</span>
+          <span class="step-pill active">6 · Realname</span>
+        </div>
+        <h2 data-i18n="realnameTitle">실명 인증</h2>
+        <p class="form-subtitle" data-i18n="realnameSub">CN: 필수 / KR: 결제 시 필수</p>
+
+        <div id="realname-country-note" class="info-box"></div>
+
+        <!-- CN form -->
+        <div id="realname-cn-form" class="hidden">
+          <label class="form-label" data-i18n="cnRealname">真实姓名 (이름 한자)</label>
+          <input type="text" class="form-input" id="cn-realname-name" placeholder="张三">
+
+          <label class="form-label" data-i18n="cnNationalId">身份证号码（18位）</label>
+          <input type="text" class="form-input" id="cn-realname-id" maxlength="18" placeholder="110101YYYYMMDDxxxx">
+          <p class="form-help" id="cn-realname-id-hint">공안부 DB 실시간 대조 (시뮬레이션)</p>
+
+          <div class="info-box warning mt-16">
+            📷 <span data-i18n="cnFaceRecognition">얼굴인식 자리표시자 (실 서비스에서 카메라 권한 요청)</span>
+          </div>
+        </div>
+
+        <!-- KR form -->
+        <div id="realname-kr-form" class="hidden">
+          <div class="info-box">
+            KR 결제 연동 시 PASS/KMC 본인인증이 필요합니다. 지금은 건너뛸 수 있습니다.
+          </div>
+          <button class="btn btn-outline btn-full mt-16" onclick="App.simulateKrPass()" data-i18n="realnameKrBtn">PASS/KMC 본인인증 (시뮬레이션)</button>
+        </div>
+
+        <!-- Others -->
+        <div id="realname-skip-form" class="hidden">
+          <div class="info-box success">
+            이 국가는 실명인증이 필수가 아닙니다. 다음 단계로 진행하세요.
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-text" id="realname-back-btn" data-i18n="back">뒤로</button>
+          <button class="btn btn-primary btn-full" onclick="App.submitRealname()" data-i18n="next">다음</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================
+         #/signup/cn-antiaddict — CN 방침미
+         ======================================= -->
+    <section id="screen-cn-antiaddict" class="screen">
+      <div class="form-container">
+        <div class="step-indicator">
+          <span class="step-pill done">1 ✓</span>
+          <span class="step-pill done">2 ✓</span>
+          <span class="step-pill done">3 ✓</span>
+          <span class="step-pill done">4 ✓</span>
+          <span class="step-pill active">7 · Antiaddict</span>
+        </div>
+        <h2 data-i18n="cnAntiaddictTitle">미성년 방침미 시스템 안내</h2>
+        <p class="form-subtitle" data-i18n="cnAntiaddictSub">CN 전용 — 국가신문출판서(NPPA) 규정</p>
+
+        <div class="info-box danger">
+          ⏰ <strong><span data-i18n="cnAntiaddictHours">&lt;18세: 금·토·일 및 법정공휴일 20~21시 (주 3시간 한정)</span></strong>
+        </div>
+
+        <div class="info-box warning">
+          💴 <span data-i18n="cnAntiaddictSpending">8세 미만 결제 불가 / 8-16세 월 ¥200 / 16-18세 월 ¥400</span>
+        </div>
+
+        <div class="info-box">
+          🌐 <span data-i18n="cnCrossBorder">크로스보더 데이터 전송 별도 동의 (PIPL)</span>
+          <label class="checkbox-label mt-8" style="display:flex">
+            <input type="checkbox" id="cn-cross-border-consent">
+            <span>PIPL §38·39에 따른 크로스보더 데이터 전송에 동의합니다</span>
+          </label>
+        </div>
+
+        <div class="info-box">
+          🗄️ <span data-i18n="cnDataLocal">중국 본토 데이터 로컬라이즈 안내</span>
+          <p class="form-help">실 서비스 시 데이터는 중국 본토 서버에 저장됩니다 (PIPL §40).</p>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-text" onclick="history.back()" data-i18n="back">뒤로</button>
+          <button class="btn btn-primary btn-full" onclick="App.submitCnAntiaddict()" data-i18n="next">다음</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================
+         #/signup/welcome — 완료
+         ======================================= -->
+    <section id="screen-welcome" class="screen">
+      <div class="form-container complete-screen">
+        <div class="step-indicator">
+          <span class="step-pill done">1 ✓</span>
+          <span class="step-pill done">2 ✓</span>
+          <span class="step-pill done">3 ✓</span>
+          <span class="step-pill done">4 ✓</span>
+          <span class="step-pill done">✓ Complete</span>
+        </div>
+        <div class="complete-icon">✓</div>
+        <h2 data-i18n="welcomeTitle">가입 완료!</h2>
+        <p data-i18n="welcomeSub">MOLEP 회원이 되신 것을 환영합니다</p>
+
+        <div id="welcome-cn-notice" class="cn-sim-banner hidden">
+          ⚠️ 이 세션은 시뮬레이션입니다. 실 서비스 런칭 시 별도 법인·版号(판호)·ICP 허가가 필요합니다.
+        </div>
+
+        <div class="complete-info" id="welcome-summary"></div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary btn-full" onclick="App.resetToLanding()" data-i18n="goHome">홈으로</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================
+         #/review — 고려사항 별도 페이지
+         ======================================= -->
+    <section id="screen-review" class="screen">
+      <div class="review-wrap">
+        <div class="review-header">
+          <h2 data-i18n="reviewTitle">📋 기획/정책/설계/개발/QA 고려사항</h2>
+          <a href="#/landing" class="back-link" data-i18n="backToHome">← 랜딩으로</a>
+        </div>
+        <p class="review-intro" data-i18n="reviewIntro">각 항목 아래 메모 입력 필드로 피드백을 저장할 수 있습니다 (브라우저에 저장, 이 PC에서만 조회).</p>
+
+        <nav class="review-tabs" id="review-tabs"></nav>
+        <div id="review-content"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================
+       리스크 오버레이 (가입 플로우 우측 고정)
+       ========================================= -->
+  <button class="risk-toggle hidden" id="risk-toggle" onclick="App.toggleRisk()">⚠️ 리스크</button>
+  <aside class="risk-overlay" id="risk-overlay" role="complementary">
+    <h3>⚠️ 현재 스텝 × 국가 리스크</h3>
+    <div id="risk-list"></div>
+  </aside>
+
+  <!-- =========================================
+       Footer
+       ========================================= -->
+  <footer id="site-footer">
+    <div class="foot-brand">MOLEP · Global Game Portal</div>
+    <div>© 2026 Blomics. 본 페이지는 <strong>시연용 프로토타입</strong>입니다. 실제 서비스가 아닙니다.</div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/review-data.js"></script>
+  <script src="assets/js/memo.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

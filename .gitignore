@@ -1,0 +1,12 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+
+# Claude Code 로컬 설정 (개인용, 커밋 금지)
+.claude/
+
+# 회사 PC 작업 공간에 섞인 참고/임시 파일 (레포와 무관)
+2560(참고용).png
+molep/
+

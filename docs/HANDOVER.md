@@ -45,32 +45,46 @@ cd molep
 | 항목 | 값 |
 |---|---|
 | 집 PC 로컬 경로 | `D:/MyC/molep` |
+| 회사 PC 로컬 경로 | `C:/autoqa/molep` (평탄화 후) |
 | GitHub (Public) | https://github.com/yourjini/molep |
 | Vercel (프로덕션) | https://molep.vercel.app |
 | 배포 방식 | GitHub `main` push → Vercel 자동 배포 |
 
 ---
 
-## 3. 디렉토리 구조
+## 3. 디렉토리 구조 (2026-04-19 개편)
 
 ```
 molep/
-├── index.html            (444 lines) 메인 페이지, 플로우 A/B 비교 UI
-├── vercel.json           SPA rewrite 설정
+├── CLAUDE.md                  # Claude Code 프로젝트 메모리 (자동 로드)
 ├── .gitignore
-├── css/
-│   ├── main.css          (426 lines)
-│   └── components.css    (81 lines)
-├── js/
-│   ├── app.js            (719 lines) 메인 앱 로직
-│   ├── config.js         (383 lines) 5개국 설정 + 리스크 매트릭스
-│   ├── i18n.js           (509 lines) 다국어 처리 (현재 한국어 고정)
-│   └── review-data.js    (387 lines) 기획/정책/설계/개발/QA 고려사항
 ├── docs/
-│   ├── requirements-v1.md  초기 요건 정의서 (2026-04-17 확정본)
-│   └── HANDOVER.md         본 문서
-├── data/                 (비어있음, 향후 데이터용)
-└── assets/               이미지 등
+│   ├── PLAN.md                # 신규 프로토타입 설계서 (Single Source of Truth)
+│   ├── HANDOVER.md            # 본 문서 (세션 히스토리)
+│   └── requirements-v1.md     # 초기 요건 정의서 (v1, 참고용)
+├── auth/                      # ★ 현재 작업 영역 — PLAN에 따라 1단계부터 구축
+│   └── (빈 상태, PLAN 구현 단계 1~7로 채울 예정)
+└── _legacy/                   # 구 프로토타입 (플로우 A/B 비교 UI) — 참고 보존
+    ├── index.html             # (444 lines)
+    ├── css/                   # main.css, components.css
+    ├── js/                    # app.js, config.js, i18n.js, review-data.js
+    └── vercel.json
+```
+
+### 새 프로토타입(auth/) 예정 구조 (PLAN.md §"디렉터리 구조" 참조)
+
+```
+auth/
+├── index.html                 # SPA 쉘 (진입점)
+├── README.md
+├── assets/
+│   ├── css/                   # base.css, components.css, risk-panel.css
+│   ├── js/                    # app.js, state.js, router.js, i18n.js, mock-geoip.js, risk-overlay.js
+│   ├── data/                  # countries.json, terms/*.md, admin-content.json, risks.json
+│   └── i18n/                  # ko/en/zh-TW/ja/zh-CN.json
+└── docs/
+    ├── policy-matrix.md
+    └── risks-register.md
 ```
 
 ---
@@ -121,8 +135,12 @@ molep/
 - Vercel 배포 연결 (GitHub 자동 배포)
 - 커밋: `fc91617`, `705ba11`
 
-### 2026-04-19 (세션 3, 현재) — 핸드오버 문서 정리
+### 2026-04-19 (세션 3, 현재) — 핸드오버 문서 정리 + 신규 플랜 반영
 - 회사 PC에서 이어 작업하기 위한 HANDOVER.md 작성 및 통합
+- **회사 PC 폴더 평탄화**: `C:/autoqa/molep/molep/*` → `C:/autoqa/molep/`로 한 단계 올림 (레포 경로 단순화, 집 PC 구조와 무관)
+- `.gitignore` 신규 추가 (`.claude/`, OS 임시파일, 참고 파일)
+- **신규 프로토타입 플랜 반영**: `CLAUDE.md` + `docs/PLAN.md` 수립 → 구 프로토타입(`index.html` 등)은 `_legacy/`로 이관, `auth/`를 신규 작업 영역으로 비움
+- **작업 방침 변경**: 기존 "플로우 A/B 비교 UI" 노선에서 → "미로그인 접근 + 회원가입 풀 플로우 + 리스크 오버레이" 노선으로 재설계 (PLAN.md 기준)
 
 ### 커밋 로그
 ```
