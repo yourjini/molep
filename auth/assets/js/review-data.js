@@ -818,36 +818,179 @@ const REVIEW_DATA = {
       {
         title: 'UX 핵심 이슈',
         items: [
-          { level: 'critical', text: '약관 동의 순서: 인증 제공자에 데이터 넘기기 전 약관 동의 선행 필요 (GDPR, 개인정보보호법). 권장 순서: 약관 → 나이확인 → 인증 제공자 선택.', country: 'ALL' },
-          { level: 'critical', text: 'IP 고정 정책 UX 비용: 해외 출장자/VPN 사용자가 원치 않는 언어로 고착. "다른 국가에서 접속 중인가요?" 링크 필요.', country: 'ALL' },
-          { level: 'high', text: '인증 제공자 장애 시 Fallback: Naver 다운 시 KR 이메일만. Apple/Google 장애 시 US/TW/JP 50% 차단. 이메일 인증 보조 권장.', country: 'ALL' },
-          { level: 'high', text: '미성년자 플로우 탈출구: 생년월일 입력 실수 시 수정 경로 필수.', country: 'ALL' }
+          {
+            level: 'critical', country: 'ALL',
+            text: '약관 동의 순서: 인증 제공자에 데이터 넘기기 전 약관 동의 선행 필요 (GDPR, 개인정보보호법). 권장 순서: 약관 → 나이확인 → 인증 제공자 선택.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>현재 순서(인증 → 나이 → 약관)가 법적으로 문제 — 제공자에 데이터 넘기기 전 약관 동의가 선행되어야 함.</p>
+<h4>배경·문제점</h4>
+<ul><li>GDPR Art.6·7 / KR 개인정보보호법: 처리 전 동의</li>
+<li>소셜 로그인 클릭 = 이미 일부 데이터 제공자에 전달</li>
+<li>제공자 측 로그도 "동의 전 처리" 증거가 됨</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) 약관 → 나이 → 제공자 선택 (현재 반영 중)</strong> — 법적 안전</li>
+<li><strong>B) 제공자 선택 → 약관</strong> — 구식, 리스크</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>라이엇</strong><span>약관·나이 먼저, 제공자 선택 후임.</span></div>
+<div class="competitor-row"><strong>에픽</strong><span>나이 → 약관 → 제공자.</span></div>
+<div class="competitor-row"><strong>디스코드</strong><span>이메일·비번 입력 시점에 약관 동의 임베드.</span></div>
+<h4>추천·액션</h4>
+<ul><li>현 PLAN 9스텝 순서 그대로 유지 (country → method → auth → terms → age-gate...)</li>
+<li>단, 회원가입 플로우 초입에 "약관 미리 보기" 링크 제공 고려</li></ul>`
+          },
+          {
+            level: 'critical', country: 'ALL',
+            text: 'IP 고정 정책 UX 비용: 해외 출장자/VPN 사용자가 원치 않는 언어로 고착. "다른 국가에서 접속 중인가요?" 링크 필요.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>IP 고정 = 교민·출장자 UX 저하. 일시적 오탐도 복구 불가.</p>
+<h4>선택지</h4>
+<ul><li><strong>A) PLAN 반영 (가입 시 1회 변경)</strong> — 기 반영</li>
+<li><strong>B) "다른 국가?" 링크 + CS 경로</strong> — 추가 안전망</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>에픽</strong><span>IP 자동 + 수동 변경 + 재확인.</span></div>
+<div class="competitor-row"><strong>스팀</strong><span>거주지 변경 절차 + 가격 재책정.</span></div>
+<h4>추천·액션</h4>
+<ul><li>"국가가 맞지 않나요? CS 문의" 풋터 링크 추가</li></ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: '인증 제공자 장애 시 Fallback: Naver 다운 시 KR 이메일만. Apple/Google 장애 시 US/TW/JP 50% 차단. 이메일 인증 보조 권장.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>단일 제공자 의존 시 장애가 서비스 전체 차단. 다중화 필요.</p>
+<h4>선택지</h4>
+<ul><li><strong>A) 모든 국가 이메일 보조</strong> — 안정성 ↑, 어뷰징 가능</li>
+<li><strong>B) 주 제공자 2종 이상</strong> — 현재 PLAN (KR 네이버+이메일, US Google/Apple/X)</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>라이엇</strong><span>이메일 기본 + 다중 소셜 연결.</span></div>
+<div class="competitor-row"><strong>스팀</strong><span>이메일 기본, Steam 계정 = 이메일 기반.</span></div>
+<h4>추천·액션</h4>
+<ul><li>PLAN 2개+ 제공자 유지. 장애 모니터링 + 에러 메시지 친절하게</li></ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: '미성년자 플로우 탈출구: 생년월일 입력 실수 시 수정 경로 필수.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>US COPPA 가이드는 "재시도 차단" 원칙이지만, 실수 구제는 필요.</p>
+<h4>추천·액션</h4>
+<ul><li>KR/TW/JP/CN: "다시 입력" 허용 (미성년 보호 강화)</li>
+<li>US: 세션 내 재시도 차단 (COPPA 준수), 단 CS 경로 안내</li></ul>`
+          }
         ]
       },
       {
         title: 'UX 개선 권장',
         items: [
-          { level: 'medium', text: '진행 단계 표시(Step Indicator): "N단계 중 M단계" 미표시 시 이탈률 증가.', country: 'ALL' },
-          { level: 'medium', text: '생년월일 입력 UI: 드롭다운이 모바일 오류율 낮음. 중국은 음력/양력 혼동 주의.', country: 'ALL' },
-          { level: 'medium', text: '이메일 인증 대기 UX: 재발송 타이머(60초) + 스팸함 안내 문구.', country: 'ALL' },
-          { level: 'low', text: '국가 감지 실패 시 기본값: IP 판정 불가 시 기본 언어·인증 수단 명시.', country: 'ALL' }
+          {
+            level: 'medium', country: 'ALL',
+            text: '진행 단계 표시(Step Indicator): "N단계 중 M단계" 미표시 시 이탈률 증가.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>현재 PLAN에 step-pill로 반영됨. 단, 국가별로 스텝 수 달라 혼동 가능 (KR=7, 기타=9).</p>
+<h4>추천·액션</h4>
+<ul><li>국가별 동적 단계 수 표시. "X단계 중 N단계" + 남은 예상 시간</li></ul>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: '생년월일 입력 UI: 드롭다운이 모바일 오류율 낮음. 중국은 음력/양력 혼동 주의.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>생년월일 입력 UX는 이탈률 직결. 현재 년/월/일 드롭다운 적용.</p>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>iOS/Android 네이티브</strong><span>Date Picker (모바일 최적).</span></div>
+<div class="competitor-row"><strong>토스</strong><span>숫자 키패드 + 자동 포맷팅.</span></div>
+<h4>추천·액션</h4>
+<ul><li>데스크톱 = 드롭다운, 모바일 = input type="date"</li>
+<li>CN: 양력 기본 + "农历입력 불가" 안내</li></ul>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: '이메일 인증 대기 UX: 재발송 타이머(60초) + 스팸함 안내 문구.',
+            detail: `<h4>추천·액션</h4>
+<ul><li>재발송 버튼 60초 쿨다운 + 타이머 표시</li>
+<li>"메일이 안 오면 스팸함 확인" 안내 문구</li>
+<li>3분 미수신 시 "다른 이메일로 시도" 링크</li></ul>`
+          },
+          {
+            level: 'low', country: 'ALL',
+            text: '국가 감지 실패 시 기본값: IP 판정 불가 시 기본 언어·인증 수단 명시.',
+            detail: `<h4>추천·액션</h4>
+<ul><li>IP 판정 실패 시 기본: US + 영어 + 사용자에게 "국가 선택" 요구</li>
+<li>Accept-Language 헤더 힌트로 초기 locale 추정</li></ul>`
+          }
         ]
       },
       {
         title: '국가별 문화적 UX 조정',
         items: [
-          { level: 'high', text: '[KR] CI 인증 팝업: 통신사/신용카드 인증은 새창 팝업. 차단 안내 필수. 새창 닫음 후 동작 명확히.', country: 'KR' },
-          { level: 'high', text: '[CN] WeChat QR 스캔: 모바일/데스크탑 플로우 상이. 18자리 ID 실시간 형식 검증. 빨간 CTA 적극 사용.', country: 'CN' },
-          { level: 'medium', text: '[JP] 절차 명확성 중시: 단계 많아도 명확하면 수용. 약관 요약문 권장. Apple 로그인 선호.', country: 'JP' },
-          { level: 'medium', text: '[US/TW] 브랜드 가이드라인: Google/Apple 버튼 픽셀 준수 필수. X는 "X (formerly Twitter)" 병기.', country: 'US' }
+          {
+            level: 'high', country: 'KR',
+            text: '[KR] CI 인증 팝업: 통신사/신용카드 인증은 새창 팝업. 차단 안내 필수. 새창 닫음 후 동작 명확히.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>PASS/NICE 등 CI 인증은 팝업 새창 방식. 팝업 차단/실패 시 UX 혼란.</p>
+<h4>추천·액션</h4>
+<ul><li>팝업 차단 안내: "새 창이 안 열리면 브라우저 팝업 차단 해제"</li>
+<li>새창 닫힘 감지 → 원래 페이지 상태 복원</li>
+<li>인증 중간 이탈 시 진행 상태 저장, 복귀 시 이어가기</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>넥슨·엔씨</strong><span>팝업 + 모바일은 앱-to-앱 인증 분기.</span></div>
+<div class="competitor-row"><strong>토스·카카오</strong><span>인앱 인증 (WebView 최적화).</span></div>`
+          },
+          {
+            level: 'high', country: 'CN',
+            text: '[CN] WeChat QR 스캔: 모바일/데스크탑 플로우 상이. 18자리 ID 실시간 형식 검증. 빨간 CTA 적극 사용.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>WeChat은 데스크톱=QR 스캔, 모바일=앱-to-앱. 플로우 분기 필요.</p>
+<h4>추천·액션</h4>
+<ul><li>디바이스 감지 → 데스크톱=QR 표시, 모바일=WeChat 앱 openuri</li>
+<li>18자리 身份证 실시간 형식 검증 (체크섬 포함)</li>
+<li>CTA는 빨간색/금색 (중국 문화권 긍정 색)</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>Tencent 게임</strong><span>QR + 앱-to-앱 자동 분기.</span></div>
+<div class="competitor-row"><strong>호요버스 中国版</strong><span>동일 패턴.</span></div>`
+          },
+          {
+            level: 'medium', country: 'JP',
+            text: '[JP] 절차 명확성 중시: 단계 많아도 명확하면 수용. 약관 요약문 권장. Apple 로그인 선호.',
+            detail: `<h4>추천·액션</h4>
+<ul><li>각 단계 목적 설명 추가 ("이 단계에서 무엇을 합니까")</li>
+<li>약관 요약문 (간략 버전) 제공</li>
+<li>Apple 로그인 상단 배치 (일본 iOS 선호도 높음)</li></ul>`
+          },
+          {
+            level: 'medium', country: 'US',
+            text: '[US/TW] 브랜드 가이드라인: Google/Apple 버튼 픽셀 준수 필수. X는 "X (formerly Twitter)" 병기.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>Google·Apple은 로그인 버튼 스펙 엄격. 미준수 시 심사 반려·소송 리스크.</p>
+<h4>추천·액션</h4>
+<ul><li>Google Identity Services 가이드 준수 (색상·폰트·아이콘)</li>
+<li>Apple Sign in with Apple 가이드 (Apple Human Interface 참조)</li>
+<li>X 버튼은 전환기이므로 "X (구 Twitter)" 병기 권장</li></ul>`
+          }
         ]
       },
       {
         title: '데모 발표 팁',
         items: [
-          { level: 'medium', text: '해상도: 프로젝터 1280x720 최적화. 텍스트 16px 이상, CTA 높이 48px 이상.', country: 'ALL' },
-          { level: 'medium', text: '에러 시나리오 화면 별도 준비 ("미성년자 보호 안내", "인증 제공자 오류").', country: 'ALL' },
-          { level: 'low', text: '로딩 스피너: 소셜 인증 중 스피너 없으면 멈춘 것처럼 보임.', country: 'ALL' }
+          {
+            level: 'medium', country: 'ALL',
+            text: '해상도: 프로젝터 1280x720 최적화. 텍스트 16px 이상, CTA 높이 48px 이상.',
+            detail: `<h4>추천·액션</h4>
+<ul><li>시연 시 브라우저 줌 110~125% 권장 (프로젝터 가독성)</li>
+<li>중요 CTA는 48px+ 높이로 (터치 친화)</li></ul>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: '에러 시나리오 화면 별도 준비 ("미성년자 보호 안내", "인증 제공자 오류").',
+            detail: `<h4>추천·액션</h4>
+<ul><li>에러 화면도 브랜드 톤 유지 (친근한 일러스트·가이드)</li>
+<li>각 에러별 CS 경로·재시도 방법 명시</li>
+<li>시연 시 "COPPA 차단" 같은 화면도 보여주면 리스크 관리 역량 어필</li></ul>`
+          },
+          {
+            level: 'low', country: 'ALL',
+            text: '로딩 스피너: 소셜 인증 중 스피너 없으면 멈춘 것처럼 보임.',
+            detail: `<h4>추천·액션</h4>
+<ul><li>OAuth 시뮬레이션에 스피너 이미 있음 (현 구현)</li>
+<li>실 서비스에서도 Auth SDK 로딩 중 스켈레톤/스피너</li></ul>`
+          }
         ]
       }
     ]
