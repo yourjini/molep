@@ -8,7 +8,7 @@ const COUNTRIES = {
     code: 'KR', lang: 'ko', name: '한국', nameEn: 'South Korea', flag: '🇰🇷',
     authProviders: [
       { id: 'naver', name: '네이버', color: '#03C75A', icon: 'N' },
-      { id: 'email', name: '이메일 가입', color: '#555', icon: '@' }
+      { id: 'email', name: '이메일 가입', color: '#555555', icon: '@' }
     ],
     terms: [
       { id: 'tos', required: true, label: '서비스 이용약관 동의' },
@@ -169,13 +169,137 @@ const RISKS = [
     law:'互联网信息服务管理办法' }
 ];
 
+/** 약관 샘플 원문 — 시연용 (법무 미검토. 실서비스 전 법무팀 검수 필수) */
+const TERM_SAMPLES = {
+  tos: {
+    title: '서비스 이용약관 (샘플)',
+    body: `<p><strong>제1조 (목적)</strong> 본 약관은 "molep"(이하 "회사")가 제공하는 글로벌 게임 포털 서비스(이하 "서비스")의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+<p><strong>제2조 (정의)</strong></p>
+<ul><li>"회원"이란 본 약관에 따라 회사가 제공하는 서비스에 가입한 자를 말합니다.</li>
+<li>"게임"이란 회사가 서비스를 통해 유통·퍼블리싱하는 모든 게임 콘텐츠를 의미합니다.</li>
+<li>"관할 국가(Jurisdiction)"란 회원가입 시 확정되는 법적 관할을 말하며, 가입 후 변경할 수 없습니다.</li></ul>
+<p><strong>제3조 (약관의 효력 및 개정)</strong> 본 약관은 서비스 이용 화면에 게시되며, 회원가입 시 동의함으로써 효력이 발생합니다. 회사는 관련 법령을 위배하지 않는 범위에서 본 약관을 개정할 수 있으며, 개정 시 최소 7일 전(불리한 변경은 30일 전) 공지합니다.</p>
+<p><strong>제4조 (서비스의 제공)</strong> 회사는 회원에게 다음의 서비스를 제공합니다: (1) 게임 포털 및 커뮤니티 (2) 게임 판매/구독 (3) 계정 통합 관리. 일부 서비스는 관할 국가 법규에 따라 제한될 수 있습니다.</p>
+<p class="text-muted"><em>※ 본 문서는 시연용 샘플이며, 실 서비스 런칭 전 법무팀 검수 필수.</em></p>`
+  },
+  privacy: {
+    title: '개인정보 수집·이용 동의 (샘플)',
+    body: `<p><strong>1. 수집하는 개인정보 항목</strong></p>
+<ul><li>필수: 이메일, 비밀번호(암호화), 생년월일, 관할 국가, 인증 제공자 ID</li>
+<li>자동 수집: 접속 IP, 브라우저 종류, 쿠키, 접속 기록</li>
+<li>국가별 추가 수집: CN(실명, 身份证), KR(결제 시 CI)</li></ul>
+<p><strong>2. 수집 및 이용 목적</strong></p>
+<ul><li>회원 가입 및 본인 확인</li>
+<li>서비스 제공 및 계정 관리</li>
+<li>법령 준수 (미성년 보호, 감사, 세금)</li></ul>
+<p><strong>3. 보유 및 이용 기간</strong></p>
+<ul><li>원칙: 회원 탈퇴 시까지. 단, 관계 법령에 따라 일정 기간 보관</li>
+<li>계약/청약철회/대금결제·재화공급 기록: 5년 (전자상거래법)</li>
+<li>로그인 기록: 3개월 (통신비밀보호법)</li>
+<li>미성년 보호 관련 동의 기록: KR 5년, CN 3년</li></ul>
+<p><strong>4. 동의 거부 권리</strong> 개인정보 수집에 동의하지 않을 권리가 있으나, 동의 거부 시 서비스 이용에 제한이 있을 수 있습니다.</p>
+<p class="text-muted"><em>※ 본 문서는 시연용 샘플. 실 서비스 런칭 전 법무팀 검수 필수.</em></p>`
+  },
+  'privacy-third': {
+    title: '개인정보 제3자 제공 동의 (샘플)',
+    body: `<p><strong>제공 받는 자</strong>: 결제 대행사(PG), 인증 제공자(네이버, 토스, PASS), CDN 및 클라우드 호스팅 업체</p>
+<p><strong>제공 항목</strong>: 이메일, 인증 ID, 결제 정보 (금액·결제수단·거래번호)</p>
+<p><strong>제공 목적</strong>: 결제 처리, 소셜 로그인, 서비스 전달</p>
+<p><strong>보유 기간</strong>: 법정 보존 기간 또는 제공 목적 달성 시까지</p>
+<p><strong>동의 거부 권리</strong>: 동의를 거부할 수 있으나, 일부 서비스(소셜 로그인, 결제) 이용이 제한됩니다.</p>
+<p class="text-muted"><em>※ 한국 개인정보보호법 §22: 제3자 제공 동의는 이용약관과 <strong>분리</strong>하여 별도 동의 필수.</em></p>`
+  },
+  age14: {
+    title: '만 14세 이상 확인 (KR)',
+    body: `<p>한국 개인정보보호법 §22-2에 따라 만 14세 미만 아동의 개인정보 처리는 <strong>법정대리인의 동의</strong>가 필수입니다.</p>
+<p>본 서비스는 만 14세 이상 회원가입을 원칙으로 하며, 만 14세 미만인 경우 별도의 법정대리인 동의 절차를 거쳐야 합니다.</p>
+<p><strong>확인 방법</strong>: 본인인증(PASS/토스) 시 생년월일이 자동 검증되며, 허위 신고 시 서비스 이용이 제한될 수 있습니다.</p>`
+  },
+  age13: {
+    title: 'Age Confirmation — 13+ (US COPPA)',
+    body: `<p>Under COPPA (Children's Online Privacy Protection Act), we cannot collect personal information from users under 13 without Verifiable Parental Consent (VPC).</p>
+<p>If you are under 13, please do not proceed. Parents/guardians wishing to create an account for a child under 13 must complete our VPC process (credit card verification or government-issued ID upload).</p>
+<p><strong>FTC penalty</strong>: Up to $51,744 per violation.</p>`
+  },
+  marketing: {
+    title: '마케팅 정보 수신 동의 (선택)',
+    body: `<p>이벤트·프로모션·신작 게임 소식을 이메일/SMS/앱 푸시로 수신하는 데 동의합니다.</p>
+<p><strong>수신 거부</strong>: 언제든 설정에서 변경 가능. 동의하지 않아도 서비스 이용에 제한 없음.</p>
+<p>국가별 준수 사항:</p>
+<ul><li>KR: 야간(21시~익일 8시) 발송 시 별도 동의 필요</li>
+<li>US: CCPA "Do Not Sell" 권리 존중</li>
+<li>JP: 특정전자메일법에 따른 광고 표시 의무</li></ul>`
+  },
+  ccpa: {
+    title: 'CCPA Notice at Collection (US)',
+    body: `<p>Under the California Consumer Privacy Act (CCPA/CPRA), you have the right to know what personal information we collect and how it is used.</p>
+<p><strong>Categories collected</strong>: Identifiers (email, IP), Internet activity, Commercial information.</p>
+<p><strong>Your rights</strong>:</p>
+<ul><li>Right to know / access</li><li>Right to delete</li><li>Right to opt-out of sale or sharing (we honor GPC signals)</li><li>Right to correct</li></ul>
+<p>Exercise your rights by contacting privacy@molep.example.</p>`
+  },
+  'game-rating': {
+    title: '遊戲分級標示確認 (TW)',
+    body: `<p>依《遊戲軟體分級管理辦法》,本服務所有遊戲依下列分級標示:</p>
+<ul><li><strong>0 限制級</strong> — 普遍級 (全年齡)</li>
+<li><strong>6+</strong> — 保護級 (6歲以上)</li>
+<li><strong>12+</strong> — 輔 12 級</li>
+<li><strong>15+</strong> — 輔 15 級</li>
+<li><strong>18+</strong> — 限制級 (18歲以上)</li></ul>
+<p>未成年會員僅可存取所屬年齡適當之遊戲。</p>`
+  },
+  commercial: {
+    title: '特定商取引法に基づく表記 (JP)',
+    body: `<p><strong>販売業者</strong>: molep株式会社 / <strong>代表者</strong>: 代表取締役</p>
+<p><strong>所在地</strong>: 東京都... (実サービス時に記載)</p>
+<p><strong>販売価格</strong>: 各商品ページに表示 / <strong>支払方法</strong>: クレジットカード, コンビニ決済, キャリア決済</p>
+<p><strong>返品・交換</strong>: デジタルコンテンツの性質上、原則として返品・交換はお受けできません。ただし、不具合による購入取消は個別対応いたします。</p>`
+  },
+  'ext-transmit': {
+    title: '外部送信に関する公表事項 (JP 電気通信事業法)',
+    body: `<p>本サービスは以下の外部送信を行っています(電気通信事業法 第27条の12):</p>
+<ul><li><strong>Google Analytics</strong> — 利用状況分析</li>
+<li><strong>広告配信SDK</strong> — 広告最適化</li>
+<li><strong>ソーシャルログインプロバイダー</strong> — 認証処理</li></ul>
+<p>各送信先とデータ項目の詳細は <a href="#">設定ページ</a> をご確認ください。</p>`
+  },
+  realname: {
+    title: '实名认证协议 (CN)',
+    body: `<p>根据国家新闻出版署规定,所有用户必须使用真实姓名和有效身份证号码完成实名认证。</p>
+<p><strong>认证信息</strong>: 姓名(中文), 身份证号码(18位)</p>
+<p><strong>认证方式</strong>: 公安部身份信息核验系统实时对比</p>
+<p><strong>未成年人</strong>: 监护人实名认证 + 防沉迷系统登录</p>
+<p>虚假或冒用他人身份信息将承担法律责任。</p>`
+  },
+  antiaddiction: {
+    title: '防沉迷须知 (CN)',
+    body: `<p>根据《关于防止未成年人沉迷网络游戏的通知》(国家新闻出版署 2021.08):</p>
+<ul><li><strong>未满 18 岁</strong>: 仅限周五、周六、周日及法定节假日 20:00—21:00 (每周最多 3 小时)</li>
+<li><strong>充值限制</strong>: 8 岁以下禁止充值 / 8-16 岁每月 ¥200 / 16-18 岁每月 ¥400</li>
+<li><strong>人脸识别</strong>: 随机触发,用于身份确认</li></ul>
+<p>监护人可通过"青少年模式"查看和管理未成年人游戏行为。</p>`
+  },
+  'cross-border': {
+    title: '跨境数据传输同意 (CN PIPL)',
+    body: `<p>根据《个人信息保护法》(PIPL) 第38-39条,向境外提供个人信息须获得您的单独同意。</p>
+<p><strong>传输目的</strong>: 服务提供, 合规审计</p>
+<p><strong>接收方</strong>: molep 母公司及指定关联方 (具体名单见隐私政策附录)</p>
+<p><strong>保护措施</strong>: 标准合同条款 (SCC), 国家网信办备案, 加密传输</p>
+<p>您可随时撤回同意 (不影响已进行的处理)。撤回后部分跨境服务可能受限。</p>`
+  }
+};
+
 /** UI 번역 (KR/EN) — 시연용 최소 */
 const I18N = {
   ko: {
     demo: 'DEMO',
-    demoCountrySelect: '접속 국가 시뮬레이션 (IP 강제 변경)',
+    demoCountrySelect: '접속 국가 시뮬레이션',
     reviewPageBtn: '📋 고려사항',
     login: '로그인', signup: '회원가입',
+    loginTitle: '로그인',
+    loginSub: '가입하신 방법으로 로그인하세요',
+    loginNoAccount: '계정이 없으신가요?',
+    loginToSignup: '회원가입',
     heroTitle: 'Global Game Portal',
     heroSubtitle: '전 세계 최고의 게임, 이제 하나의 포털에서',
     heroCta: '지금 시작하기',
@@ -231,8 +355,8 @@ const I18N = {
     summaryConsents: '동의 이력',
     yes: '예', no: '아니오',
     // Review page
-    reviewTitle: '📋 기획/정책/설계/개발/QA 고려사항',
-    reviewIntro: '각 항목 아래 메모 입력 필드로 피드백을 저장할 수 있습니다 (브라우저에 저장, 이 PC에서만 조회).',
+    reviewTitle: '📋 고려사항',
+    reviewIntro: '각 항목 아래 입력 필드로 피드백을 누적 저장할 수 있습니다. 입력한 메모는 언제든 수정·삭제 가능합니다.',
     memoPlaceholder: '이 항목에 대한 피드백/메모 입력...',
     memoSave: '저장', memoEdit: '수정', memoDelete: '삭제',
     memoSaved: '저장됨', memoUpdated: '수정됨',
@@ -243,6 +367,10 @@ const I18N = {
     demoCountrySelect: 'Force Country (Demo Simulation)',
     reviewPageBtn: '📋 Review Notes',
     login: 'Login', signup: 'Sign Up',
+    loginTitle: 'Sign In',
+    loginSub: 'Sign in with your existing account',
+    loginNoAccount: "Don't have an account?",
+    loginToSignup: 'Sign Up',
     heroTitle: 'Global Game Portal',
     heroSubtitle: 'The best games worldwide — now in one portal',
     heroCta: 'Get Started',
@@ -296,8 +424,8 @@ const I18N = {
     summaryMinor: 'Minor',
     summaryConsents: 'Consents',
     yes: 'Yes', no: 'No',
-    reviewTitle: '📋 Planning / Policy / Design / Dev / QA Notes',
-    reviewIntro: 'Save your feedback in the memo field under each item (browser-local storage).',
+    reviewTitle: '📋 Review Notes',
+    reviewIntro: 'Stack multiple feedback notes per item. Edit or delete anytime.',
     memoPlaceholder: 'Feedback/memo for this item...',
     memoSave: 'Save', memoEdit: 'Edit', memoDelete: 'Delete',
     memoSaved: 'saved', memoUpdated: 'updated',
@@ -313,10 +441,10 @@ const MOCK_CONTENT = {
       { title: '⏰ 게임시간 선택제 안내', body: '만 18세 미만은 보호자와 게임시간을 설정할 수 있습니다', badge: '정책' }
     ],
     games: [
-      { title: '네온 라이더즈', genre: '액션 레이싱', img: 'linear-gradient(135deg,#ff2d95,#a855f7)', badge: '한국 런칭' },
-      { title: '판타지 로드', genre: 'MMORPG', img: 'linear-gradient(135deg,#00d4ff,#3b82f6)', badge: 'HOT' },
-      { title: '타워 디펜스', genre: '전략', img: 'linear-gradient(135deg,#ffd93d,#ff6b6b)', badge: '' },
-      { title: '쿠킹 마스터', genre: '캐주얼', img: 'linear-gradient(135deg,#4ade80,#14b8a6)', badge: '신작' }
+      { title: '네온 라이더즈', genre: '액션 레이싱', img: 'linear-gradient(135deg,#ff2d95,#a855f7)', badge: '한국 런칭', scene: '🏍️💨' },
+      { title: '판타지 로드',   genre: 'MMORPG',     img: 'linear-gradient(135deg,#0ea5e9,#3b82f6)', badge: 'HOT',     scene: '⚔️🛡️✨' },
+      { title: '타워 디펜스',   genre: '전략',       img: 'linear-gradient(135deg,#f59e0b,#dc2626)', badge: '',        scene: '🏰🏹' },
+      { title: '쿠킹 마스터',   genre: '캐주얼',     img: 'linear-gradient(135deg,#22c55e,#14b8a6)', badge: '신작',    scene: '🍳🧑‍🍳' }
     ],
     news: [
       { title: '확률형 아이템 공시 의무화 대응 완료', date: '2026.04.15' },
@@ -330,10 +458,10 @@ const MOCK_CONTENT = {
       { title: '🔒 Privacy Rights', body: 'California residents: review CCPA opt-out options', badge: 'Privacy' }
     ],
     games: [
-      { title: 'Cyber Pilots', genre: 'Action', img: 'linear-gradient(135deg,#00d4ff,#ff2d95)', badge: 'US Launch' },
-      { title: 'Western Frontier', genre: 'Open World', img: 'linear-gradient(135deg,#f97316,#dc2626)', badge: 'Top Rated' },
-      { title: 'Dungeon Quest X', genre: 'RPG', img: 'linear-gradient(135deg,#a855f7,#6366f1)', badge: '' },
-      { title: 'Stream Highlights', genre: 'Community', img: 'linear-gradient(135deg,#14b8a6,#0ea5e9)', badge: 'LIVE' }
+      { title: 'Cyber Pilots',     genre: 'Action',     img: 'linear-gradient(135deg,#0ea5e9,#a855f7)', badge: 'US Launch', scene: '🚀✈️⚡' },
+      { title: 'Western Frontier', genre: 'Open World', img: 'linear-gradient(135deg,#f97316,#92400e)', badge: 'Top Rated', scene: '🤠🐎🌵' },
+      { title: 'Dungeon Quest X',  genre: 'RPG',        img: 'linear-gradient(135deg,#7c3aed,#1e1b4b)', badge: '',          scene: '🐉⚔️💎' },
+      { title: 'Stream Highlights',genre: 'Community',  img: 'linear-gradient(135deg,#14b8a6,#0369a1)', badge: 'LIVE',      scene: '🎙️📺🔥' }
     ],
     news: [
       { title: 'COPPA 2026 compliance update rolled out', date: '2026.04.12' },
@@ -347,10 +475,10 @@ const MOCK_CONTENT = {
       { title: '⚠️ 遊戲分級標示', body: '所有遊戲標示分級 (0/6/12/15/18)', badge: '法規' }
     ],
     games: [
-      { title: '霓虹戰士', genre: '動作', img: 'linear-gradient(135deg,#ff2d95,#00d4ff)', badge: '分級18+' },
-      { title: '武俠江湖', genre: 'MMORPG', img: 'linear-gradient(135deg,#dc2626,#f59e0b)', badge: '分級15+' },
-      { title: '寶石消消樂', genre: '休閒', img: 'linear-gradient(135deg,#a855f7,#ec4899)', badge: '分級6+' },
-      { title: '指揮官戰場', genre: '策略', img: 'linear-gradient(135deg,#14b8a6,#0ea5e9)', badge: '分級12+' }
+      { title: '霓虹戰士',   genre: '動作',   img: 'linear-gradient(135deg,#ec4899,#0ea5e9)', badge: '分級18+', scene: '🤖⚡🌃' },
+      { title: '武俠江湖',   genre: 'MMORPG', img: 'linear-gradient(135deg,#b91c1c,#78350f)', badge: '分級15+', scene: '⚔️🏯🐉' },
+      { title: '寶石消消樂', genre: '休閒',   img: 'linear-gradient(135deg,#a855f7,#ec4899)', badge: '分級6+',  scene: '💎✨🎲' },
+      { title: '指揮官戰場', genre: '策略',   img: 'linear-gradient(135deg,#0f766e,#0c4a6e)', badge: '分級12+', scene: '🎖️🏰⚔️' }
     ],
     news: [
       { title: 'LINE 登入功能已上線', date: '2026.04.14' },
@@ -364,10 +492,10 @@ const MOCK_CONTENT = {
       { title: '📋 外部送信に関する公表事項', body: 'クッキー・SDK等の外部送信状況を公開中', badge: '規約' }
     ],
     games: [
-      { title: 'ネオ東京', genre: 'アクション', img: 'linear-gradient(135deg,#ec4899,#6366f1)', badge: '日本先行' },
-      { title: '幕末サムライ', genre: 'RPG', img: 'linear-gradient(135deg,#dc2626,#0f172a)', badge: 'NEW' },
-      { title: 'プリンセスラボ', genre: '育成', img: 'linear-gradient(135deg,#f472b6,#a855f7)', badge: '' },
-      { title: 'モンスターアリーナ', genre: '対戦', img: 'linear-gradient(135deg,#0ea5e9,#14b8a6)', badge: 'ガチャ確率公開中' }
+      { title: 'ネオ東京',           genre: 'アクション', img: 'linear-gradient(135deg,#1e1b4b,#7c3aed)', badge: '日本先行',         scene: '🏙️🌃🌸' },
+      { title: '幕末サムライ',       genre: 'RPG',         img: 'linear-gradient(135deg,#7f1d1d,#0f172a)', badge: 'NEW',              scene: '🗡️🏯⛩️' },
+      { title: 'プリンセスラボ',     genre: '育成',         img: 'linear-gradient(135deg,#f472b6,#a855f7)', badge: '',                  scene: '👸🏰💖' },
+      { title: 'モンスターアリーナ', genre: '対戦',         img: 'linear-gradient(135deg,#0369a1,#0f766e)', badge: 'ガチャ確率公開中', scene: '👹⚔️🔥' }
     ],
     news: [
       { title: 'LINE・Apple ログイン対応完了', date: '2026.04.13' },
@@ -381,10 +509,10 @@ const MOCK_CONTENT = {
       { title: '⏰ 未成年人防沉迷提醒', body: '未满18岁: 周五/六/日 20:00-21:00 限时游玩', badge: '防沉迷' }
     ],
     games: [
-      { title: '仙侠世界', genre: 'MMORPG', img: 'linear-gradient(135deg,#dc2626,#f59e0b)', badge: '版号已取得' },
-      { title: '三国战记', genre: '策略', img: 'linear-gradient(135deg,#0f172a,#dc2626)', badge: '排行榜第1' },
-      { title: '熊猫物语', genre: '休闲', img: 'linear-gradient(135deg,#14b8a6,#4ade80)', badge: '8+' },
-      { title: '电竞冠军', genre: '竞技', img: 'linear-gradient(135deg,#a855f7,#0ea5e9)', badge: '排行榜第3' }
+      { title: '仙侠世界', genre: 'MMORPG', img: 'linear-gradient(135deg,#15803d,#86198f)', badge: '版号已取得', scene: '⚔️🐉🍃' },
+      { title: '三国战记', genre: '策略',   img: 'linear-gradient(135deg,#7f1d1d,#0f172a)', badge: '排行榜第1', scene: '🎖️🏯⚔️' },
+      { title: '熊猫物语', genre: '休闲',   img: 'linear-gradient(135deg,#22c55e,#65a30d)', badge: '8+',         scene: '🐼🎋🍃' },
+      { title: '电竞冠军', genre: '竞技',   img: 'linear-gradient(135deg,#7c3aed,#0ea5e9)', badge: '排行榜第3', scene: '🏆🎮⚡' }
     ],
     news: [
       { title: '防沉迷系统升级 (人脸识别接入)', date: '2026.04.15' },

@@ -6,6 +6,8 @@
   <title>MOLEP — Global Game Portal (시연용 프로토타입)</title>
   <meta name="description" content="molep 글로벌 게임 포털 · 가입/로그인 플로우 프로토타입 · 차주 내부회의 시연용">
   <link rel="stylesheet" href="assets/css/main.css">
+  <!-- SheetJS for Excel export (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -15,7 +17,7 @@
   <div id="demo-bar" role="region" aria-label="Demo control">
     <div class="demo-bar-inner">
       <span class="demo-badge" data-i18n="demo">DEMO</span>
-      <span class="demo-text" data-i18n="demoCountrySelect">접속 국가 시뮬레이션 (IP 강제 변경)</span>
+      <span class="demo-text" data-i18n="demoCountrySelect">접속 국가 시뮬레이션</span>
       <select id="demo-country-select" aria-label="Force country">
         <option value="KR">🇰🇷 한국 (Korea)</option>
         <option value="US">🇺🇸 미국 (United States)</option>
@@ -39,13 +41,14 @@
   <header id="site-header">
     <div class="header-inner">
       <div class="logo" style="cursor:pointer" onclick="location.hash='#/landing'">
+        <span class="logo-mascot" title="mole = 두더지">🐭</span>
         <span class="logo-mark">MOLEP</span>
         <span class="logo-tag">GLOBAL PORTAL</span>
       </div>
       <nav class="header-nav">
-        <span id="detected-country" class="header-detected">🇰🇷 KR · ko</span>
-        <button class="header-nav-link" onclick="location.hash='#/landing'" data-i18n="login">로그인</button>
-        <button class="btn btn-primary" onclick="location.hash='#/signup/method'" data-i18n="signup">회원가입</button>
+        <span id="header-country" class="header-country">접속국가: 🇰🇷 한국</span>
+        <button class="header-nav-link" onclick="location.hash='#/login'" data-i18n="login">로그인</button>
+        <button class="btn btn-primary" onclick="location.hash='#/signup/country'" data-i18n="signup">회원가입</button>
       </nav>
     </div>
   </header>
@@ -61,10 +64,6 @@
           <div class="hero-badge">GLOBAL · 5 REGIONS · ONE PORTAL</div>
           <h1 data-i18n="heroTitle">Global Game Portal</h1>
           <p class="hero-sub" data-i18n="heroSubtitle">전 세계 최고의 게임, 이제 하나의 포털에서</p>
-          <div class="hero-cta">
-            <button class="btn btn-primary btn-large" onclick="location.hash='#/signup/method'" data-i18n="heroCta">지금 시작하기</button>
-            <a href="#/review" class="btn btn-outline btn-large">📋 고려사항</a>
-          </div>
         </div>
       </div>
 
@@ -77,7 +76,6 @@
 
         <div class="section-title">
           <span data-i18n="noticesTitle">📢 공지사항</span>
-          <small><span data-i18n="currentCountry">현재 국가</span>: <span id="notices-country-label">KR</span></small>
         </div>
         <div id="notices-list" class="notice-list"></div>
 
@@ -94,6 +92,62 @@
     </section>
 
     <!-- =======================================
+         #/login — 로그인
+         ======================================= -->
+    <section id="screen-login" class="screen">
+      <div class="form-container">
+        <h2 data-i18n="loginTitle">로그인</h2>
+        <p class="form-subtitle" data-i18n="loginSub">가입하신 방법으로 로그인하세요 — <span id="login-country-note" class="text-brand"></span></p>
+
+        <div id="login-auth-buttons" class="auth-buttons"></div>
+
+        <!-- KR Email login form (only when KR + email selected) -->
+        <div id="login-email-form" class="hidden mt-16">
+          <label class="form-label">이메일</label>
+          <input type="email" class="form-input" id="login-email" placeholder="you@example.com">
+          <label class="form-label">비밀번호</label>
+          <input type="password" class="form-input" id="login-password" placeholder="••••••••">
+          <button class="btn btn-primary btn-full mt-16" onclick="App.submitEmailLogin()">로그인</button>
+        </div>
+
+        <p class="text-muted" style="text-align:center;font-size:13px;margin-top:20px">
+          <span data-i18n="loginNoAccount">계정이 없으신가요?</span>
+          <a href="#/signup/country" data-i18n="loginToSignup">회원가입</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- =======================================
+         #/signup/country — 관할 국가 선택 (가입 시작점)
+         ======================================= -->
+    <section id="screen-country" class="screen">
+      <div class="form-container">
+        <div class="step-indicator">
+          <span class="step-pill active">1 · 국가 선택</span>
+          <span class="step-pill">2 · Method</span>
+          <span class="step-pill">3 · Auth</span>
+          <span class="step-pill">4 · Terms</span>
+          <span class="step-pill">5+ · …</span>
+        </div>
+        <h2>관할 국가 선택</h2>
+        <p class="form-subtitle">가입 후에는 관할 국가를 변경할 수 없습니다. 해당 국가의 법률이 적용됩니다.</p>
+
+        <div class="info-box" id="country-ip-notice">🌐 IP 감지 국가: 🇰🇷 한국 (KR)</div>
+
+        <div id="country-grid" class="country-grid"></div>
+
+        <div id="country-mismatch-warn" class="info-box warning hidden">
+          ⚠️ <strong>선택한 국가가 IP 감지 국가와 다릅니다.</strong> 가입은 가능하나, 관할 법률은 선택한 국가 기준으로 적용됩니다. 진행 전 다시 확인해주세요.
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-text" onclick="location.hash='#/landing'">뒤로</button>
+          <button class="btn btn-primary btn-full" onclick="App.submitCountry()">다음</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================
          #/signup/method — 가입 수단 선택
          ======================================= -->
     <section id="screen-method" class="screen">
@@ -106,14 +160,14 @@
           <span class="step-pill">5+ · …</span>
         </div>
         <h2 data-i18n="methodTitle">가입 방법 선택</h2>
-        <p class="form-subtitle"><span data-i18n="methodSub">선호하는 방법으로 가입하세요</span> · <span id="method-country-note" class="text-cyan"></span></p>
+        <p class="form-subtitle" data-i18n="methodSub">선호하는 방법으로 가입하세요</p>
 
         <div id="cn-method-banner" class="cn-sim-banner hidden"></div>
 
         <div id="method-auth-buttons" class="auth-buttons"></div>
 
         <div class="form-actions">
-          <button class="btn btn-text" onclick="location.hash='#/landing'" data-i18n="back">뒤로</button>
+          <button class="btn btn-text" onclick="location.hash='#/signup/country'" data-i18n="back">뒤로</button>
         </div>
       </div>
     </section>
@@ -141,7 +195,7 @@
         </div>
 
         <div class="form-actions">
-          <button class="btn btn-text" onclick="location.hash='#/signup/method'" data-i18n="back">뒤로</button>
+          <button class="btn btn-text" onclick="location.hash='#/signup/country'" data-i18n="back">뒤로</button>
           <button class="btn btn-primary btn-full" onclick="App.completeAuth()" data-i18n="authCompleteBtn">로그인 완료 (시뮬레이션)</button>
         </div>
       </div>
@@ -293,9 +347,17 @@
         <!-- KR form -->
         <div id="realname-kr-form" class="hidden">
           <div class="info-box">
-            KR 결제 연동 시 PASS/KMC 본인인증이 필요합니다. 지금은 건너뛸 수 있습니다.
+            KR 결제 연동 시 본인인증(PASS 또는 토스)이 필요합니다. 지금은 건너뛸 수 있습니다.
           </div>
-          <button class="btn btn-outline btn-full mt-16" onclick="App.simulateKrPass()" data-i18n="realnameKrBtn">PASS/KMC 본인인증 (시뮬레이션)</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+            <button class="btn btn-outline" onclick="App.simulateKrRealnameAuth('PASS')">
+              <span class="auth-btn-icon" style="background:#EC1B23">P</span> PASS 본인인증
+            </button>
+            <button class="btn btn-outline" onclick="App.simulateKrRealnameAuth('Toss')">
+              <span class="auth-btn-icon" style="background:#0064FF">T</span> 토스 본인인증
+            </button>
+          </div>
+          <p class="form-help mt-8">둘 중 하나로 본인인증 (시뮬레이션) — 또는 건너뛰기</p>
         </div>
 
         <!-- Others -->
@@ -389,8 +451,10 @@
     <section id="screen-review" class="screen">
       <div class="review-wrap">
         <div class="review-header">
-          <h2 data-i18n="reviewTitle">📋 기획/정책/설계/개발/QA 고려사항</h2>
-          <a href="#/landing" class="back-link" data-i18n="backToHome">← 랜딩으로</a>
+          <h2 data-i18n="reviewTitle">📋 고려사항</h2>
+          <div class="review-header-actions">
+            <button class="btn btn-outline" onclick="App.downloadExcel()">📥 엑셀로 전체 다운로드</button>
+          </div>
         </div>
         <p class="review-intro" data-i18n="reviewIntro">각 항목 아래 메모 입력 필드로 피드백을 저장할 수 있습니다 (브라우저에 저장, 이 PC에서만 조회).</p>
 
@@ -402,12 +466,18 @@
   </main>
 
   <!-- =========================================
-       리스크 오버레이 (가입 플로우 우측 고정)
+       Detail side panel (고려사항 상세)
        ========================================= -->
-  <button class="risk-toggle hidden" id="risk-toggle" onclick="App.toggleRisk()">⚠️ 리스크</button>
-  <aside class="risk-overlay" id="risk-overlay" role="complementary">
-    <h3>⚠️ 현재 스텝 × 국가 리스크</h3>
-    <div id="risk-list"></div>
+  <div id="detail-backdrop" class="detail-panel-backdrop" onclick="App.closeDetail()"></div>
+  <aside id="detail-panel" class="detail-panel" role="dialog" aria-label="항목 상세">
+    <div class="detail-panel-header">
+      <div>
+        <div id="detail-panel-meta" class="detail-panel-meta"></div>
+        <h3 id="detail-panel-title">상세 보기</h3>
+      </div>
+      <button class="detail-panel-close" onclick="App.closeDetail()" aria-label="닫기">✕</button>
+    </div>
+    <div id="detail-panel-body" class="detail-panel-body"></div>
   </aside>
 
   <!-- =========================================

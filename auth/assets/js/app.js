@@ -25,6 +25,8 @@ const t = (k) => (I18N[state.locale] && I18N[state.locale][k]) || (I18N.ko[k]) |
 // ======================== Router ========================
 const ROUTES = {
   '#/landing':            'screen-landing',
+  '#/login':              'screen-login',
+  '#/signup/country':     'screen-country',
   '#/signup/method':      'screen-method',
   '#/signup/auth':        'screen-auth',
   '#/signup/terms':       'screen-terms',
@@ -34,25 +36,6 @@ const ROUTES = {
   '#/signup/cn-antiaddict':'screen-cn-antiaddict',
   '#/signup/welcome':     'screen-welcome',
   '#/review':             'screen-review'
-};
-
-// 리스크 오버레이 노출 라우트 (signup 플로우에만)
-const RISK_VISIBLE_ROUTES = new Set([
-  '#/signup/method', '#/signup/auth', '#/signup/terms',
-  '#/signup/age-gate', '#/signup/guardian', '#/signup/realname',
-  '#/signup/cn-antiaddict'
-]);
-
-// 각 라우트가 RISKS 데이터의 어떤 step에 매핑되는지
-const ROUTE_TO_STEP = {
-  '#/landing': 'landing',
-  '#/signup/method': 'method',
-  '#/signup/auth': 'auth',
-  '#/signup/terms': 'terms',
-  '#/signup/age-gate': 'age-gate',
-  '#/signup/guardian': 'guardian',
-  '#/signup/realname': 'realname',
-  '#/signup/cn-antiaddict': 'cn-antiaddict'
 };
 
 function getRoute() {
@@ -73,7 +56,6 @@ function onRouteChange() {
   const r = getRoute();
   showScreen(r);
   renderScreen(r);
-  renderRiskOverlay(r);
 }
 
 // ======================== i18n apply ========================
@@ -92,14 +74,16 @@ function applyI18n() {
 // ======================== Header detected chip ========================
 function updateDetectedChip() {
   const c = COUNTRIES[state.country];
-  const el = document.getElementById('detected-country');
-  if (el) el.textContent = `${c.flag} ${state.country} · ${state.locale}`;
+  const el = document.getElementById('header-country');
+  if (el) el.textContent = `접속국가: ${c.flag} ${c.name}`;
 }
 
 // ======================== Screen renderers ========================
 function renderScreen(route) {
   switch (route) {
     case '#/landing': return renderLanding();
+    case '#/login': return renderLogin();
+    case '#/signup/country': return renderCountrySelect();
     case '#/signup/method': return renderMethod();
     case '#/signup/auth': return renderAuth();
     case '#/signup/terms': return renderTerms();
@@ -119,7 +103,6 @@ function renderLanding() {
   const content = MOCK_CONTENT[c] || MOCK_CONTENT.KR;
 
   document.getElementById('content-filter-chip').textContent = `${country.flag} ${c}`;
-  document.getElementById('notices-country-label').textContent = `${country.flag} ${country.name}`;
 
   // Notices
   const notices = document.getElementById('notices-list');
@@ -139,6 +122,7 @@ function renderLanding() {
     <div class="game-card">
       <div class="game-thumb" style="background: ${g.img};">
         ${g.badge ? `<span class="game-badge">${escapeHtml(g.badge)}</span>` : ''}
+        <div class="game-thumb-scene">${escapeHtml(g.scene || '🎮')}</div>
         <div class="game-thumb-title">${escapeHtml(g.title)}</div>
       </div>
       <div class="game-info">
@@ -158,11 +142,60 @@ function renderLanding() {
   `).join('');
 }
 
+// -------- Country select (가입 시작) --------
+function renderCountrySelect() {
+  const ip = state.country;
+  const currentChoice = state.user.jurisdiction || ip;
+  const ipC = COUNTRIES[ip];
+  document.getElementById('country-ip-notice').innerHTML =
+    `🌐 IP 감지 국가: <strong>${ipC.flag} ${escapeHtml(ipC.name)} (${ip})</strong>`;
+
+  const grid = document.getElementById('country-grid');
+  grid.innerHTML = Object.values(COUNTRIES).map(c => `
+    <label class="country-option${c.code === currentChoice ? ' selected' : ''}">
+      <input type="radio" name="jurisdiction" value="${c.code}" ${c.code === currentChoice ? 'checked' : ''}>
+      <span class="country-flag">${c.flag}</span>
+      <span class="country-name">${escapeHtml(c.name)} (${c.code})</span>
+      ${c.code === ip ? '<span class="country-option-badge">IP 감지</span>' : ''}
+    </label>
+  `).join('');
+
+  const warn = document.getElementById('country-mismatch-warn');
+  const updateWarn = () => {
+    const checked = grid.querySelector('input[name=jurisdiction]:checked');
+    grid.querySelectorAll('.country-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.querySelector('input').checked);
+    });
+    if (checked && checked.value !== ip) warn.classList.remove('hidden');
+    else warn.classList.add('hidden');
+  };
+  grid.querySelectorAll('input[name=jurisdiction]').forEach(r => r.onchange = updateWarn);
+  updateWarn();
+}
+
+// -------- Login --------
+function renderLogin() {
+  const c = state.country;
+  const country = COUNTRIES[c];
+  document.getElementById('login-country-note').textContent = `${country.flag} ${country.name} (${c})`;
+
+  const box = document.getElementById('login-auth-buttons');
+  box.innerHTML = country.authProviders.map(p => `
+    <button class="auth-btn" onclick="App.loginWith('${p.id}')">
+      <span class="auth-btn-icon" style="background: ${p.color};">${p.icon || p.name[0]}</span>
+      <span class="auth-btn-name">${escapeHtml(p.name)}로 로그인</span>
+      <span class="text-muted">→</span>
+    </button>
+  `).join('');
+
+  // Hide email form initially
+  document.getElementById('login-email-form').classList.add('hidden');
+}
+
 // -------- Method (가입 수단 선택) --------
 function renderMethod() {
   const c = state.country;
   const country = COUNTRIES[c];
-  document.getElementById('method-country-note').textContent = `${country.flag} ${country.name} (${c}) 기준`;
 
   // CN 시뮬레이션 안내 배너
   const cnBanner = document.getElementById('cn-method-banner');
@@ -204,15 +237,30 @@ function renderTerms() {
   document.getElementById('terms-country-label').textContent = `${country.flag} ${country.name} (${c})`;
 
   const list = document.getElementById('terms-list');
-  list.innerHTML = country.terms.map((term, i) => `
+  list.innerHTML = country.terms.map((term, i) => {
+    const hasSample = !!TERM_SAMPLES[term.id];
+    return `
     <div class="terms-item ${term.required ? 'required' : 'optional'}">
       <label class="terms-item-label">
         <input type="checkbox" class="term-check" data-idx="${i}" data-id="${term.id}" ${term.required ? 'data-required="1"' : ''}>
         <span>${escapeHtml(term.label)}</span>
       </label>
-      <span class="terms-badge ${term.required ? 'required' : 'optional'}">${term.required ? (state.locale === 'en' ? 'Required' : '필수') : (state.locale === 'en' ? 'Optional' : '선택')}</span>
-    </div>
-  `).join('');
+      <span class="terms-item-right">
+        <span class="terms-badge ${term.required ? 'required' : 'optional'}">${term.required ? (state.locale === 'en' ? 'Required' : '필수') : (state.locale === 'en' ? 'Optional' : '선택')}</span>
+        ${hasSample ? `<button class="terms-view-btn" data-term-id="${term.id}">보기</button>` : ''}
+      </span>
+    </div>`;
+  }).join('');
+
+  // Wire "보기" buttons
+  list.querySelectorAll('[data-term-id]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = btn.getAttribute('data-term-id');
+      const sample = TERM_SAMPLES[id];
+      if (!sample) return;
+      App.openDetail({ text: sample.title, detail: sample.body, level: 'low', country: state.country });
+    });
+  });
 
   // Wire up events
   document.getElementById('terms-agree-all').onchange = (e) => {
@@ -271,8 +319,18 @@ function renderGuardian() {
   let body = '';
   let actions = '';
   if (c === 'KR') {
-    body = `🇰🇷 <strong>KR:</strong> 법정대리인 KMC 본인인증이 필수입니다. CI 기반 중복가입 방지 + 법정대리인 휴대폰 인증.`;
-    actions = `<button class="btn btn-outline btn-full" onclick="App.simulateGuardianCi()">${t('guardianCi')}</button>`;
+    body = `🇰🇷 <strong>KR:</strong> 법정대리인 본인인증 필수 (PASS 또는 토스). CI 기반 중복가입 방지 + 법정대리인 휴대폰 인증.`;
+    actions = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn btn-outline" onclick="App.simulateGuardianAuth('PASS')">
+          <span class="auth-btn-icon" style="background:#EC1B23">P</span> PASS 본인인증
+        </button>
+        <button class="btn btn-outline" onclick="App.simulateGuardianAuth('Toss')">
+          <span class="auth-btn-icon" style="background:#0064FF">T</span> 토스 본인인증
+        </button>
+      </div>
+      <p class="form-help mt-8">둘 중 하나로 법정대리인 본인인증 (시뮬레이션)</p>
+    `;
   } else if (c === 'US') {
     body = `🇺🇸 <strong>US (COPPA):</strong> 13세 미만인 경우 Verifiable Parental Consent(VPC)가 필수입니다. 신용카드 $0 인증 또는 신분증 업로드.`;
     actions = `<button class="btn btn-outline btn-full" onclick="App.simulateGuardianCard()">${t('guardianUsCard')}</button>`;
@@ -299,7 +357,10 @@ function renderRealname() {
 
   const note = document.getElementById('realname-country-note');
   const backBtn = document.getElementById('realname-back-btn');
-  backBtn.onclick = () => { location.hash = state.user.isMinor ? '#/signup/guardian' : '#/signup/age-gate'; };
+  backBtn.onclick = () => {
+    if (state.country === 'KR') { location.hash = '#/signup/terms'; return; }
+    location.hash = state.user.isMinor ? '#/signup/guardian' : '#/signup/age-gate';
+  };
 
   if (c === 'CN') {
     note.innerHTML = `🇨🇳 <strong>CN 필수:</strong> ${escapeHtml(country.realnameNote)}`;
@@ -375,14 +436,70 @@ function renderReviewContent(tabId) {
   wrap.querySelectorAll('[data-memo-action]').forEach(btn => {
     btn.addEventListener('click', onMemoAction);
   });
+  // Wire up status selectors
+  wrap.querySelectorAll('[data-status-select]').forEach(sel => {
+    sel.addEventListener('change', onStatusChange);
+  });
+  // Wire up detail toggles
+  wrap.querySelectorAll('[data-more-btn]').forEach(btn => btn.addEventListener('click', onMoreToggle));
+}
+
+function onMoreToggle(e) {
+  const btn = e.currentTarget;
+  const itemEl = btn.closest('.review-item');
+  if (!itemEl) return;
+  const tabId = itemEl.getAttribute('data-tab');
+  const sIdx = parseInt(itemEl.getAttribute('data-s'), 10);
+  const iIdx = parseInt(itemEl.getAttribute('data-i'), 10);
+  const itemData = REVIEW_DATA[tabId]?.sections[sIdx]?.items[iIdx];
+  if (!itemData || !itemData.detail) return;
+  App.openDetail(itemData);
+}
+
+function onStatusChange(e) {
+  const sel = e.currentTarget;
+  const item = sel.closest('.review-item');
+  if (!item) return;
+  const tabId = item.getAttribute('data-tab');
+  const sIdx = parseInt(item.getAttribute('data-s'), 10);
+  const iIdx = parseInt(item.getAttribute('data-i'), 10);
+  Status.set(tabId, sIdx, iIdx, sel.value);
+  sel.setAttribute('data-status', sel.value);
 }
 
 function renderReviewItem(tabId, sIdx, iIdx, item) {
-  const memo = Memo.get(tabId, sIdx, iIdx);
-  const stamp = Memo.getStamp(tabId, sIdx, iIdx);
+  const memos = Memo.getAll(tabId, sIdx, iIdx);
   const level = item.level || 'low';
   const country = item.country || 'ALL';
-  const flag = country !== 'ALL' && COUNTRIES[country] ? COUNTRIES[country].flag + ' ' + country : 'ALL';
+  const flag = country !== 'ALL' && COUNTRIES[country] ? COUNTRIES[country].flag + ' ' + country : '공통';
+
+  const detailHtml = item.detail ? `
+    <button class="review-more-btn" data-more-btn>자세히 보기 →</button>
+  ` : '';
+
+  const stackHtml = memos.length ? `
+    <div class="memo-stack">
+      ${memos.map(m => `
+        <div class="memo-entry" data-entry-id="${m.id}">
+          <div class="memo-entry-head">
+            <span class="memo-entry-stamp">✓ ${Memo.formatStamp(m.at)}</span>
+            <span class="memo-entry-actions">
+              <button data-memo-action="entry-edit">수정</button>
+              <button class="danger" data-memo-action="entry-delete">삭제</button>
+            </span>
+          </div>
+          <div class="memo-entry-text">${escapeHtml(m.text)}</div>
+          <div class="memo-entry-editor">
+            <textarea class="form-textarea">${escapeHtml(m.text)}</textarea>
+            <div class="memo-actions mt-8">
+              <button class="btn btn-primary" data-memo-action="entry-save">저장</button>
+              <button class="btn btn-text" data-memo-action="entry-cancel">취소</button>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
 
   return `
     <div class="review-item" data-tab="${tabId}" data-s="${sIdx}" data-i="${iIdx}">
@@ -391,26 +508,33 @@ function renderReviewItem(tabId, sIdx, iIdx, item) {
         <span class="country-tag ${country === 'ALL' ? 'all' : ''}">${flag}</span>
       </div>
       <div class="review-item-text">${item.text}</div>
+      ${detailHtml}
       <div class="memo-area">
-        <div class="memo-area-label">📝 피드백 메모</div>
-        <div class="memo-display" ${memo ? '' : 'hidden'}>
-          <div class="memo-saved">${escapeHtml(memo)}</div>
-          <span class="memo-stamp">✓ ${Memo.formatStamp(stamp)} ${t('memoSaved')}</span>
-          <div class="memo-actions mt-8">
-            <button class="btn btn-outline" data-memo-action="edit">${t('memoEdit')}</button>
-            <button class="btn btn-text" data-memo-action="delete">${t('memoDelete')}</button>
-          </div>
-        </div>
-        <div class="memo-editor" ${memo ? 'hidden' : ''}>
-          <textarea class="form-textarea" placeholder="${t('memoPlaceholder')}">${escapeHtml(memo)}</textarea>
-          <div class="memo-actions mt-8">
-            <button class="btn btn-primary" data-memo-action="save">${t('memoSave')}</button>
-            ${memo ? `<button class="btn btn-text" data-memo-action="cancel">취소</button>` : ''}
+        <div class="memo-area-label">📝 피드백 (${memos.length}건)</div>
+        ${stackHtml}
+        <div class="memo-input-row">
+          <textarea class="form-textarea" data-memo-input placeholder="${t('memoPlaceholder')}"></textarea>
+          <div class="memo-input-actions">
+            <button class="btn btn-primary" data-memo-action="add">+ 피드백 추가</button>
           </div>
         </div>
       </div>
     </div>
   `;
+}
+
+function refreshReviewItem(itemEl, tabId, sIdx, iIdx) {
+  const data = REVIEW_DATA[tabId];
+  if (!data) return;
+  const sec = data.sections[sIdx];
+  if (!sec || !sec.items[iIdx]) return;
+  const html = renderReviewItem(tabId, sIdx, iIdx, sec.items[iIdx]);
+  const tmp = document.createElement('div'); tmp.innerHTML = html;
+  const newEl = tmp.firstElementChild;
+  itemEl.replaceWith(newEl);
+  newEl.querySelectorAll('[data-memo-action]').forEach(b => b.addEventListener('click', onMemoAction));
+  newEl.querySelectorAll('[data-status-select]').forEach(sel => sel.addEventListener('change', onStatusChange));
+  newEl.querySelectorAll('[data-more-btn]').forEach(b => b.addEventListener('click', onMoreToggle));
 }
 
 function onMemoAction(e) {
@@ -421,36 +545,36 @@ function onMemoAction(e) {
   const tabId = item.getAttribute('data-tab');
   const sIdx = parseInt(item.getAttribute('data-s'), 10);
   const iIdx = parseInt(item.getAttribute('data-i'), 10);
-  const display = item.querySelector('.memo-display');
-  const editor = item.querySelector('.memo-editor');
-  const textarea = editor.querySelector('textarea');
 
-  if (action === 'save') {
-    const text = textarea.value;
-    Memo.save(tabId, sIdx, iIdx, text);
-    // Re-render this item in place
-    const html = renderReviewItem(tabId, sIdx, iIdx, REVIEW_DATA[tabId].sections[sIdx].items[iIdx]);
-    const tmp = document.createElement('div'); tmp.innerHTML = html;
-    item.replaceWith(tmp.firstElementChild);
-    tmp.firstElementChild.querySelectorAll('[data-memo-action]').forEach(b => b.addEventListener('click', onMemoAction));
-    // Update tab count badges
+  if (action === 'add') {
+    const ta = item.querySelector('[data-memo-input]');
+    const text = (ta.value || '').trim();
+    if (!text) { ta.focus(); return; }
+    Memo.add(tabId, sIdx, iIdx, text);
+    refreshReviewItem(item, tabId, sIdx, iIdx);
     renderReviewTabsBadges();
-  } else if (action === 'edit') {
-    display.setAttribute('hidden', '');
-    editor.removeAttribute('hidden');
-    textarea.focus();
-  } else if (action === 'cancel') {
-    const saved = Memo.get(tabId, sIdx, iIdx);
-    textarea.value = saved;
-    editor.setAttribute('hidden', '');
-    display.removeAttribute('hidden');
-  } else if (action === 'delete') {
-    if (!confirm('이 메모를 삭제하시겠습니까?')) return;
-    Memo.remove(tabId, sIdx, iIdx);
-    const html = renderReviewItem(tabId, sIdx, iIdx, REVIEW_DATA[tabId].sections[sIdx].items[iIdx]);
-    const tmp = document.createElement('div'); tmp.innerHTML = html;
-    item.replaceWith(tmp.firstElementChild);
-    tmp.firstElementChild.querySelectorAll('[data-memo-action]').forEach(b => b.addEventListener('click', onMemoAction));
+    return;
+  }
+
+  const entry = btn.closest('.memo-entry');
+  if (!entry) return;
+  const entryId = entry.getAttribute('data-entry-id');
+
+  if (action === 'entry-edit') {
+    entry.classList.add('editing');
+    const ta = entry.querySelector('.memo-entry-editor textarea');
+    if (ta) ta.focus();
+  } else if (action === 'entry-cancel') {
+    entry.classList.remove('editing');
+  } else if (action === 'entry-save') {
+    const ta = entry.querySelector('.memo-entry-editor textarea');
+    Memo.update(tabId, sIdx, iIdx, entryId, ta.value);
+    refreshReviewItem(item, tabId, sIdx, iIdx);
+    renderReviewTabsBadges();
+  } else if (action === 'entry-delete') {
+    if (!confirm('이 피드백을 삭제할까요?')) return;
+    Memo.remove(tabId, sIdx, iIdx, entryId);
+    refreshReviewItem(item, tabId, sIdx, iIdx);
     renderReviewTabsBadges();
   }
 }
@@ -467,41 +591,6 @@ function renderReviewTabsBadges() {
     const label = REVIEW_TABS.find(t => t.id === id)?.label || id;
     btn.innerHTML = `${label}${count > 0 ? `<span class="count">${count}</span>` : ''}`;
   });
-}
-
-// ======================== Risk overlay ========================
-function renderRiskOverlay(route) {
-  const overlay = document.getElementById('risk-overlay');
-  const toggle = document.getElementById('risk-toggle');
-  if (!RISK_VISIBLE_ROUTES.has(route)) {
-    overlay.classList.remove('open');
-    toggle.classList.add('hidden');
-    return;
-  }
-  toggle.classList.remove('hidden');
-
-  const step = ROUTE_TO_STEP[route];
-  const c = state.country;
-  const items = RISKS.filter(r => r.step === step && (r.by[c] || r.by[c] === 'Low' || Object.keys(r.by).includes(c)));
-  const list = document.getElementById('risk-list');
-
-  if (!items.length) {
-    list.innerHTML = '<p class="text-muted" style="font-size:13px">이 스텝의 이 국가에 특별 리스크 없음.</p>';
-  } else {
-    list.innerHTML = items.map(r => {
-      const sev = (r.by[c] || r.severity || 'Med').toLowerCase();
-      return `
-        <div class="risk-card">
-          <div class="risk-card-head">
-            <h4>${escapeHtml(r.title)}</h4>
-            <span class="risk-badge ${sev}">${sev.toUpperCase()}</span>
-          </div>
-          <p>${escapeHtml(r.desc)}</p>
-          <span class="risk-law">📖 ${escapeHtml(r.law)}</span>
-        </div>
-      `;
-    }).join('');
-  }
 }
 
 // ======================== App actions ========================
@@ -527,9 +616,136 @@ const App = {
     onRouteChange();
   },
 
+  openDetail(item) {
+    const panel = document.getElementById('detail-panel');
+    const backdrop = document.getElementById('detail-backdrop');
+    const title = document.getElementById('detail-panel-title');
+    const meta = document.getElementById('detail-panel-meta');
+    const body = document.getElementById('detail-panel-body');
+    // Title = item's main text (strip basic HTML)
+    const plainTitle = (item.text || '').replace(/<[^>]*>/g, '');
+    title.textContent = plainTitle.length > 120 ? plainTitle.slice(0,120) + '…' : plainTitle;
+    const level = item.level || 'low';
+    const country = item.country || 'ALL';
+    const flag = country !== 'ALL' && COUNTRIES[country] ? COUNTRIES[country].flag + ' ' + country : '공통';
+    meta.innerHTML = `
+      <span class="level-badge ${level}">${level}</span>
+      <span class="country-tag ${country === 'ALL' ? 'all' : ''}">${flag}</span>
+    `;
+    body.innerHTML = item.detail || '<p>상세 내용 없음</p>';
+    panel.classList.add('open');
+    backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  },
+
+  closeDetail() {
+    document.getElementById('detail-panel').classList.remove('open');
+    document.getElementById('detail-backdrop').classList.remove('open');
+    document.body.style.overflow = '';
+  },
+
+  downloadExcel() {
+    if (typeof XLSX === 'undefined') {
+      alert('엑셀 라이브러리 로딩 실패. 인터넷 연결을 확인해주세요.');
+      return;
+    }
+    const stripHtml = (s) => {
+      if (!s) return '';
+      const tmp = document.createElement('div');
+      tmp.innerHTML = s;
+      return (tmp.textContent || tmp.innerText || '').trim().replace(/\s+\n/g, '\n');
+    };
+    const wb = XLSX.utils.book_new();
+
+    // Summary sheet
+    const summaryRows = [['탭', '섹션', '항목 수', '피드백 수']];
+    let totalItems = 0, totalFeedbacks = 0;
+
+    REVIEW_TABS.forEach(tab => {
+      const data = REVIEW_DATA[tab.id];
+      if (!data) return;
+      const rows = [['섹션', '항목 (제목)', '레벨', '국가', '상세 설명', '피드백 수', '피드백 (시간 | 내용)']];
+      let tabItems = 0, tabFeedbacks = 0;
+      data.sections.forEach((sec, sIdx) => {
+        let secItems = 0, secFeedbacks = 0;
+        sec.items.forEach((item, iIdx) => {
+          const memos = Memo.getAll(tab.id, sIdx, iIdx);
+          rows.push([
+            sec.title,
+            stripHtml(item.text),
+            item.level || '',
+            item.country || 'ALL',
+            stripHtml(item.detail || ''),
+            memos.length,
+            memos.map(m => `[${Memo.formatStamp(m.at)}] ${m.text}`).join('\n\n---\n\n')
+          ]);
+          secItems++; secFeedbacks += memos.length;
+        });
+        summaryRows.push([tab.label, sec.title, secItems, secFeedbacks]);
+        tabItems += secItems; tabFeedbacks += secFeedbacks;
+      });
+      totalItems += tabItems; totalFeedbacks += tabFeedbacks;
+
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols'] = [{ wch: 28 }, { wch: 55 }, { wch: 10 }, { wch: 10 }, { wch: 70 }, { wch: 10 }, { wch: 60 }];
+      // Sheet name 31자 제한, 시트명 안전화
+      const safeName = tab.label.replace(/[^\w가-힣\s]/g, '').trim().slice(0, 28) || tab.id;
+      XLSX.utils.book_append_sheet(wb, ws, safeName);
+    });
+
+    summaryRows.push(['—', '합계', totalItems, totalFeedbacks]);
+    const summary = XLSX.utils.aoa_to_sheet(summaryRows);
+    summary['!cols'] = [{ wch: 18 }, { wch: 38 }, { wch: 10 }, { wch: 10 }];
+    // Insert summary at index 0
+    XLSX.utils.book_append_sheet(wb, summary, '요약');
+    // Reorder so 요약 첫 시트
+    const order = ['요약', ...wb.SheetNames.filter(n => n !== '요약')];
+    wb.SheetNames = order;
+
+    const pad = n => String(n).padStart(2, '0');
+    const d = new Date();
+    const stamp = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
+    XLSX.writeFile(wb, `molep-고려사항_${stamp}.xlsx`);
+  },
+
+  submitCountry() {
+    const chosen = document.querySelector('input[name=jurisdiction]:checked');
+    if (!chosen) { alert('국가를 선택해주세요.'); return; }
+    state.user.jurisdiction = chosen.value;
+    // 이후 플로우 컨텍스트 = 선택한 국가
+    state.country = chosen.value;
+    document.getElementById('demo-country-select').value = chosen.value;
+    state.locale = (chosen.value === 'US') ? 'en' : 'ko';
+    document.getElementById('demo-lang-select').value = state.locale;
+    applyI18n();
+    updateDetectedChip();
+    navigate('#/signup/method');
+  },
+
   selectProvider(id) {
     state.user.provider = id;
     navigate('#/signup/auth');
+  },
+
+  loginWith(id) {
+    const country = COUNTRIES[state.country];
+    const p = country.authProviders.find(x => x.id === id);
+    // KR email → show form
+    if (state.country === 'KR' && id === 'email') {
+      document.getElementById('login-email-form').classList.remove('hidden');
+      document.getElementById('login-email').focus();
+      return;
+    }
+    alert(`${p ? p.name : id} 로그인 완료 (시뮬레이션)`);
+    navigate('#/landing');
+  },
+
+  submitEmailLogin() {
+    const e = document.getElementById('login-email').value.trim();
+    const p = document.getElementById('login-password').value;
+    if (!e || !p) { alert('이메일과 비밀번호를 입력해주세요.'); return; }
+    alert(`이메일 로그인 완료 (시뮬레이션) — ${e}`);
+    navigate('#/landing');
   },
 
   completeAuth() {
@@ -550,7 +766,12 @@ const App = {
       const term = country.terms.find(t => t.id === c.getAttribute('data-id'));
       return { id: c.getAttribute('data-id'), label: term?.label || c.getAttribute('data-id'), at: new Date().toISOString() };
     });
-    navigate('#/signup/age-gate');
+    // KR: PASS/토스 본인인증이 DOB 포함 → age-gate 스킵, 바로 realname으로
+    if (state.country === 'KR') {
+      navigate('#/signup/realname');
+    } else {
+      navigate('#/signup/age-gate');
+    }
   },
 
   submitAge() {
@@ -623,14 +844,21 @@ const App = {
     }
   },
 
-  simulateKrPass() {
-    state.user.realname = { name: '홍길동(시뮬)', id: '****', verified: true };
-    alert('PASS/KMC 본인인증 완료 (시뮬레이션)');
+  simulateKrRealnameAuth(method) {
+    // PASS/토스는 본인인증 시 생년월일·성별·CI까지 포함 반환
+    state.user.realname = { name: '홍길동(시뮬)', id: '****', verified: true, method };
+    state.user.dobYear = 1995;
+    state.user.dobMonth = 3;
+    state.user.dobDay = 15;
+    state.user.age = new Date().getFullYear() - 1995;
+    state.user.isMinor = false;
+    alert(`${method} 본인인증 완료 (시뮬레이션)\n생년월일: 1995-03-15 · 만 ${state.user.age}세 (성인)`);
   },
 
-  simulateGuardianCi() {
+  simulateGuardianAuth(method) {
     state.user.guardian.ci = true;
-    alert('KMC 본인인증 완료 (시뮬레이션)');
+    state.user.guardian.verifyMethod = method;
+    alert(`${method} 본인인증 완료 (시뮬레이션)`);
   },
   simulateGuardianCard() {
     state.user.guardian.cardVerified = true;
@@ -662,10 +890,6 @@ const App = {
     location.hash = '#/review/' + id;
   },
 
-  toggleRisk() {
-    const overlay = document.getElementById('risk-overlay');
-    overlay.classList.toggle('open');
-  }
 };
 
 // Support #/review/<tab>
@@ -674,7 +898,6 @@ function onHashChange() {
   if (h.startsWith('#/review')) {
     showScreen('#/review');
     renderScreen('#/review');
-    renderRiskOverlay('#/review');
     return;
   }
   onRouteChange();

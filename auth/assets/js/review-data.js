@@ -20,8 +20,55 @@ const REVIEW_DATA = {
       {
         title: '비즈니스 의사결정 필요',
         items: [
-          { level: 'critical', text: '중국 사업 구조: 중국 법인 설립 or 현지 퍼블리셔 파트너십? 版号(판호) 신청 주체 결정 필수. 판호 발급 6~18개월 소요.', country: 'CN' },
-          { level: 'critical', text: '계정 이식성 정책: KR 가입자가 US로 이민 시 계정 전환 가능? 구매 내역 이전? 이 결정이 DB 설계에 직접 영향.', country: 'ALL' },
+          {
+            level: 'critical', country: 'CN',
+            text: '중국 사업 구조: 중국 법인 설립 or 현지 퍼블리셔 파트너십? 版号(판호) 신청 주체 결정 필수. 판호 발급 6~18개월 소요.',
+            detail: `<strong>📌 배경</strong>
+<ul>
+  <li>중국 진출 = 国家新闻出版署(NPPA)의 <strong>版号(판호)</strong> 취득 필수. 판호 없이는 유료 판매·인앱결제·광고 불가 (무료 서비스도 사실상 제한).</li>
+  <li>신청 주체는 <strong>중국 내 법인만</strong> 가능 — 한국 법인으로 직접 신청 불가.</li>
+</ul>
+<strong>📌 선택지 2가지</strong>
+<ol>
+  <li><strong>자체 중국 법인 설립 (WFOE)</strong>
+    <ul><li>장점: 직접 운영, 브랜드 주도권, 매출 100%</li>
+        <li>단점: 설립 6~12개월, 자본금 1~5M USD 권장, ICP 허가 별도</li></ul></li>
+  <li><strong>현지 퍼블리셔 파트너십</strong> (Tencent/NetEase 등)
+    <ul><li>장점: 빠른 진출, 기존 판호·유통·마케팅 활용</li>
+        <li>단점: 매출 배분(통상 50:50), 현지화 주도권 제한, IP 귀속 협상</li></ul></li>
+</ol>
+<strong>📌 판호 발급 현실</strong>
+<ul>
+  <li>2024년 기준 해외 게임 판호 <strong>연 100건 미만</strong>, 발급 주기 불규칙</li>
+  <li>신청~발급 6~18개월, 반려 시 재신청 제약</li>
+  <li>우선순위: IP 가치, 정책 부합도(미성년 보호·검열), 사회적 영향</li>
+</ul>
+<strong>📌 결정 시점</strong>: 전체 런칭 일정보다 <strong>최소 6개월 선행</strong> 필요.`
+          },
+          {
+            level: 'critical', country: 'ALL',
+            text: '계정 이식성 정책: KR 가입자가 US로 이민 시 계정 전환 가능? 구매 내역 이전? 이 결정이 DB 설계에 직접 영향.',
+            detail: `<strong>📌 쟁점</strong>: "같은 사람이 국가를 옮기면 계정이 따라갈 수 있는가?"
+<strong>📌 3가지 정책 옵션</strong>
+<ol>
+  <li><strong>완전 고정 (변경 불가)</strong>
+    <ul><li>가입 시점 국가가 영구. 이민 시 새 계정 필수.</li>
+        <li>장점: 법적 안전, 구현 단순. 단점: 유저 이탈 가능.</li></ul></li>
+  <li><strong>1회 전환 허용 (CS 심사)</strong>
+    <ul><li>증빙(비자·영주권) 확인 후 CS가 수동 전환.</li>
+        <li>구매 이력 이전 여부는 별도 결정.</li></ul></li>
+  <li><strong>자유 전환 (쿨다운 기간)</strong>
+    <ul><li>유저가 직접 신청, 90일마다 1회 등 쿨다운.</li>
+        <li>장점: UX 유연. 단점: 가격·규제 어뷰징 리스크.</li></ul></li>
+</ol>
+<strong>📌 DB 영향</strong>
+<ul>
+  <li>jurisdiction 컬럼을 users 테이블에 고정 vs 이력 테이블 분리</li>
+  <li>consent_log는 법적 보존 기간(KR 5년, CN 3년) 동안 이전 국가도 조회 가능해야</li>
+  <li>구매 이전 시 환율·결제 PG 달라짐 → 이전 포인트 환산 규칙</li>
+</ul>
+<strong>📌 결정권자</strong>: 기획팀 + 법무팀 + DB 설계자 공동.`
+          },
           { level: 'high', text: '글로벌 서버 vs 지역 서버: KR-JP 유저가 같은 게임 서버에서 플레이 가능? 레이턴시 vs 글로벌 커뮤니티 트레이드오프.', country: 'ALL' },
           { level: 'high', text: '결제 지역화: KR=카카오페이/토스, CN=위챗페이/알리페이, JP=콘비니. 각국 PG사 연동 범위 결정.', country: 'ALL' },
           { level: 'medium', text: '친구 목록 리전 간 허용 여부: KR-JP 친구 추가 가능? 리전 간 소셜 기능 범위 정의.', country: 'ALL' }
@@ -31,9 +78,57 @@ const REVIEW_DATA = {
         title: 'Gemini 보고서 핵심 반영 — 필수 vs 선택',
         items: [
           { level: 'critical', text: '[필수] 규제 지능형 엔진(Regulatory Engine): IP+생년월일 기반 COPPA/GDPR/PIPA/중국 방침 실시간 판단 → 동적 인증수단·약관.', country: 'ALL' },
-          { level: 'critical', text: '[필수] COPPA 2026 개정안: 마케팅 목적과 서비스 제공 수집에 대해 각각 별도 동의(Granular Consent) 의무화.', country: 'US' },
+          {
+            level: 'critical', country: 'US',
+            text: '[필수] COPPA 2026 개정안: 마케팅 목적과 서비스 제공 수집에 대해 각각 별도 동의(Granular Consent) 의무화.',
+            detail: `<strong>📌 COPPA란</strong>
+Children's Online Privacy Protection Act — 13세 미만 미국 어린이 개인정보 보호법. FTC 집행, 위반 시 위반 건당 최대 $51,744.
+<strong>📌 2026 개정안 주요 변화</strong>
+<ul>
+  <li><strong>Granular Consent (세분화 동의)</strong>: "서비스 제공용" 데이터 수집과 "마케팅용" 데이터 수집을 <u>별도 체크박스</u>로 받아야. 묶음 동의 금지.</li>
+  <li><strong>제3자 공유 제한 강화</strong>: 부모가 거절한 목적의 제3자 공유는 완전 차단.</li>
+  <li><strong>보유 기간 명시 의무</strong>: 수집 데이터의 삭제 시점을 고지해야.</li>
+  <li><strong>Push 알림 옵트아웃 기본</strong>: 기본값이 "받지 않음"이어야.</li>
+</ul>
+<strong>📌 우리 구현 영향</strong>
+<ul>
+  <li>약관 화면에서 <strong>필수 동의 vs 선택 동의</strong>를 명확히 분리된 체크박스로 구현</li>
+  <li>마케팅 동의는 반드시 optional, 기본값 미체크</li>
+  <li>VPC(Verifiable Parental Consent) 완료 전 어떤 데이터도 수집·저장 금지</li>
+</ul>`
+          },
           { level: 'critical', text: '[필수] 한국 PIPA 2025 개정: 위반 시 전체 매출액 최대 10% 과징금. CI/DI 기반 중복가입 방지 + 법정대리인 휴대폰 인증.', country: 'KR' },
-          { level: 'critical', text: '[필수] 중국 NPPA 실명인증: 이름+신분증 → 공안부 DB 실시간 대조. 게스트 플레이는 15일마다 1시간, 결제 불가.', country: 'CN' },
+          {
+            level: 'critical', country: 'CN',
+            text: '[필수] 중국 NPPA 실명인증: 이름+신분증 → 공안부 DB 실시간 대조. 게스트 플레이는 15일마다 1시간, 결제 불가.',
+            detail: `<strong>📌 근거 법령</strong>
+<ul>
+  <li>国家新闻出版署《关于防止未成年人沉迷网络游戏的通知》(2021.08)</li>
+  <li>PIPL(개인정보보호법), 网络安全法(사이버보안법)</li>
+</ul>
+<strong>📌 실명인증 작동 방식</strong>
+<ol>
+  <li>가입 시 <strong>이름(한자) + 身份证号码(18자리)</strong> 입력</li>
+  <li>공안부 DB 실시간 대조 (CIIC 또는 인증 업체 API 연동)</li>
+  <li>미성년자 판정 → anti-addiction(防沉迷) 플래그 ON</li>
+  <li>얼굴인식 스팟체크 (랜덤 시점에 카메라 인증 요구)</li>
+</ol>
+<strong>📌 미성년 제약</strong>
+<ul>
+  <li><strong>플레이 시간</strong>: 금·토·일 및 법정공휴일 20:00~21:00만 (주 3시간 한정)</li>
+  <li><strong>결제 한도</strong>: 8세 미만 금지, 8~16세 월 ¥200, 16~18세 월 ¥400</li>
+</ul>
+<strong>📌 게스트 플레이</strong>
+<ul>
+  <li>실명인증 전: <strong>15일마다 1시간</strong>만 체험 가능, 결제 완전 불가</li>
+  <li>15일 초과 시 계속 플레이하려면 실명인증 필수</li>
+</ul>
+<strong>📌 구현 현실</strong>
+<ul>
+  <li>공안부 DB는 외국 업체 직접 접근 불가 → 현지 파트너/퍼블리셔 인증 API 재판매 사용</li>
+  <li>데이터는 반드시 중국 본토 서버에 저장 (PIPL §40)</li>
+</ul>`
+          },
           { level: 'critical', text: '[필수] 소셜 로그인 토큰 보안: Authorization Code → Access/ID Token 교환 시 서명+만료 검증. 매핑 키는 이메일이 아닌 provider sub ID.', country: 'ALL' },
           { level: 'critical', text: '[필수] 인라인 유효성 검사: 비밀번호 규칙, 닉네임 중복, 이메일 형식 → 실시간 피드백. "가입 버튼 후 에러" 패턴 금지.', country: 'ALL' },
           { level: 'high', text: '[선택] 게스트 계정 → 정식 전환 (Progressive Profiling, 라이엇 방식). 생년월일만으로 시작, 45일 후 정식 가입 유도.', country: 'ALL' },
@@ -338,3 +433,19 @@ const REVIEW_TABS = [
   { id: 'questions',label: '❓ 문의사항' },
   { id: 'db',       label: '🗄️ DB' }
 ];
+
+// 리스크 탭에 플로우 스텝 × 국가 상세 카드 자동 추가 (data.js의 RISKS 활용)
+(function augmentRisks() {
+  if (typeof RISKS === 'undefined' || typeof COUNTRIES === 'undefined') return;
+  const sevMap = { Critical: 'critical', High: 'high', Med: 'medium', Low: 'low' };
+  const items = RISKS.map(r => {
+    const sev = sevMap[r.severity] || 'medium';
+    const countries = Object.keys(r.by).map(k => `${COUNTRIES[k]?.flag || ''}${k}`).join(' ');
+    return {
+      level: sev,
+      text: `<strong>[${r.step}] ${r.title}</strong><br>${r.desc}<br><span class="text-muted" style="font-size:12px">📖 ${r.law} · 영향 국가: ${countries}</span>`,
+      country: 'ALL'
+    };
+  });
+  REVIEW_DATA.risk.sections.push({ title: '플로우 스텝별 × 국가 리스크 카드', items });
+})();
