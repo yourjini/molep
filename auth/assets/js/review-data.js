@@ -17,124 +17,445 @@ const REVIEW_DATA = {
           { level: 'critical', text: '[확정] Auth에 쿠키 국가 전달. Auth 서버는 국가 정보 직접 확인 불가. 프론트 쿠키의 국가 정보를 Auth 가입 단계에 전달.', country: 'ALL' }
         ]
       },
+      // ↑ 위 4개 확정사항은 별도 상세 없음 (이미 결정 완료)
       {
         title: '비즈니스 의사결정 필요',
         items: [
           {
             level: 'critical', country: 'CN',
             text: '중국 사업 구조: 중국 법인 설립 or 현지 퍼블리셔 파트너십? 版号(판호) 신청 주체 결정 필수. 판호 발급 6~18개월 소요.',
-            detail: `<strong>📌 배경</strong>
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>중국 진출 = NPPA <strong>版号(판호)</strong> 취득 필수. 한국 법인은 직접 신청 불가 → 진출 모델을 <strong>최소 6개월 선행</strong>해 결정해야 함.</p>
+<h4>배경·문제점</h4>
 <ul>
-  <li>중국 진출 = 国家新闻出版署(NPPA)의 <strong>版号(판호)</strong> 취득 필수. 판호 없이는 유료 판매·인앱결제·광고 불가 (무료 서비스도 사실상 제한).</li>
-  <li>신청 주체는 <strong>중국 내 법인만</strong> 가능 — 한국 법인으로 직접 신청 불가.</li>
+  <li>판호 없이는 유료 판매·인앱결제·광고 불가 (무료 서비스도 사실상 제한)</li>
+  <li>판호 신청 주체는 <strong>중국 내 법인만</strong> 가능</li>
+  <li>2024 기준 해외 게임 판호 <strong>연 100건 미만</strong>, 발급 주기 불규칙 (6~18개월)</li>
 </ul>
-<strong>📌 선택지 2가지</strong>
-<ol>
-  <li><strong>자체 중국 법인 설립 (WFOE)</strong>
-    <ul><li>장점: 직접 운영, 브랜드 주도권, 매출 100%</li>
-        <li>단점: 설립 6~12개월, 자본금 1~5M USD 권장, ICP 허가 별도</li></ul></li>
-  <li><strong>현지 퍼블리셔 파트너십</strong> (Tencent/NetEase 등)
-    <ul><li>장점: 빠른 진출, 기존 판호·유통·마케팅 활용</li>
-        <li>단점: 매출 배분(통상 50:50), 현지화 주도권 제한, IP 귀속 협상</li></ul></li>
-</ol>
-<strong>📌 판호 발급 현실</strong>
+<h4>선택지</h4>
 <ul>
-  <li>2024년 기준 해외 게임 판호 <strong>연 100건 미만</strong>, 발급 주기 불규칙</li>
-  <li>신청~발급 6~18개월, 반려 시 재신청 제약</li>
-  <li>우선순위: IP 가치, 정책 부합도(미성년 보호·검열), 사회적 영향</li>
+  <li><strong>A) 자체 WFOE(외국인 단독법인) 설립</strong> — 장점: 직접 운영, 브랜드 주도권, 매출 100% / 단점: 설립 6~12개월, 자본금 1~5M USD 권장, ICP 허가 별도</li>
+  <li><strong>B) 현지 퍼블리셔 파트너십</strong> (Tencent / NetEase 등) — 장점: 빠른 진출, 기존 판호·유통·마케팅 활용 / 단점: 매출 배분(통상 50:50), 현지화 주도권 제한, IP 귀속 협상 필요</li>
 </ul>
-<strong>📌 결정 시점</strong>: 전체 런칭 일정보다 <strong>최소 6개월 선행</strong> 필요.`
+<h4>타사 대응 <span class="text-muted">(공개자료 일반화, 재확인 필요)</span></h4>
+<div class="competitor-row"><strong>넥슨</strong><span>던전앤파이터: Tencent 퍼블리싱 (장기 파트너십, 대성공 사례). 메이플스토리 등 일부 자체 운영도 시도했으나 정책 변동에 취약.</span></div>
+<div class="competitor-row"><strong>스마일게이트</strong><span>크로스파이어: Tencent 퍼블리싱. 한국 게임사의 중국 흥행 대표 케이스 (Tencent 매출 비중 큼).</span></div>
+<div class="competitor-row"><strong>크래프톤 (PUBG)</strong><span>PUBG Mobile CN(和平精英): Tencent 퍼블리싱 + 별도 브랜드. 2018 BAN 후 재출시 시 Tencent 통해 회피.</span></div>
+<div class="competitor-row"><strong>라이엇/넷이즈</strong><span>LoL CN: NetEase 통한 대표 운영 사례. 텐센트 자회사화 후 직접 운영 강화.</span></div>
+<div class="competitor-row"><strong>펄어비스</strong><span>검은사막 CN: Snail Games 통한 진출. 중소 IP는 중소 퍼블리셔도 옵션.</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li>IP 가치·기대 매출 기준으로 결정. 단기 진출 = 퍼블리셔, 장기·메이저 IP = 자체 법인 검토</li>
+  <li><strong>결정 주체</strong>: 경영진 + 법무 + 사업개발. 시점: 런칭 6개월 전</li>
+</ul>`
           },
           {
             level: 'critical', country: 'ALL',
             text: '계정 이식성 정책: KR 가입자가 US로 이민 시 계정 전환 가능? 구매 내역 이전? 이 결정이 DB 설계에 직접 영향.',
-            detail: `<strong>📌 쟁점</strong>: "같은 사람이 국가를 옮기면 계정이 따라갈 수 있는가?"
-<strong>📌 3가지 정책 옵션</strong>
-<ol>
-  <li><strong>완전 고정 (변경 불가)</strong>
-    <ul><li>가입 시점 국가가 영구. 이민 시 새 계정 필수.</li>
-        <li>장점: 법적 안전, 구현 단순. 단점: 유저 이탈 가능.</li></ul></li>
-  <li><strong>1회 전환 허용 (CS 심사)</strong>
-    <ul><li>증빙(비자·영주권) 확인 후 CS가 수동 전환.</li>
-        <li>구매 이력 이전 여부는 별도 결정.</li></ul></li>
-  <li><strong>자유 전환 (쿨다운 기간)</strong>
-    <ul><li>유저가 직접 신청, 90일마다 1회 등 쿨다운.</li>
-        <li>장점: UX 유연. 단점: 가격·규제 어뷰징 리스크.</li></ul></li>
-</ol>
-<strong>📌 DB 영향</strong>
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>"같은 사람이 국가를 옮기면 계정이 따라갈 수 있는가?" — DB 스키마·법무·UX 모두에 직결</p>
+<h4>배경·문제점</h4>
 <ul>
-  <li>jurisdiction 컬럼을 users 테이블에 고정 vs 이력 테이블 분리</li>
-  <li>consent_log는 법적 보존 기간(KR 5년, CN 3년) 동안 이전 국가도 조회 가능해야</li>
-  <li>구매 이전 시 환율·결제 PG 달라짐 → 이전 포인트 환산 규칙</li>
+  <li>GDPR 데이터 이동권, KR 개인정보 국외이전 §28-8 등 법적 영향</li>
+  <li>구매 이력·게임 데이터 이전 시 환율·결제 PG·세금 처리 모두 영향</li>
+  <li>가격 차별화 어뷰징 가능성 (싼 지역 가입 → 비싼 지역 사용)</li>
 </ul>
-<strong>📌 결정권자</strong>: 기획팀 + 법무팀 + DB 설계자 공동.`
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 완전 고정</strong> — 가입 시점 국가 영구, 이민 시 새 계정 / 장점: 법적 안전·구현 단순 / 단점: 유저 이탈, CS 불만</li>
+  <li><strong>B) 1회 CS 심사 전환</strong> — 비자·영주권 증빙 확인 후 수동 전환 / 장점: 균형 / 단점: CS 운영 비용</li>
+  <li><strong>C) 자유 전환 (쿨다운)</strong> — 90일마다 1회 등 / 장점: UX / 단점: 어뷰징 리스크 큼</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>라이엇</strong><span>1회 region 전환 가능 (유료, ~$20). 챔피언/스킨 이전, 랭크 초기화. 라이엇 ID 통합 후 더 유연해짐.</span></div>
+<div class="competitor-row"><strong>블리자드</strong><span>지역 변경 부분 가능. 구매한 게임은 region별 라이선스 분리.</span></div>
+<div class="competitor-row"><strong>스팀/Valve</strong><span>거주지 변경 시 가격 재책정. 잦은 변경은 차단(VAC와 별개), 선물·거래에서 region lock.</span></div>
+<div class="competitor-row"><strong>에픽</strong><span>Epic Account는 글로벌 단일, "국가 표시"만 변경 가능. 결제 지역과 표시 분리.</span></div>
+<div class="competitor-row"><strong>닌텐도</strong><span>지역 고정 강함. eShop 변경 어렵고 잔액 이전 불가. 사실상 새 계정.</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li><strong>B (1회 CS 심사)</strong> 추천 — 라이엇 모델. DB에 <code>country_history</code> 테이블 + consent_log 보존</li>
+  <li><strong>결정 주체</strong>: 기획 + 법무 + DB 설계자. 가입 플로우·DB 스키마와 동시 결정 필요</li>
+</ul>`
           },
-          { level: 'high', text: '글로벌 서버 vs 지역 서버: KR-JP 유저가 같은 게임 서버에서 플레이 가능? 레이턴시 vs 글로벌 커뮤니티 트레이드오프.', country: 'ALL' },
-          { level: 'high', text: '결제 지역화: KR=카카오페이/토스, CN=위챗페이/알리페이, JP=콘비니. 각국 PG사 연동 범위 결정.', country: 'ALL' },
-          { level: 'medium', text: '친구 목록 리전 간 허용 여부: KR-JP 친구 추가 가능? 리전 간 소셜 기능 범위 정의.', country: 'ALL' }
+          {
+            level: 'high', country: 'ALL',
+            text: '글로벌 서버 vs 지역 서버: KR-JP 유저가 같은 게임 서버에서 플레이 가능? 레이턴시 vs 글로벌 커뮤니티 트레이드오프.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>게임 서버 토폴로지는 레이턴시·매칭 풀·운영 비용·법규 대응에 모두 영향</p>
+<h4>배경·문제점</h4>
+<ul>
+  <li>한국-일본 30~50ms, 한국-미서부 130~180ms, 한국-EU 250ms+</li>
+  <li>지역 분리 시 매칭 풀 작아져 매칭 시간 증가 (특히 비주류 게임)</li>
+  <li>CN은 GFW 때문에 별도 서버 필수</li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 글로벌 단일 서버</strong> — 풀 큼, 글로벌 커뮤니티 / 레이턴시·CN 차단</li>
+  <li><strong>B) 지역별 분리</strong> — 레이턴시 안정, 법규 대응 쉬움 / 매칭 어려움, 인프라 비용</li>
+  <li><strong>C) 하이브리드</strong> — 협력형(PvE)은 글로벌, 경쟁형(PvP)은 지역</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>라이엇 LoL</strong><span>지역별 분리 (KR/JP/NA/EUW/EUNE/LAS/LAN/BR/OCE/CN). 리전 간 플레이 불가, 친구는 라이엇 ID로 연결.</span></div>
+<div class="competitor-row"><strong>오버워치 2 (블리자드)</strong><span>지역별 매칭이지만 친구 그룹은 크로스 리전 가능. CN은 별도.</span></div>
+<div class="competitor-row"><strong>발로란트</strong><span>지역별 (라이엇 정책). 한국 지역에 한국 서버 별도.</span></div>
+<div class="competitor-row"><strong>PUBG (크래프톤)</strong><span>글로벌 매칭 + 지역 필터. 글로벌 매칭 중에도 ping 기반 라우팅.</span></div>
+<div class="competitor-row"><strong>포트나이트</strong><span>지역 자동 매칭 + 크로스플레이(PC/콘솔/모바일). CN은 별도(Tencent).</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li>장르별 결정 — 멀티 PvP=지역별 / 협력 PvE=글로벌 / CN은 무조건 별도</li>
+  <li><strong>결정 주체</strong>: 기획 + 인프라팀. 게임별로 별도 결정</li>
+</ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: '결제 지역화: KR=카카오페이/토스, CN=위챗페이/알리페이, JP=콘비니. 각국 PG사 연동 범위 결정.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>각국 주력 결제 수단 미연동 시 결제 전환율 30~50% 급락</p>
+<h4>배경·문제점</h4>
+<ul>
+  <li>KR: 네이버페이/카카오페이/토스 비중 60%+, 카드만 있으면 ↓</li>
+  <li>CN: 알리페이/위챗페이 95%+ 점유, 신용카드 거의 안 씀</li>
+  <li>JP: 콘비니 결제·캐리어 결제(docomo/au/SoftBank) 큰 비중</li>
+  <li>US: 신용카드 + Apple Pay/Google Pay</li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 자체 PG 직접 연동</strong> — 수수료 절감 / 연동 비용·운영 부담</li>
+  <li><strong>B) 글로벌 게이트웨이</strong> (Stripe/Adyen) — 빠른 연동, 일부 지역 미지원(CN)</li>
+  <li><strong>C) 지역별 PG 별도 연동</strong> — 최적화, 운영 복잡도</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>넥슨</strong><span>자체 결제 시스템 (NHN PAYCO 등) + 각국 PG. 일본은 GMO PG, CN은 텐센트 결제 백엔드.</span></div>
+<div class="competitor-row"><strong>스마일게이트</strong><span>통합 결제 게이트웨이 + 지역별 추가 (각국 카드사·간편결제).</span></div>
+<div class="competitor-row"><strong>스팀</strong><span>Steam Wallet + 70+ 국가 결제 옵션. 가상 지갑 충전 후 사용 모델.</span></div>
+<div class="competitor-row"><strong>에픽</strong><span>Stripe + 각국 PG. 모바일은 Apple/Google IAP 우회 시도(수수료 절감, 법적 분쟁).</span></div>
+<div class="competitor-row"><strong>호요버스 (원신)</strong><span>지역별 결제 통합. 글로벌 카드 + KR=네이버/카카오/토스, JP=캐리어, CN=알리/위챗.</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li>1차: <strong>Stripe (글로벌)</strong> + KR(네이버/카카오/토스) 직접 연동</li>
+  <li>2차: CN/JP 지역 PG 추가, 캐리어 결제는 모바일 게임 출시 시</li>
+  <li><strong>결정 주체</strong>: 결제팀 + 각국 사업 담당</li>
+</ul>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: '친구 목록 리전 간 허용 여부: KR-JP 친구 추가 가능? 리전 간 소셜 기능 범위 정의.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>리전 간 소셜 기능 = 글로벌 커뮤니티 vs 운영·법규 복잡도</p>
+<h4>배경·문제점</h4>
+<ul>
+  <li>CN ↔ 해외 데이터 이전은 PIPL 때문에 사실상 차단</li>
+  <li>KR-JP-US-TW 간은 비교적 자유 (단, 채팅 모더레이션 언어 5종 필요)</li>
+  <li>친구 시스템 통합 시 차단·신고·고객센터 다국어 대응</li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 완전 분리</strong> — 각 리전 독립 / 글로벌 친구 못함</li>
+  <li><strong>B) 4국 자유 + CN 분리</strong> — 균형 / CN 유저 소외감</li>
+  <li><strong>C) 전부 통합 (CN 별도 게이트)</strong> — 일관성 / PIPL 리스크</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>디스코드</strong><span>글로벌 통합. CN 차단(접근 불가). 채팅 다국어 모더레이션은 자동 번역 + 각국 신고팀.</span></div>
+<div class="competitor-row"><strong>PSN</strong><span>리전 분리 (계정 시점 고정). 친구는 글로벌이지만 일부 콘텐츠 region별.</span></div>
+<div class="competitor-row"><strong>스팀</strong><span>친구는 글로벌, CN은 별도 클라이언트(Steam China)로 격리.</span></div>
+<div class="competitor-row"><strong>에픽 게임즈</strong><span>Epic Friends 글로벌 통합 (CN 미진출이라 단순).</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li><strong>B (4국 자유 + CN 분리)</strong> 추천 — PIPL 리스크 회피 + 글로벌 커뮤니티 확보</li>
+  <li><strong>결정 주체</strong>: 기획 + 법무. 채팅 모더레이션 정책 동시 수립</li>
+</ul>`
+          }
         ]
       },
       {
         title: 'Gemini 보고서 핵심 반영 — 필수 vs 선택',
         items: [
-          { level: 'critical', text: '[필수] 규제 지능형 엔진(Regulatory Engine): IP+생년월일 기반 COPPA/GDPR/PIPA/중국 방침 실시간 판단 → 동적 인증수단·약관.', country: 'ALL' },
+          {
+            level: 'critical', country: 'ALL',
+            text: '[필수] 규제 지능형 엔진(Regulatory Engine): IP+생년월일 기반 COPPA/GDPR/PIPA/중국 방침 실시간 판단 → 동적 인증수단·약관.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>5개국 + EU + 미국 주별 규제 = 약관 조합 30+ 가지. 하드코딩 시 유지보수 폭발.</p>
+<h4>배경·문제점</h4>
+<ul>
+  <li>국가·연령·동의 상태에 따라 적용 법규가 동적으로 결정 (예: KR <14 → PIPA + 법정대리인)</li>
+  <li>신규 규제 추가 시(예: VA/CO/UT 프라이버시법) 코드 수정 위험</li>
+  <li>규제 변경 → 기존 회원 재동의 필요 여부 자동 판정해야</li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 룰 엔진 (선언적)</strong> — JSON/YAML 룰 → Drools/json-rules-engine 평가 / 장점: 코드 수정 없이 정책 추가 / 단점: 초기 설계 부담</li>
+  <li><strong>B) 코드 분기 (절차적)</strong> — if/else로 처리 / 장점: 빠른 시작 / 단점: 확장성 ↓, 테스트 폭증</li>
+  <li><strong>C) Feature Flag 결합</strong> — A/B + 단계적 활성화 (LaunchDarkly 등)</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>라이엇</strong><span>자체 컴플라이언스 시스템(Region-aware policies). LoL 글로벌 운영 노하우 축적.</span></div>
+<div class="competitor-row"><strong>에픽 (포트나이트)</strong><span>자체 컴플라이언스 엔진. 50+ 국가 동시 운영, 미성년 정책 자동 분기.</span></div>
+<div class="competitor-row"><strong>OneTrust 등 SaaS</strong><span>글로벌 기업 다수가 외부 솔루션 사용 (쿠키 동의·DSAR 자동화).</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li><strong>A + C 조합</strong> — JSON 룰 엔진 + Feature Flag. 신규 국가/규제 추가 시 코드 수정 없음</li>
+  <li><strong>결정 주체</strong>: 개발팀 (아키텍처) + 법무 (룰 정의)</li>
+</ul>`
+          },
           {
             level: 'critical', country: 'US',
             text: '[필수] COPPA 2026 개정안: 마케팅 목적과 서비스 제공 수집에 대해 각각 별도 동의(Granular Consent) 의무화.',
-            detail: `<strong>📌 COPPA란</strong>
-Children's Online Privacy Protection Act — 13세 미만 미국 어린이 개인정보 보호법. FTC 집행, 위반 시 위반 건당 최대 $51,744.
-<strong>📌 2026 개정안 주요 변화</strong>
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>13세 미만 어린이 데이터 수집 시 묶음 동의 금지 + 마케팅·서비스 별도. FTC 위반 건당 최대 $51,744.</p>
+<h4>배경·문제점</h4>
 <ul>
-  <li><strong>Granular Consent (세분화 동의)</strong>: "서비스 제공용" 데이터 수집과 "마케팅용" 데이터 수집을 <u>별도 체크박스</u>로 받아야. 묶음 동의 금지.</li>
-  <li><strong>제3자 공유 제한 강화</strong>: 부모가 거절한 목적의 제3자 공유는 완전 차단.</li>
-  <li><strong>보유 기간 명시 의무</strong>: 수집 데이터의 삭제 시점을 고지해야.</li>
-  <li><strong>Push 알림 옵트아웃 기본</strong>: 기본값이 "받지 않음"이어야.</li>
+  <li>COPPA 1998 제정 후 2013·2024·2026 개정. 2026은 Granular Consent 강제</li>
+  <li>위반 시 즉시 천문학적 과징금 (TikTok $5.7M, YouTube $170M, Epic $275M 사례)</li>
 </ul>
-<strong>📌 우리 구현 영향</strong>
+<h4>2026 개정안 주요 변화</h4>
 <ul>
-  <li>약관 화면에서 <strong>필수 동의 vs 선택 동의</strong>를 명확히 분리된 체크박스로 구현</li>
-  <li>마케팅 동의는 반드시 optional, 기본값 미체크</li>
-  <li>VPC(Verifiable Parental Consent) 완료 전 어떤 데이터도 수집·저장 금지</li>
+  <li><strong>Granular Consent</strong>: 서비스 제공용 vs 마케팅용 별도 체크박스</li>
+  <li><strong>제3자 공유 제한 강화</strong>: 부모 거절 시 완전 차단</li>
+  <li><strong>보유 기간 명시 의무</strong>: 삭제 시점 고지</li>
+  <li><strong>Push 알림 옵트아웃 기본</strong></li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 즉시 분리 동의 적용</strong> — 13세 이상도 동일 패턴 (안전)</li>
+  <li><strong>B) <13 차단</strong> — 수집 자체를 안 함 (COPPA 회피)</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>로블록스</strong><span>2023년부터 13세 미만 별도 모드. 부모 동의 + 채팅 제한.</span></div>
+<div class="competitor-row"><strong>포트나이트 (에픽)</strong><span>Cabined Accounts (제한 모드). $275M 합의 후 도입.</span></div>
+<div class="competitor-row"><strong>유튜브 키즈</strong><span>COPPA 별도 운영. 광고·댓글 제한.</span></div>
+<div class="competitor-row"><strong>TikTok</strong><span>US Under 13 Experience 별도 (제한된 콘텐츠).</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li><strong>A 즉시 적용</strong> + 약관 화면 분리 체크박스. 미국 출시 전 필수</li>
+  <li><strong>결정 주체</strong>: 법무팀 (FTC 가이드 검수) + 기획팀</li>
 </ul>`
           },
-          { level: 'critical', text: '[필수] 한국 PIPA 2025 개정: 위반 시 전체 매출액 최대 10% 과징금. CI/DI 기반 중복가입 방지 + 법정대리인 휴대폰 인증.', country: 'KR' },
+          {
+            level: 'critical', country: 'KR',
+            text: '[필수] 한국 PIPA 2025 개정: 위반 시 전체 매출액 최대 10% 과징금. CI/DI 기반 중복가입 방지 + 법정대리인 휴대폰 인증.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>2025 시행 PIPA 개정안 — 과징금이 <strong>전 세계 매출 기준</strong> 최대 10%. 글로벌 게임사에 미치는 충격 큼.</p>
+<h4>배경·문제점</h4>
+<ul>
+  <li>2024 통과, 2025 시행. 기존 위반 사항도 신 기준 적용 가능</li>
+  <li>CI(연계정보)·DI(중복가입확인정보) 기반 중복가입 방지 사실상 의무화</li>
+  <li>법정대리인 동의는 "휴대폰 본인인증" 등 검증 가능한 방식 필수</li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 완전 적용</strong> — PASS/NICE/KMC CI 인증 + 보호자 휴대폰 인증</li>
+  <li><strong>B) 부분 적용</strong> — 동의 절차만 강화, CI 미사용 / 리스크 큼</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>넥슨</strong><span>CI 기반 가입 (PASS/NICE). 미성년 보호자 휴대폰 인증 의무. 중복가입 차단.</span></div>
+<div class="competitor-row"><strong>스마일게이트</strong><span>동일. 본인인증 게이트웨이 통합 운영.</span></div>
+<div class="competitor-row"><strong>카카오게임즈</strong><span>카카오톡 본인인증 활용 + 결제 시 추가 인증.</span></div>
+<div class="competitor-row"><strong>엔씨소프트</strong><span>리니지·블레이드앤소울: NICE/PASS 본인인증 강제. CI 기반 1인 1계정.</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li><strong>A 필수</strong> — PASS·토스 본인인증 게이트웨이 연동, CI 저장 (해시)</li>
+  <li><strong>결정 주체</strong>: 법무 (기준) + 개발 (구현). 한국 정식 출시 전 필수</li>
+</ul>`
+          },
           {
             level: 'critical', country: 'CN',
             text: '[필수] 중국 NPPA 실명인증: 이름+신분증 → 공안부 DB 실시간 대조. 게스트 플레이는 15일마다 1시간, 결제 불가.',
-            detail: `<strong>📌 근거 법령</strong>
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>외국 업체는 공안부 DB 직접 접근 불가 → 현지 퍼블리셔/파트너 API 의존. 미준수 시 즉시 서비스 중단.</p>
+<h4>근거 법령</h4>
 <ul>
-  <li>国家新闻出版署《关于防止未成年人沉迷网络游戏的通知》(2021.08)</li>
-  <li>PIPL(개인정보보호법), 网络安全法(사이버보안법)</li>
+  <li>NPPA《关于防止未成年人沉迷网络游戏的通知》(2021.08)</li>
+  <li>PIPL §40 (데이터 로컬라이즈), 网络安全法</li>
 </ul>
-<strong>📌 실명인증 작동 방식</strong>
+<h4>실명인증 작동 방식</h4>
 <ol>
-  <li>가입 시 <strong>이름(한자) + 身份证号码(18자리)</strong> 입력</li>
-  <li>공안부 DB 실시간 대조 (CIIC 또는 인증 업체 API 연동)</li>
-  <li>미성년자 판정 → anti-addiction(防沉迷) 플래그 ON</li>
-  <li>얼굴인식 스팟체크 (랜덤 시점에 카메라 인증 요구)</li>
+  <li>가입 시 이름(한자) + 身份证号码(18자리) 입력</li>
+  <li>공안부 DB 실시간 대조</li>
+  <li>미성년자 판정 → 防沉迷 플래그 ON</li>
+  <li>얼굴인식 스팟체크 (랜덤)</li>
 </ol>
-<strong>📌 미성년 제약</strong>
+<h4>미성년 제약</h4>
 <ul>
-  <li><strong>플레이 시간</strong>: 금·토·일 및 법정공휴일 20:00~21:00만 (주 3시간 한정)</li>
-  <li><strong>결제 한도</strong>: 8세 미만 금지, 8~16세 월 ¥200, 16~18세 월 ¥400</li>
+  <li><strong>플레이 시간</strong>: 금·토·일·법정공휴일 20:00~21:00만 (주 3시간)</li>
+  <li><strong>결제 한도</strong>: 8세 미만 금지 / 8~16세 월 ¥200 / 16~18세 월 ¥400</li>
+  <li>게스트 플레이: 15일마다 1시간, 결제 불가</li>
 </ul>
-<strong>📌 게스트 플레이</strong>
+<h4>선택지</h4>
 <ul>
-  <li>실명인증 전: <strong>15일마다 1시간</strong>만 체험 가능, 결제 완전 불가</li>
-  <li>15일 초과 시 계속 플레이하려면 실명인증 필수</li>
+  <li><strong>A) 퍼블리셔 인증 API 사용</strong> (Tencent / NetEase) — 빠름, 매출 배분</li>
+  <li><strong>B) 자체 WFOE 설립 후 직접 인증 업체 계약</strong> — 6~12개월 추가</li>
 </ul>
-<strong>📌 구현 현실</strong>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>PUBG Mobile CN (Tencent)</strong><span>NPPA 직접 연동, 얼굴인식 통합. 미성년 시간/결제 제한 자동.</span></div>
+<div class="competitor-row"><strong>던파 (Tencent)</strong><span>실명+얼굴 완전 통합. 防沉迷 강제.</span></div>
+<div class="competitor-row"><strong>호요버스 (원신 中国版)</strong><span>자체 시스템 + 中国版 별도 운영. 米哈游 자체 인증 인프라.</span></div>
+<h4>추천·액션</h4>
 <ul>
-  <li>공안부 DB는 외국 업체 직접 접근 불가 → 현지 파트너/퍼블리셔 인증 API 재판매 사용</li>
-  <li>데이터는 반드시 중국 본토 서버에 저장 (PIPL §40)</li>
+  <li><strong>A (퍼블리셔 경유)</strong> — 자체 구축은 6~12개월 추가 소요, 시연 시 파트너 명시</li>
+  <li><strong>결정 주체</strong>: 사업 (파트너 선정) + 개발 (API 연동)</li>
 </ul>`
           },
-          { level: 'critical', text: '[필수] 소셜 로그인 토큰 보안: Authorization Code → Access/ID Token 교환 시 서명+만료 검증. 매핑 키는 이메일이 아닌 provider sub ID.', country: 'ALL' },
-          { level: 'critical', text: '[필수] 인라인 유효성 검사: 비밀번호 규칙, 닉네임 중복, 이메일 형식 → 실시간 피드백. "가입 버튼 후 에러" 패턴 금지.', country: 'ALL' },
-          { level: 'high', text: '[선택] 게스트 계정 → 정식 전환 (Progressive Profiling, 라이엇 방식). 생년월일만으로 시작, 45일 후 정식 가입 유도.', country: 'ALL' },
-          { level: 'high', text: '[선택] 수동 국가 변경 허용 (에픽게임즈 방식). IP 자동 감지 + 수동 변경. 가입 후 변경 불가 또는 1회 제한.', country: 'ALL' },
-          { level: 'medium', text: '[선택] 이메일 도메인 자동 제안 (@gmail.com, @naver.com 등 버튼 제안).', country: 'ALL' },
-          { level: 'medium', text: '[선택] 탈퇴 시 소셜 Unlink API 호출. GDPR 삭제권 대응.', country: 'ALL' }
+          {
+            level: 'critical', country: 'ALL',
+            text: '[필수] 소셜 로그인 토큰 보안: Authorization Code → Access/ID Token 교환 시 서명+만료 검증. 매핑 키는 이메일이 아닌 provider sub ID.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>이메일은 변경 가능 → provider sub ID(고유 식별자)를 기본 키로. 검증 미흡 시 계정 인수 취약점.</p>
+<h4>배경·문제점</h4>
+<ul>
+  <li>OAuth 2.0 / OIDC ID Token 검증 항목: 서명·발급자(iss)·만료(exp)·청중(aud)·nonce</li>
+  <li>이메일을 매핑 키로 쓰면: 사용자가 소셜 측 이메일 변경 → 다른 사용자가 그 이메일로 가입 → 계정 인수</li>
+  <li>provider+sub 복합 키는 OAuth 베스트 프랙티스</li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) provider + sub 복합 키 (권장)</strong> — 안전, 표준</li>
+  <li><strong>B) 이메일 + provider</strong> — 취약, 비추천</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>라이엇</strong><span>provider sub 기반. 라이엇 ID 통합 후 일관 적용.</span></div>
+<div class="competitor-row"><strong>에픽</strong><span>Epic Account Service에서 provider sub. 멀티 소셜 연결 지원.</span></div>
+<div class="competitor-row"><strong>디스코드</strong><span>provider sub 기반. 이메일은 표시용·복구용으로만.</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li><strong>A 적용 필수</strong>. JWT 라이브러리(jose 등) 사용, 서명·만료·issuer·audience 검증</li>
+  <li><strong>결정 주체</strong>: 보안팀 + 개발팀. 코드 리뷰 체크리스트에 포함</li>
+</ul>`
+          },
+          {
+            level: 'critical', country: 'ALL',
+            text: '[필수] 인라인 유효성 검사: 비밀번호 규칙, 닉네임 중복, 이메일 형식 → 실시간 피드백. "가입 버튼 후 에러" 패턴 금지.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>"가입 버튼 클릭 후 에러" 패턴 = 폼 이탈률 +30~50%. 실시간 피드백이 표준.</p>
+<h4>배경·문제점</h4>
+<ul>
+  <li>NN/g 등 사용성 연구: 실시간 검증이 폼 완료율 ↑</li>
+  <li>특히 모바일에서 작은 화면·터치로 입력 → 에러 시 어디 잘못됐는지 못 찾음</li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 모든 필드 실시간 (디바운스 300ms)</strong> — 최고 UX, 서버 부하</li>
+  <li><strong>B) 필드 blur 시 검증</strong> — 균형, 타이핑 중 산만함 ↓</li>
+  <li><strong>C) 제출 시 일괄</strong> — 비추천, 옛 패턴</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>에픽 가입 폼</strong><span>실시간 (이메일 형식·비밀번호 강도 점수).</span></div>
+<div class="competitor-row"><strong>디스코드</strong><span>실시간 (닉네임 중복은 디바운스 500ms).</span></div>
+<div class="competitor-row"><strong>스팀</strong><span>blur 시 검증 (구식 UI).</span></div>
+<div class="competitor-row"><strong>토스</strong><span>실시간 + 체크 아이콘 (한국 UX 모범 사례).</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li><strong>A 적용</strong>. 닉네임 중복은 디바운스 500ms로 서버 부하 완화</li>
+  <li><strong>결정 주체</strong>: 프론트엔드 + UX팀</li>
+</ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: '[선택] 게스트 계정 → 정식 전환 (Progressive Profiling, 라이엇 방식). 생년월일만으로 시작, 45일 후 정식 가입 유도.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>가입 장벽 제거 → 일단 시작 → 정식 가입 유도. 진입율 ↑ but 본인인증 필요한 KR/CN과 충돌.</p>
+<h4>배경·문제점</h4>
+<ul>
+  <li>첫 화면 가입 폼 = 이탈률 60%+ (모바일에서 더 심함)</li>
+  <li>생년월일만으로 게스트 시작하면 즉시 게임 진입</li>
+  <li>BUT KR(PIPA), CN(NPPA)는 게스트도 실명 요구 → 적용 범위 제한적</li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 도입 (US/JP/TW만)</strong> — 진입율 ↑, KR/CN은 정식 가입 필수</li>
+  <li><strong>B) 미도입</strong> — 모든 국가 정식 가입</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>라이엇 LoL</strong><span>Riot ID 게스트 모드. 진입 시 닉네임만, 결제 시 정식 가입 강제.</span></div>
+<div class="competitor-row"><strong>포트나이트</strong><span>모바일 게스트 가능. 크로스플레이는 정식 계정 필요.</span></div>
+<div class="competitor-row"><strong>호요버스 (원신)</strong><span>게스트 플레이 → 결제·계정 동기화 시 가입 강제.</span></div>
+<div class="competitor-row"><strong>PUBG Mobile</strong><span>게스트 시작 가능. 단, 게스트는 캐릭터 데이터 분실 위험 고지.</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li><strong>A (US/JP/TW만 도입)</strong> 검토. KR/CN은 게스트 결제 차단 + 일정 시간 후 가입 유도 배너</li>
+  <li><strong>결정 주체</strong>: 기획 + 법무 (각국 적용 가능 여부)</li>
+</ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: '[선택] 수동 국가 변경 허용 (에픽게임즈 방식). IP 자동 감지 + 수동 변경. 가입 후 변경 불가 또는 1회 제한.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>IP 고정만으로는 교민·출장자·VPN 사용자 대응 불가. PLAN에 이미 "가입 시 국가 선택 + 쿠키 검증" 반영됨.</p>
+<h4>배경·문제점</h4>
+<ul>
+  <li>외국 거주 한인이 KR 게임 못함 = 큰 페인포인트 (교민 약 750만)</li>
+  <li>출장자·여행자도 일시적 IP 차이로 UX 저하</li>
+  <li>완전 자유 변경 시 가격 차별화 어뷰징 (싼 지역 가입 → 비싼 지역 사용)</li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) IP 고정만</strong> — 안전, 유저 불만</li>
+  <li><strong>B) 가입 시 1회 변경, 이후 고정 (현 PLAN)</strong> — 균형</li>
+  <li><strong>C) 가입 후도 자유 변경</strong> — 어뷰징 리스크</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>에픽</strong><span>IP 자동 + 사용자 수동 변경 가능. 변경 시 가격 재책정.</span></div>
+<div class="competitor-row"><strong>스팀</strong><span>거주지 변경 시 가격 재책정. 잦은 변경은 차단.</span></div>
+<div class="competitor-row"><strong>라이엇</strong><span>1회 region 전환 (유료 ~$20). 챔피언/스킨 일부 이전.</span></div>
+<div class="competitor-row"><strong>닌텐도</strong><span>지역 고정 강함. eShop 변경 어렵고 잔액 이전 불가.</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li><strong>B 채택 (현 PLAN)</strong> — 가입 시 1회 변경, 이후 CS 통해서만</li>
+  <li><strong>결정 주체</strong>: 기획팀 (이미 PLAN 반영, 추가 결정 없음)</li>
+</ul>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: '[선택] 이메일 도메인 자동 제안 (@gmail.com, @naver.com 등 버튼 제안).',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>이메일 오타(@gmial.com 등) 방지 + 입력 속도 향상. small but impactful UX.</p>
+<h4>배경·문제점</h4>
+<ul>
+  <li>오타 → 인증 메일 못 받음 → 가입 실패 → CS 문의</li>
+  <li>모바일에서 @ 입력 번거로움</li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 자동완성 드롭다운</strong> — gmail/naver/daum/yahoo 등 국가별</li>
+  <li><strong>B) 도메인 버튼 그리드</strong> — 토스 방식, 시각적</li>
+  <li><strong>C) "did you mean" 제안</strong> — 카카오 방식, 오타 감지 후 제안</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>토스</strong><span>도메인 버튼 그리드 (한국 모범 사례).</span></div>
+<div class="competitor-row"><strong>카카오</strong><span>"did you mean" 제안 (gmial → gmail).</span></div>
+<div class="competitor-row"><strong>네이버</strong><span>자체 도메인 우선 노출.</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li><strong>B + C 조합</strong> 추천. 입력 시 버튼 표시 + 오타 시 "did you mean"</li>
+  <li><strong>결정 주체</strong>: UX/프론트엔드</li>
+</ul>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: '[선택] 탈퇴 시 소셜 Unlink API 호출. GDPR 삭제권 대응.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>단순 DB 삭제만으로는 GDPR Article 17(잊혀질 권리) 미준수 가능 — 소셜 제공자 측 토큰도 폐기 필요.</p>
+<h4>배경·문제점</h4>
+<ul>
+  <li>OAuth 토큰은 발급자(Google/Apple/...) 측에 저장 → 우리 DB만 지워도 토큰 살아있음</li>
+  <li>각 제공자마다 unlink/revoke API가 다름 (Google revoke, Apple revokeToken, Naver unlink)</li>
+  <li>API 실패 시 retry 큐 필요 (네트워크·rate limit)</li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 모든 제공자 unlink/revoke 호출</strong> — 정석, 구현 부담</li>
+  <li><strong>B) 자체 DB만 삭제</strong> — 빠름, 컴플라이언스 리스크</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>디스코드</strong><span>unlink 호출 (각 제공자별 API 매핑 운영).</span></div>
+<div class="competitor-row"><strong>카카오</strong><span>탈퇴 시 카카오 unlink API 호출 (필수).</span></div>
+<div class="competitor-row"><strong>스팀</strong><span>계정 삭제 요청 시 30일 grace + 외부 토큰 폐기.</span></div>
+<h4>추천·액션</h4>
+<ul>
+  <li><strong>A 적용</strong>. 각 제공자 unlink API 매핑 + 실패 시 retry 큐 (Redis BullMQ 등)</li>
+  <li><strong>결정 주체</strong>: 개발팀 + 법무 (GDPR 컨설트)</li>
+</ul>`
+          }
         ]
       }
     ]
