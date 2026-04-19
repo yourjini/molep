@@ -174,7 +174,7 @@ const I18N = {
   ko: {
     demo: 'DEMO',
     demoCountrySelect: '접속 국가 시뮬레이션 (IP 강제 변경)',
-    reviewPageBtn: '📋 고려사항 (별도 페이지)',
+    reviewPageBtn: '📋 고려사항',
     login: '로그인', signup: '회원가입',
     heroTitle: 'Global Game Portal',
     heroSubtitle: '전 세계 최고의 게임, 이제 하나의 포털에서',
@@ -241,7 +241,7 @@ const I18N = {
   en: {
     demo: 'DEMO',
     demoCountrySelect: 'Force Country (Demo Simulation)',
-    reviewPageBtn: '📋 Review Notes (separate page)',
+    reviewPageBtn: '📋 Review Notes',
     login: 'Login', signup: 'Sign Up',
     heroTitle: 'Global Game Portal',
     heroSubtitle: 'The best games worldwide — now in one portal',
