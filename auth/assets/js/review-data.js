@@ -467,43 +467,346 @@ const REVIEW_DATA = {
       {
         title: '국가별 규제 정확성 검토',
         items: [
-          { level: 'critical', text: '[KR] 미성년 결제한도 ₩70,000은 자율규제 기준, 법적 강제 기준 아님. 자사 기준 설정 필요.', country: 'KR' },
-          { level: 'critical', text: '[CN] 미성년 充值 한도 ¥0/¥200/¥400은 2019년 기준. 2023년 상향 논의 있었음. 최종 확정안 재확인 필요.', country: 'CN' },
-          { level: 'high', text: '[JP] 과금 한도 ¥5,000/¥20,000은 JOGA 자율규제 기준. "자율권고" 표기 정정 필요.', country: 'JP' },
-          { level: 'high', text: '[KR] 개인정보보호법 2023.09 개정. 법정대리인 동의 절차 요건 강화. 최신 버전 반영 필수.', country: 'KR' }
+          {
+            level: 'critical', country: 'KR',
+            text: '[KR] 미성년 결제한도 ₩70,000은 자율규제 기준, 법적 강제 기준 아님. 자사 기준 설정 필요.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>₩70,000은 게임 업계 자율규제 권고치. 법적 강제력 없음. 자사 기준을 별도로 정해야 함.</p>
+<h4>배경·문제점</h4>
+<ul><li>한국게임산업협회(K-GAMES) 자율규제 가이드 — 권고치이며 위반 시 법적 처벌 X</li>
+<li>회사마다 한도 다름. 일부는 더 엄격, 일부는 무제한</li>
+<li>소비자보호 측면에서 사회적 비판 가능 (특히 PvP·확률형)</li></ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 업계 관행 ₩70,000 따름</strong> — 안전, 차별성 ↓</li>
+  <li><strong>B) 더 엄격 (₩50,000)</strong> — 사회적 평판 ↑, 매출 ↓</li>
+  <li><strong>C) 더 완화 (₩100,000+)</strong> — 매출 ↑, 비판 리스크</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>넥슨·엔씨·스마일게이트</strong><span>업계 권고치 ₩70,000 준수 (보호자 동의 시 별도 한도).</span></div>
+<div class="competitor-row"><strong>카카오게임즈</strong><span>유사. 일부 게임은 더 엄격 운영.</span></div>
+<div class="competitor-row"><strong>모바일 게임 (호요·텐센트)</strong><span>국내 운영 시 동일 권고치 따름.</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>A 권장</strong> (업계 관행). 사회적 이슈 발생 시 B로 조정 가능</li>
+<li><strong>결정 주체</strong>: 사업팀 + 법무 + CS</li></ul>`
+          },
+          {
+            level: 'critical', country: 'CN',
+            text: '[CN] 미성년 充值 한도 ¥0/¥200/¥400은 2019년 기준. 2023년 상향 논의 있었음. 최종 확정안 재확인 필요.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>2019 NPPA 가이드라인이 기준. 2023년 상향 논의 있었으나 최종 확정안 미공개 — 시점에 맞는 최신 가이드 확인 필요.</p>
+<h4>배경·문제점</h4>
+<ul>
+  <li>2019: 8세 미만 ₩0 / 8~16세 월 ¥200 / 16~18세 월 ¥400</li>
+  <li>2023~2024 상향 논의 있으나 최종 가이드 공식화 시점 불명확</li>
+  <li>NPPA 가이드는 사실상 강제력 — 위반 시 즉시 시정명령</li>
+</ul>
+<h4>선택지</h4>
+<ul>
+  <li><strong>A) 2019 기준 보수적 적용</strong> — 안전</li>
+  <li><strong>B) 최신 가이드 모니터링 후 즉시 반영</strong> — 컴플라이언스 ↑, 운영 부담</li>
+</ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>Tencent / NetEase</strong><span>NPPA 가이드 즉시 반영. 자체 모니터링 팀 운영.</span></div>
+<div class="competitor-row"><strong>호요버스</strong><span>原神 中国版: 가이드 변경 시 즉시 동기화.</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>A + 모니터링</strong>. 퍼블리셔 사용 시 그 쪽 정책 따름</li>
+<li><strong>결정 주체</strong>: CN 파트너 (운영 위임 시)</li></ul>`
+          },
+          {
+            level: 'high', country: 'JP',
+            text: '[JP] 과금 한도 ¥5,000/¥20,000은 JOGA 자율규제 기준. "자율권고" 표기 정정 필요.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>JOGA(일본온라인게임협회) 자율규제 — 법적 강제 아님. PLAN/약관에서 "자율권고"로 정정.</p>
+<h4>선택지</h4>
+<ul><li><strong>A) JOGA 가이드 따름</strong> — 업계 표준 (16세 미만 ¥5,000 / 16~18세 ¥20,000)</li>
+<li><strong>B) 자체 한도 설정</strong> — 차별 가능</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>일본 모바일 게임 대부분</strong><span>JOGA 가이드 준수. 법적 강제는 아니나 업계 관행.</span></div>
+<div class="competitor-row"><strong>호요버스 (原神 JP)</strong><span>JOGA 한도 적용.</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>A</strong>. 약관에 "JOGA 자율규제 가이드 준수" 명시</li></ul>`
+          },
+          {
+            level: 'high', country: 'KR',
+            text: '[KR] 개인정보보호법 2023.09 개정. 법정대리인 동의 절차 요건 강화. 최신 버전 반영 필수.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>2023.09 개정 법정대리인 동의 — 휴대폰 본인인증 등 검증 가능한 방식 의무화.</p>
+<h4>배경·문제점</h4>
+<ul><li>기존 단순 체크박스 동의 불가</li>
+<li>2025 개정 (매출 10% 과징금)과 누적 영향 큼</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) PASS/NICE 본인인증 통합</strong> — 표준</li>
+<li><strong>B) 카드 인증</strong> — 미성년 보호자 카드 (대안)</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>넥슨·엔씨</strong><span>PASS 본인인증 통합 (휴대폰 + CI).</span></div>
+<div class="competitor-row"><strong>카카오게임즈</strong><span>카카오톡 본인인증 + 보호자 휴대폰.</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>A 적용</strong>. 법무팀과 동의 절차 검수</li></ul>`
+          }
         ]
       },
       {
         title: '누락된 주요 규제',
         items: [
-          { level: 'critical', text: '[KR] 게임물관리위원회(GRAC) 등급분류 미취득 시 한국 서비스 불가.', country: 'KR' },
-          { level: 'critical', text: '[CN] ICP 외 EDI 허가. 인앱결제 포함 전자상거래 운영 시 电子商务法 적용.', country: 'CN' },
-          { level: 'high', text: '[US] FTC Act Section 5: 다크패턴, 허위광고 규제 (2024 강화).', country: 'US' },
-          { level: 'high', text: '[US] 주별 프라이버시법 확산. 2025년 기준 20개 이상 주 시행·예정.', country: 'US' },
-          { level: 'high', text: '[JP] 資金決済法: 선불식 포인트/코인 발행 시 공탁 또는 보증보험 의무.', country: 'JP' },
-          { level: 'high', text: '[JP] 景品表示法: 확률형 아이템 표기 강화 (2023 소비자청 가이드).', country: 'JP' },
-          { level: 'medium', text: '[TW] 消費者保護法: 디지털 콘텐츠 환불 정책 명시 의무.', country: 'TW' },
-          { level: 'medium', text: '[US] ADA 접근성: 게임 UI 접근성 소송 리스크 증가.', country: 'US' },
-          { level: 'medium', text: '[KR] 전자금융거래법: 인앱결제 시 전자지급결제대행업 등록 여부 확인.', country: 'KR' }
+          {
+            level: 'critical', country: 'KR',
+            text: '[KR] 게임물관리위원회(GRAC) 등급분류 미취득 시 한국 서비스 불가.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>GRAC 등급분류는 한국 게임 서비스의 <strong>법적 선행 조건</strong>. 미취득 시 앱마켓 등록 자체 불가.</p>
+<h4>배경·문제점</h4>
+<ul><li>게임산업진흥법 §21: 모든 게임은 등급분류 필수</li>
+<li>등급: 전체이용가/12세/15세/청소년이용불가</li>
+<li>심사 기간 통상 2~6주, 수정 요청 시 추가 시간</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) 사전 등급분류 신청</strong> — 정석, 출시 1~2개월 전</li>
+<li><strong>B) 자체등급분류사업자 활용</strong> — Google Play/App Store 등 자체 등급 부여 (모바일만)</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>국내 모든 게임사</strong><span>GRAC 등급분류 또는 자체등급분류 의무.</span></div>
+<div class="competitor-row"><strong>스팀 KR</strong><span>2024년부터 GRAC 등급분류 강화 (미분류 게임 일부 차단).</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>A</strong>. 출시 2~3개월 전 신청. 운영 중 콘텐츠 추가 시 재심사 가능</li>
+<li><strong>결정 주체</strong>: 게임 운영팀 + 법무</li></ul>`
+          },
+          {
+            level: 'critical', country: 'CN',
+            text: '[CN] ICP 외 EDI 허가. 인앱결제 포함 전자상거래 운영 시 电子商务法 적용.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>중국에서 결제·전자상거래 운영 시 ICP 외에 <strong>EDI(增值电信业务经营许可证)</strong> 별도 필요.</p>
+<h4>배경·문제점</h4>
+<ul><li>ICP는 단순 콘텐츠 호스팅, EDI는 결제·이커머스</li>
+<li>EDI는 외국 자본 비율 제한 (50% 이하), WFOE는 사실상 불가능</li>
+<li>현지 퍼블리셔 통한 우회 필수</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) 퍼블리셔 인프라 활용</strong> — 정석</li>
+<li><strong>B) 합작 법인 (JV)</strong> — 외국 자본 50% 이하 구조 설립 (시간 큼)</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>Tencent / NetEase</strong><span>자체 EDI 보유. 외국 게임은 그쪽 인프라 활용.</span></div>
+<div class="competitor-row"><strong>호요버스</strong><span>米哈游 자체 EDI (중국 본토 법인).</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>A</strong>. 퍼블리셔 계약에 EDI 인프라 명시</li></ul>`
+          },
+          {
+            level: 'high', country: 'US',
+            text: '[US] FTC Act Section 5: 다크패턴, 허위광고 규제 (2024 강화).',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>FTC가 2023~2024 다크패턴(deceptive design)·허위광고 단속 강화. 게임 업계 영향 큼.</p>
+<h4>배경·문제점</h4>
+<ul><li>구독 취소 어렵게 만들기, 강제 구매 유도 등 다크패턴 처벌</li>
+<li>가챠 확률 표시 미흡, 허위 마케팅도 대상</li>
+<li>Epic이 2022년 $245M 합의 (다크패턴 + COPPA)</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) 다크패턴 가이드 자체 점검</strong> — UI/UX 리뷰</li>
+<li><strong>B) 외부 컴플라이언스 컨설트</strong> — 법무 + UX 컨설팅</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>에픽 (포트나이트)</strong><span>2022 합의 후 UI 전면 개편. "Cancel" 버튼 명확히, 우발 결제 차단.</span></div>
+<div class="competitor-row"><strong>로블록스</strong><span>가상 화폐(Robux) 결제 UX 단순화, 환불 가능 항목 명시.</span></div>
+<div class="competitor-row"><strong>Apple/Google IAP</strong><span>2024 환불 정책 강화 (FTC 가이드 반영).</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>A + B 병행</strong>. 결제·구독 UX 다크패턴 체크리스트 운영</li>
+<li><strong>결정 주체</strong>: UX + 법무 + 결제팀</li></ul>`
+          },
+          {
+            level: 'high', country: 'US',
+            text: '[US] 주별 프라이버시법 확산. 2025년 기준 20개 이상 주 시행·예정.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>CA(CCPA/CPRA) 외에 VA·CO·UT·CT·TX·OR 등 주별 프라이버시법 시행. 주마다 요구사항 다름.</p>
+<h4>배경·문제점</h4>
+<ul><li>2025 시행/예정: VCDPA(VA), CPA(CO), UCPA(UT), CTDPA(CT), TDPSA(TX), OCPA(OR), MCDPA(MT) 등</li>
+<li>핵심 요구: 데이터 접근권/삭제권/판매 거부권/민감정보 동의</li>
+<li>주별로 적용 매출/사용자 임계값 다름</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) 가장 엄격한 기준(CA) 통일 적용</strong> — 운영 단순, 비용 ↑</li>
+<li><strong>B) 주별 분기</strong> — 최적화, 복잡도 ↑</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>대형 게임사</strong><span>대부분 CCPA 기준 통일 적용 (라이엇·에픽·블리자드).</span></div>
+<div class="competitor-row"><strong>OneTrust 등 SaaS</strong><span>주별 자동 분기 솔루션 사용 중인 기업 많음.</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>A 시작</strong>, 트래픽 커지면 B 검토</li>
+<li><strong>결정 주체</strong>: 법무 + 개발</li></ul>`
+          },
+          {
+            level: 'high', country: 'JP',
+            text: '[JP] 資金決済法: 선불식 포인트/코인 발행 시 공탁 또는 보증보험 의무.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>일본에서 선불 포인트/코인 발행 = 资金결제법 적용 → 미사용 잔액의 50% 공탁 또는 보증보험 의무.</p>
+<h4>배경·문제점</h4>
+<ul><li>일본 자금결제법 §13 — 선불식 지급수단 발행자</li>
+<li>잔액 1,000만엔 초과 시 의무 발생</li>
+<li>위반 시 등록 취소 + 형사 처벌</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) 자체 포인트 시스템</strong> — 자금결제법 적용, 공탁/보증 운영</li>
+<li><strong>B) 직접 결제만 (포인트 X)</strong> — 자금결제법 회피</li>
+<li><strong>C) 외부 결제 대행 (Apple/Google IAP)</strong> — 그쪽 책임</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>일본 게임사 대부분</strong><span>포인트 시스템 운영, 공탁·보증 인프라 보유.</span></div>
+<div class="competitor-row"><strong>스마트폰 게임</strong><span>Apple/Google IAP 통한 우회 (수수료 30% 부담).</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>B 또는 C 추천</strong>. 자체 포인트는 큰 부담</li>
+<li><strong>결정 주체</strong>: 결제팀 + 법무</li></ul>`
+          },
+          {
+            level: 'high', country: 'JP',
+            text: '[JP] 景品表示法: 확률형 아이템 표기 강화 (2023 소비자청 가이드).',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>2023 소비자청 가이드라인 — 가챠 확률 표시 강화, "유리한 조건" 광고 금지.</p>
+<h4>배경·문제점</h4>
+<ul><li>경품표시법 §5 — 일반 소비자에 부당 표시 금지</li>
+<li>가챠 확률 미표시·허위 표시는 처벌 대상</li>
+<li>2023 가이드 — "확률 0.001%" 같은 극저 확률 표기 의무</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) 모든 가챠 확률 정확히 표시</strong> — 정석</li>
+<li><strong>B) 가챠 자체 미운영</strong> — 회피, 비즈니스 손실</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>일본 모바일 게임</strong><span>대부분 확률 표시 의무화 (JOGA 가이드 + 소비자청).</span></div>
+<div class="competitor-row"><strong>호요버스 (原神)</strong><span>전 캐릭터/무기 확률 공개. 천장 시스템 명시.</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>A</strong>. 약관·게임 내 모두 표시</li>
+<li><strong>결정 주체</strong>: 운영 + 법무</li></ul>`
+          },
+          {
+            level: 'medium', country: 'TW',
+            text: '[TW] 消費者保護法: 디지털 콘텐츠 환불 정책 명시 의무.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>대만 소비자보호법 — 디지털 콘텐츠 7일 청약철회권 + 환불 정책 명시 의무.</p>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>대만 게임 운영사</strong><span>대부분 7일 환불 정책 명시 (게임 내 사용 안 한 경우).</span></div>
+<div class="competitor-row"><strong>스팀 TW</strong><span>2시간 미플레이 + 14일 이내 환불 정책.</span></div>
+<h4>추천·액션</h4>
+<ul><li>약관에 환불 정책 명시. 사용 시점·범위 정의</li></ul>`
+          },
+          {
+            level: 'medium', country: 'US',
+            text: '[US] ADA 접근성: 게임 UI 접근성 소송 리스크 증가.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>ADA Title III — 디지털 서비스도 접근성 의무. 게임 업계 소송 사례 증가.</p>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>마이크로소프트 (Xbox)</strong><span>접근성 가이드라인 전면 적용 (Adaptive Controller 등).</span></div>
+<div class="competitor-row"><strong>소니 (PlayStation)</strong><span>접근성 모드, 자막 강화.</span></div>
+<div class="competitor-row"><strong>The Last of Us 2</strong><span>업계 표준급 접근성 옵션 (60+ 항목).</span></div>
+<h4>추천·액션</h4>
+<ul><li>최소: 키보드 탐색·자막·고대비 모드. 게임은 별도 가이드</li></ul>`
+          },
+          {
+            level: 'medium', country: 'KR',
+            text: '[KR] 전자금융거래법: 인앱결제 시 전자지급결제대행업 등록 여부 확인.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>자체 결제 운영 시 PG·VAN 등록 필요. Apple/Google IAP 사용 시 그쪽이 처리.</p>
+<h4>추천·액션</h4>
+<ul><li>모바일: IAP 사용 (등록 불필요). 웹: PG사 통한 결제 (이니시스·KCP 등)</li></ul>`
+          }
         ]
       },
       {
         title: '크로스보더 컴플라이언스',
         items: [
-          { level: 'high', text: 'GDPR 역외 적용: EU 사용자 접근 시 적용. DPO, 쿠키 동의, SCCs. EU 서비스 대상 여부 결정 필요.', country: 'ALL' },
-          { level: 'high', text: '[KR] 개인정보 국외이전 §28조의8 (2024.03): 동등성 평가 또는 표준계약 체결 의무화.', country: 'KR' },
-          { level: 'high', text: '[CN→해외] 데이터 이전 금지 (PIPL §49). 중국 서버 분리 필수. CAC 심사 대상 가능.', country: 'CN' },
-          { level: 'medium', text: '[TW] PDPA 국외이전: 감독기관 사전허가 또는 본인동의 필요.', country: 'TW' }
+          {
+            level: 'high', country: 'ALL',
+            text: 'GDPR 역외 적용: EU 사용자 접근 시 적용. DPO, 쿠키 동의, SCCs. EU 서비스 대상 여부 결정 필요.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>EU 사용자 데이터 처리 = GDPR 적용 (사업자 위치 무관). DPO 지정·쿠키 동의·SCC 모두 필요.</p>
+<h4>배경·문제점</h4>
+<ul><li>위반 시 글로벌 매출 4% 또는 €20M (큰 쪽)</li>
+<li>EU 사용자 식별 어려움 (VPN 등)</li>
+<li>geo-block 시 EU 시장 포기</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) GDPR 완전 준수 + EU 서비스</strong> — 기회 크나 비용 큼</li>
+<li><strong>B) EU geo-block</strong> — 안전, 시장 포기</li>
+<li><strong>C) 부분 준수 (위험)</strong> — 비추천</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>라이엇·에픽</strong><span>EU 직접 서비스 + GDPR 완전 준수. EU 사무소 운영.</span></div>
+<div class="competitor-row"><strong>일부 한국 게임</strong><span>EU geo-block (린저씨 등 일부 — GDPR 부담).</span></div>
+<div class="competitor-row"><strong>호요버스</strong><span>유럽 직접 서비스, 룩셈부르크 거점.</span></div>
+<h4>추천·액션</h4>
+<ul><li>5개국 우선 → EU는 단계적 검토. 결정 시점 시급하지 않음</li>
+<li><strong>결정 주체</strong>: 사업 + 법무</li></ul>`
+          },
+          {
+            level: 'high', country: 'KR',
+            text: '[KR] 개인정보 국외이전 §28조의8 (2024.03): 동등성 평가 또는 표준계약 체결 의무화.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>한국 회원 개인정보를 해외로 이전하려면 ① 동등성 인정국 또는 ② 개인정보위 표준계약 체결.</p>
+<h4>배경·문제점</h4>
+<ul><li>2024.03 시행. 글로벌 운영 게임사 대부분 영향</li>
+<li>AWS/GCP 사용 시 리전 + SCC 필요</li>
+<li>위반 시 시정명령 + 과징금</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) KR 데이터 KR 리전 보관</strong> — 안전, 비용</li>
+<li><strong>B) 표준계약 체결 후 해외 이전</strong> — 비용 ↓, 절차 부담</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>넥슨·엔씨</strong><span>KR 데이터 KR 리전 (AWS Seoul 등).</span></div>
+<div class="competitor-row"><strong>글로벌 SaaS (Salesforce 등)</strong><span>SCC 체결 운영.</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>A</strong>. KR 데이터는 ap-northeast-2 (Seoul) 보관</li></ul>`
+          },
+          {
+            level: 'high', country: 'CN',
+            text: '[CN→해외] 데이터 이전 금지 (PIPL §49). 중국 서버 분리 필수. CAC 심사 대상 가능.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>PIPL §38·39·49 — CN 데이터 해외 이전은 ① CAC 안전평가 ② 표준계약 ③ 인증 중 하나 필수.</p>
+<h4>배경·문제점</h4>
+<ul><li>대규모 데이터(100만+) 또는 민감정보는 CAC 심사 의무</li>
+<li>심사 6개월~1년 소요, 거부 가능</li>
+<li>위반 시 형사 처벌까지 가능</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) CN 데이터 완전 분리 (이전 X)</strong> — 정석, 모든 글로벌 게임 표준</li>
+<li><strong>B) 표준계약 체결 후 부분 이전</strong> — 매우 어려움</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>모든 글로벌 게임</strong><span>CN 본토 데이터는 본토 보관 (AliCloud 등).</span></div>
+<div class="competitor-row"><strong>Tencent / NetEase</strong><span>본토 자체 인프라.</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>A</strong>. user_id(UUID)만 글로벌 식별자, 데이터는 분리</li></ul>`
+          },
+          {
+            level: 'medium', country: 'TW',
+            text: '[TW] PDPA 국외이전: 감독기관 사전허가 또는 본인동의 필요.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>대만 PDPA — 국외이전 시 본인동의 또는 감독기관 사전허가. 對中 이전 특히 제한.</p>
+<h4>추천·액션</h4>
+<ul><li>가입 시 국외이전 동의 별도 받기. 對中 이전은 회피</li></ul>`
+          }
         ]
       },
       {
         title: '법무팀 검토 필수',
         items: [
-          { level: 'critical', text: '중국 版号 신청 주체: 국내법인 신청 불가, 현지 퍼블리셔 계약 구조 설계.', country: 'CN' },
-          { level: 'critical', text: 'GDPR 역외 적용 여부 및 geo-blocking 정책 결정.', country: 'ALL' },
-          { level: 'high', text: '[KR] 개인정보 국외이전 적법근거: 동의 vs 표준계약 vs 동등성 인정국.', country: 'KR' },
-          { level: 'high', text: '[JP] 자금결제법상 미사용 잔액 공탁 의무: 포인트 설계 전 선행 확인.', country: 'JP' },
-          { level: 'medium', text: '[TW] 미성년자 야간접속 제한 구현 범위: ISP 레벨 vs 서비스 자체 차단.', country: 'TW' }
+          {
+            level: 'critical', country: 'CN',
+            text: '중국 版号 신청 주체: 국내법인 신청 불가, 현지 퍼블리셔 계약 구조 설계.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>위 "중국 사업 구조" 항목과 동일 쟁점. 판호 신청 주체 = 중국 내 법인. 한국 법인 직접 신청 불가.</p>
+<h4>추천·액션</h4>
+<ul><li>"중국 사업 구조" 결정 따라감. 별도 액션 없음</li></ul>`
+          },
+          {
+            level: 'critical', country: 'ALL',
+            text: 'GDPR 역외 적용 여부 및 geo-blocking 정책 결정.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>위 "GDPR 역외 적용" 항목과 동일. EU 서비스 여부 결정 필요.</p>`
+          },
+          {
+            level: 'high', country: 'KR',
+            text: '[KR] 개인정보 국외이전 적법근거: 동의 vs 표준계약 vs 동등성 인정국.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>위 "개인정보 국외이전 §28-8" 항목과 동일. 데이터 보관 위치·이전 모델 결정.</p>`
+          },
+          {
+            level: 'high', country: 'JP',
+            text: '[JP] 자금결제법상 미사용 잔액 공탁 의무: 포인트 설계 전 선행 확인.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>위 "資金決済法" 항목과 동일. 포인트 시스템 설계 전 결정 필요.</p>`
+          },
+          {
+            level: 'medium', country: 'TW',
+            text: '[TW] 미성년자 야간접속 제한 구현 범위: ISP 레벨 vs 서비스 자체 차단.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>대만 兒少法 — 22:00~08:00 미성년 게임 시간 제한. 구현 방식 결정 필요.</p>
+<h4>선택지</h4>
+<ul><li><strong>A) 서비스 자체 차단</strong> — 해당 시간 미성년 로그인/플레이 차단</li>
+<li><strong>B) 알림만 (ISP 차원 차단에 의존)</strong> — 약함</li></ul>
+<h4>추천·액션</h4>
+<ul><li><strong>A</strong>. 미성년 판정 시 시간대 체크 + 강제 로그아웃</li></ul>`
+          }
         ]
       }
     ]
