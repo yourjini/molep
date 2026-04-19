@@ -1592,38 +1592,255 @@ const REVIEW_DATA = {
       {
         title: '현재 스키마 문제점',
         items: [
-          { level: 'critical', text: '국가별 컬럼(cn_*, kr_*) 안티패턴: 국가 추가 시 테이블 무한 확장, 80% NULL. 국가별 전용 테이블 또는 EAV 패턴으로 분리.', country: 'ALL' },
-          { level: 'critical', text: 'Multi-auth 미지원: auth_provider 단일 컬럼이라 Google+Apple 동시 연결 불가. user_auth_providers 테이블 분리 필수.', country: 'ALL' },
-          { level: 'high', text: 'is_minor GENERATED 한계: 국가별 성인 기준 상이. 단순 GENERATED로 분기 로직 어렵고, 생일 변경 시 감사 이력 소실.', country: 'ALL' },
-          { level: 'high', text: 'terms_acceptances FK 무결성: GDPR 삭제 시 users 삭제하면 FK 위반. 감사 로그는 삭제 불가.', country: 'ALL' }
+          {
+            level: 'critical', country: 'ALL',
+            text: '국가별 컬럼(cn_*, kr_*) 안티패턴: 국가 추가 시 테이블 무한 확장, 80% NULL. 국가별 전용 테이블 또는 EAV 패턴으로 분리.',
+            detail: `<h4>📌 문제</h4>
+<p>users 테이블에 <code>cn_realname, cn_national_id, kr_ci, kr_di, ...</code> 형태로 국가별 컬럼 추가 = 확장 불가능.</p>
+<h4>대안</h4>
+<ul><li><strong>A) 국가별 전용 테이블</strong> — <code>user_kr_verification</code>, <code>user_cn_verification</code> (권장)</li>
+<li><strong>B) EAV (Entity-Attribute-Value) 패턴</strong> — <code>user_attributes(user_id, key, value)</code> (유연, 쿼리 복잡)</li>
+<li><strong>C) JSONB 컬럼</strong> — <code>verification_data JSONB</code> (PostgreSQL만, 쿼리 부담)</li></ul>
+<h4>타사 사례</h4>
+<div class="competitor-row"><strong>라이엇</strong><span>리전별 user_verification 테이블 분리.</span></div>
+<div class="competitor-row"><strong>엔씨소프트</strong><span>국가별 인증 정보는 별도 테이블 (user_kr_auth 등).</span></div>
+<h4>추천</h4>
+<ul><li><strong>A</strong>. 국가별 테이블 + 외래키 연결. 국가 추가 시 새 테이블만 추가</li></ul>`
+          },
+          {
+            level: 'critical', country: 'ALL',
+            text: 'Multi-auth 미지원: auth_provider 단일 컬럼이라 Google+Apple 동시 연결 불가. user_auth_providers 테이블 분리 필수.',
+            detail: `<h4>📌 문제</h4>
+<p><code>users.auth_provider</code> 단일 컬럼 = 1인 1 소셜 계정. 실제 사용자는 Google+Apple+이메일 등 여러 개 연결 원함.</p>
+<h4>권장 스키마</h4>
+<pre style="background:#fff;padding:10px;border-radius:4px;font-size:12px;overflow-x:auto">CREATE TABLE user_auth_providers (
+  id           UUID PRIMARY KEY,
+  user_id      UUID NOT NULL REFERENCES users(id),
+  provider     VARCHAR(20) NOT NULL, -- google/apple/naver/wechat/...
+  provider_sub VARCHAR(255) NOT NULL,
+  email        VARCHAR(255),
+  linked_at    TIMESTAMP DEFAULT NOW(),
+  is_primary   BOOLEAN DEFAULT FALSE,
+  UNIQUE (provider, provider_sub)
+);</pre>
+<h4>타사</h4>
+<div class="competitor-row"><strong>라이엇 ID</strong><span>멀티 소셜 연결 지원 (Google + Apple + 이메일 동시).</span></div>
+<div class="competitor-row"><strong>디스코드</strong><span>Connected Accounts 테이블.</span></div>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: 'is_minor GENERATED 한계: 국가별 성인 기준 상이. 단순 GENERATED로 분기 로직 어렵고, 생일 변경 시 감사 이력 소실.',
+            detail: `<h4>📌 문제</h4>
+<p><code>is_minor BOOLEAN GENERATED AS (dob + 14 years > NOW())</code> 같은 단순 GENERATED는 국가별 기준 분기 안 됨.</p>
+<h4>대안</h4>
+<ul><li>아예 GENERATED 쓰지 말고 애플리케이션 레이어에서 계산</li>
+<li>국가별 minor_age를 별도 테이블(country_configs)에 저장</li>
+<li>is_minor 상태 변화 이력은 <code>minor_status_history</code> 테이블에 별도 저장</li></ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: 'terms_acceptances FK 무결성: GDPR 삭제 시 users 삭제하면 FK 위반. 감사 로그는 삭제 불가.',
+            detail: `<h4>📌 문제</h4>
+<p>GDPR 삭제 요청 → users 삭제 → terms_acceptances의 user_id FK 위반.</p>
+<h4>대안</h4>
+<ul><li><strong>A) 익명화</strong> (users 행 유지, PII만 NULL) — 권장</li>
+<li><strong>B) soft delete</strong> (deleted_at 컬럼, 실제 삭제 X)</li>
+<li><strong>C) terms_acceptances의 FK를 ON DELETE SET NULL</strong> — 사용자 ID 잃음, 감사 부담</li></ul>
+<h4>추천</h4>
+<ul><li>A + B. users는 익명화 + soft delete. 법적 보존기간 후 hard delete</li></ul>`
+          }
         ]
       },
       {
         title: '권장 스키마 (핵심)',
         items: [
-          { level: 'high', text: 'user_auth_providers(user_id, provider, provider_sub, linked_at, is_primary) — UNIQUE(provider, provider_sub). 멀티 제공자 지원.', country: 'ALL' },
-          { level: 'high', text: 'user_kr_verification(user_id PK, ci_hash, guardian_ci_hash, verified_at). 국가별 본인인증 분리.', country: 'KR' },
-          { level: 'high', text: 'user_cn_verification(user_id PK, real_name, national_id_hash, guardian_verified, verified_at). CN 실명 분리.', country: 'CN' },
-          { level: 'high', text: 'terms_acceptances 보강: consent_method, guardian_user_id, withdrawal_at, term_url 추가.', country: 'ALL' }
+          {
+            level: 'high', country: 'ALL',
+            text: 'user_auth_providers(user_id, provider, provider_sub, linked_at, is_primary) — UNIQUE(provider, provider_sub). 멀티 제공자 지원.',
+            detail: `<p>위 "Multi-auth 미지원" 항목 참조. DDL 예시 포함.</p>`
+          },
+          {
+            level: 'high', country: 'KR',
+            text: 'user_kr_verification(user_id PK, ci_hash, guardian_ci_hash, verified_at). 국가별 본인인증 분리.',
+            detail: `<h4>📌 권장 DDL</h4>
+<pre style="background:#fff;padding:10px;border-radius:4px;font-size:12px;overflow-x:auto">CREATE TABLE user_kr_verification (
+  user_id          UUID PRIMARY KEY REFERENCES users(id),
+  ci_hash          VARCHAR(64), -- CI SHA-256
+  di_hash          VARCHAR(64), -- DI (중복가입 확인용)
+  guardian_ci_hash VARCHAR(64),
+  provider         VARCHAR(20), -- PASS/NICE/Toss
+  verified_at      TIMESTAMP,
+  expired_at       TIMESTAMP    -- 재인증 주기 관리
+);</pre>
+<h4>설계 포인트</h4>
+<ul><li>CI·DI는 해시(SHA-256)만 저장, 원문 보관 금지 (PIPA)</li>
+<li>중복가입 방지는 DI 해시 UNIQUE로 구현</li></ul>`
+          },
+          {
+            level: 'high', country: 'CN',
+            text: 'user_cn_verification(user_id PK, real_name, national_id_hash, guardian_verified, verified_at). CN 실명 분리.',
+            detail: `<h4>📌 권장 DDL</h4>
+<pre style="background:#fff;padding:10px;border-radius:4px;font-size:12px;overflow-x:auto">CREATE TABLE user_cn_verification (
+  user_id           UUID PRIMARY KEY REFERENCES users(id),
+  real_name         VARCHAR(50),   -- 암호화 권장
+  national_id_hash  VARCHAR(64),   -- 身份证 SHA-256
+  guardian_real_name VARCHAR(50),
+  guardian_id_hash  VARCHAR(64),
+  face_verified     BOOLEAN DEFAULT FALSE,
+  face_verified_at  TIMESTAMP,
+  verified_at       TIMESTAMP
+);</pre>
+<h4>주의</h4>
+<ul><li>이 테이블은 <strong>AliCloud Beijing</strong> 물리 분리 (PIPL §40)</li>
+<li>user_id만 글로벌 DB와 연결 키</li></ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: 'terms_acceptances 보강: consent_method, guardian_user_id, withdrawal_at, term_url 추가.',
+            detail: `<h4>📌 권장 DDL</h4>
+<pre style="background:#fff;padding:10px;border-radius:4px;font-size:12px;overflow-x:auto">CREATE TABLE terms_acceptances (
+  id                UUID PRIMARY KEY,
+  user_id           UUID REFERENCES users(id),
+  term_type         VARCHAR(30) NOT NULL, -- tos/privacy/marketing
+  version           VARCHAR(20) NOT NULL,
+  hash              VARCHAR(64) NOT NULL, -- 약관 본문 해시
+  term_url          TEXT,                 -- 당시 약관 URL 스냅샷
+  accepted_at       TIMESTAMP NOT NULL,
+  ip_address        INET,
+  consent_method    VARCHAR(30),          -- checkbox/sms/email-click
+  guardian_user_id  UUID,                 -- 미성년 시 법정대리인
+  withdrawal_at     TIMESTAMP             -- 철회 시각
+);</pre>`
+          }
         ]
       },
       {
         title: '게임 플랫폼 필수 테이블',
         items: [
-          { level: 'high', text: 'game_products(id, name, country_code, price, currency, released_at) — 게임 상품.', country: 'ALL' },
-          { level: 'high', text: 'user_game_library(user_id, game_id, acquired_at, acquire_type) — 보유 게임.', country: 'ALL' },
-          { level: 'high', text: 'purchases(id, user_id, amount, currency, status, refunded_at) — 결제.', country: 'ALL' },
-          { level: 'high', text: 'login_history(id, user_id, ip_address, country_code, device_info, created_at) — 이상 탐지.', country: 'ALL' },
-          { level: 'critical', text: 'playtime_log(id, user_id, session_start, session_end, duration_minutes) — KR/CN 미성년 규제.', country: 'ALL' },
-          { level: 'high', text: 'data_deletion_requests(id, user_id, requested_at, completed_at, regulation) — GDPR/PIPL.', country: 'ALL' }
+          {
+            level: 'high', country: 'ALL',
+            text: 'game_products(id, name, country_code, price, currency, released_at) — 게임 상품.',
+            detail: `<p>게임 상품 메타데이터. 국가별 가격 분리 가능 구조.</p>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: 'user_game_library(user_id, game_id, acquired_at, acquire_type) — 보유 게임.',
+            detail: `<p>유저가 보유한 게임 목록. acquire_type: purchase/gift/free/promo.</p>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: 'purchases(id, user_id, amount, currency, status, refunded_at) — 결제.',
+            detail: `<h4>📌 결제 테이블</h4>
+<pre style="background:#fff;padding:10px;border-radius:4px;font-size:12px;overflow-x:auto">CREATE TABLE purchases (
+  id           UUID PRIMARY KEY,
+  user_id      UUID REFERENCES users(id),
+  product_id   UUID REFERENCES game_products(id),
+  amount       DECIMAL(12,2),
+  currency     CHAR(3),
+  pg_provider  VARCHAR(30),  -- stripe/naverpay/alipay/...
+  pg_txn_id    VARCHAR(100),
+  status       VARCHAR(20),  -- pending/paid/failed/refunded
+  paid_at      TIMESTAMP,
+  refunded_at  TIMESTAMP,
+  refund_amount DECIMAL(12,2)
+);</pre>
+<h4>감사</h4>
+<ul><li>법적 보존 5년 (KR 전자상거래법)</li>
+<li>미성년 결제는 별도 플래그 + 월 누적 한도 체크</li></ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: 'login_history(id, user_id, ip_address, country_code, device_info, created_at) — 이상 탐지.',
+            detail: `<h4>📌 이상 탐지용</h4>
+<ul><li>타국 로그인 감지 → 2FA 요구</li>
+<li>단시간 다수 IP → 계정 잠금</li>
+<li>KR 통신비밀보호법: 로그인 기록 3개월 보관 의무</li></ul>`
+          },
+          {
+            level: 'critical', country: 'ALL',
+            text: 'playtime_log(id, user_id, session_start, session_end, duration_minutes) — KR/CN 미성년 규제.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>CN 미성년 주3시간 제한 / KR 게임시간 선택제 대응에 필수.</p>
+<h4>DDL</h4>
+<pre style="background:#fff;padding:10px;border-radius:4px;font-size:12px;overflow-x:auto">CREATE TABLE playtime_log (
+  id               UUID PRIMARY KEY,
+  user_id          UUID REFERENCES users(id),
+  session_start    TIMESTAMP NOT NULL,
+  session_end      TIMESTAMP,
+  duration_minutes INT,
+  country_code     CHAR(2),
+  game_id          UUID
+);
+
+-- CN 미성년 주간 합계 뷰
+CREATE VIEW v_cn_minor_weekly_playtime AS
+  SELECT user_id, DATE_TRUNC('week', session_start) AS week,
+         SUM(duration_minutes) AS total_min
+  FROM playtime_log
+  WHERE country_code = 'CN'
+  GROUP BY user_id, week;</pre>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: 'data_deletion_requests(id, user_id, requested_at, completed_at, regulation) — GDPR/PIPL.',
+            detail: `<h4>📌 삭제 요청 추적</h4>
+<ul><li>GDPR Article 17 (Right to Erasure) 대응</li>
+<li>PIPL 개인정보 삭제권 대응</li>
+<li>요청 ~ 완료까지 로그 (규제 준수 증빙)</li></ul>`
+          }
         ]
       },
       {
         title: '데이터 레지던시',
         items: [
-          { level: 'critical', text: 'CN 완전 분리: 메인 DB(AWS Seoul/US)와 CN DB(AliCloud Beijing) 물리 분리. user_id(UUID)만 내부 연결 키.', country: 'CN' },
-          { level: 'high', text: 'GDPR/PIPL 삭제: users 삭제 대신 익명화. terms_acceptances/minor_protection_log는 법적 보존기간 동안 삭제 불가 (KR 5년, CN 3년).', country: 'ALL' },
-          { level: 'high', text: '필수 인덱스: users(country_code, created_at), user_auth_providers(provider, provider_sub), terms_acceptances(user_id, term_type, accepted_at), login_history(user_id, created_at DESC).', country: 'ALL' }
+          {
+            level: 'critical', country: 'CN',
+            text: 'CN 완전 분리: 메인 DB(AWS Seoul/US)와 CN DB(AliCloud Beijing) 물리 분리. user_id(UUID)만 내부 연결 키.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>PIPL §40 — 중국 개인정보는 본토 저장. 해외 이전 시 CAC 심사.</p>
+<h4>아키텍처</h4>
+<ul><li>글로벌 DB (AWS): users, user_auth_providers, terms_acceptances (CN 제외)</li>
+<li>CN DB (AliCloud Beijing): CN 유저의 모든 데이터 (user_cn_verification 포함)</li>
+<li>user_id (UUID)만 공통 키 — PII 없는 불투명 식별자</li>
+<li>글로벌 로그인 시 user_id만 전달, CN DB가 세부 데이터 반환</li></ul>
+<h4>타사</h4>
+<div class="competitor-row"><strong>모든 글로벌 게임</strong><span>CN 본토 데이터는 본토 보관. 예외 없음.</span></div>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: 'GDPR/PIPL 삭제: users 삭제 대신 익명화. terms_acceptances/minor_protection_log는 법적 보존기간 동안 삭제 불가 (KR 5년, CN 3년).',
+            detail: `<h4>📌 익명화 전략</h4>
+<ul><li>users: email/name/phone NULL 처리, deleted_at 기록</li>
+<li>terms_acceptances: 삭제 금지, user_id 유지 (감사)</li>
+<li>playtime_log: 보존 기간 후 삭제</li>
+<li>purchases: 세금법상 5년 보존 (KR), 7년(US)</li></ul>
+<h4>스크립트 예시</h4>
+<pre style="background:#fff;padding:10px;border-radius:4px;font-size:12px;overflow-x:auto">UPDATE users SET
+  email = NULL, display_name = 'deleted-user-'||id::text,
+  dob = NULL, deleted_at = NOW()
+WHERE id = $1;</pre>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: '필수 인덱스: users(country_code, created_at), user_auth_providers(provider, provider_sub), terms_acceptances(user_id, term_type, accepted_at), login_history(user_id, created_at DESC).',
+            detail: `<h4>📌 인덱스 설계</h4>
+<pre style="background:#fff;padding:10px;border-radius:4px;font-size:12px;overflow-x:auto">-- 국가별 통계
+CREATE INDEX idx_users_country ON users(country_code, created_at);
+
+-- 소셜 로그인 조회 (UNIQUE 겸 인덱스)
+CREATE UNIQUE INDEX idx_auth_providers_sub
+  ON user_auth_providers(provider, provider_sub);
+
+-- 약관 최신 동의 조회
+CREATE INDEX idx_terms_user_type
+  ON terms_acceptances(user_id, term_type, accepted_at DESC);
+
+-- 이상 탐지: 최근 로그인
+CREATE INDEX idx_login_user_recent
+  ON login_history(user_id, created_at DESC);</pre>
+<h4>주의</h4>
+<ul><li>인덱스 과다 시 쓰기 성능 저하 — 실제 쿼리 패턴 분석 후 추가</li></ul>`
+          }
         ]
       }
     ]
