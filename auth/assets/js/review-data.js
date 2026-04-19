@@ -1002,39 +1002,249 @@ const REVIEW_DATA = {
       {
         title: '아키텍처',
         items: [
-          { level: 'critical', text: 'IP Detection 3-tier: ① CF-IPCountry (1차) ② MaxMind 서버사이드 (2차) ③ Accept-Language + Timezone (3차) ④ "내 국가가 맞나요?" UI (최종 fallback).', country: 'ALL' },
-          { level: 'critical', text: '중국 인프라 완전 분리: Cloudflare 중국 본토 커버리지 없음. 알리CDN 또는 왕수(网宿) 필수. Google Fonts/Analytics/Firebase 자체 호스팅 대체.', country: 'CN' },
-          { level: 'high', text: 'API Gateway 도입: 국가별 다른 인증 제공자 연동 직접 처리 시 유지보수 폭증. Kong/AWS API Gateway.', country: 'ALL' },
-          { level: 'high', text: '단일 API vs 지역 API: CN은 구조적 분리 불가피. 나머지 4국은 단일 API + Edge Middleware 라우팅.', country: 'ALL' }
+          {
+            level: 'critical', country: 'ALL',
+            text: 'IP Detection 3-tier: ① CF-IPCountry (1차) ② MaxMind 서버사이드 (2차) ③ Accept-Language + Timezone (3차) ④ "내 국가가 맞나요?" UI (최종 fallback).',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>단일 GeoIP로는 정확도·지연·장애 모두 취약. 3-tier fallback이 표준.</p>
+<h4>배경·문제점</h4>
+<ul><li>CF-IPCountry 정확도 95~97%, 모바일 CGNAT 환경에서 부정확</li>
+<li>MaxMind GeoIP2 정확도 99%대, 주 2회 갱신 필요</li>
+<li>VPN·프록시 사용자는 어떤 방식도 완벽 감지 불가</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) 3-tier + UI fallback (권장)</strong> — 안정성 최고</li>
+<li><strong>B) CF 단독</strong> — 간단, 리스크</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>넷플릭스·스포티파이</strong><span>MaxMind 서버사이드 + 카드 BIN 국가 교차검증.</span></div>
+<div class="competitor-row"><strong>라이엇</strong><span>CF + 자체 IP DB + 사용자 확인 UI.</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>A 적용</strong>. CF-IPCountry 헤더 우선 + MaxMind fallback + 가입 화면 국가 선택 (PLAN 반영됨)</li>
+<li><strong>결정 주체</strong>: 인프라 + 개발</li></ul>`
+          },
+          {
+            level: 'critical', country: 'CN',
+            text: '중국 인프라 완전 분리: Cloudflare 중국 본토 커버리지 없음. 알리CDN 또는 왕수(网宿) 필수. Google Fonts/Analytics/Firebase 자체 호스팅 대체.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>GFW 때문에 해외 CDN/SaaS 대부분 차단. 중국 진출 시 인프라 전면 재설계 필요.</p>
+<h4>배경·문제점</h4>
+<ul><li>Cloudflare, AWS(중국 없음), Google Services 차단/지연</li>
+<li>Google Fonts/Analytics/ReCAPTCHA 사용 시 로딩 실패 → LCP 10s+</li>
+<li>Firebase/Sentry 등 SaaS도 차단됨</li></ul>
+<h4>선택지</h4>
+<ul><li><strong>A) CN 전용 스택 (AliCloud + 알리CDN + 왕수CDN)</strong></li>
+<li><strong>B) 퍼블리셔 인프라 활용 (Tencent/NetEase 측 사용)</strong></li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>원신 CN</strong><span>AliCloud + 미하요 자체 인프라.</span></div>
+<div class="competitor-row"><strong>PUBG Mobile CN</strong><span>Tencent 인프라 완전 사용.</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>B 추천</strong> (퍼블리셔 인프라). 자체 구축은 3~6개월 추가</li></ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: 'API Gateway 도입: 국가별 다른 인증 제공자 연동 직접 처리 시 유지보수 폭증. Kong/AWS API Gateway.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>5개국 × 여러 인증 제공자 = API 15~20개. 각 서비스에서 직접 호출 시 중복·보안 리스크.</p>
+<h4>선택지</h4>
+<ul><li><strong>A) Kong (오픈소스)</strong> — 커스텀 가능, 운영 부담</li>
+<li><strong>B) AWS API Gateway</strong> — 완전 관리형, 비용</li>
+<li><strong>C) 자체 BFF (Backend-for-Frontend)</strong> — 유연, 개발 공수</li></ul>
+<h4>타사 대응</h4>
+<div class="competitor-row"><strong>Netflix</strong><span>Zuul (자체 BFF) + API Gateway.</span></div>
+<div class="competitor-row"><strong>일반 엔터프라이즈</strong><span>Kong / AWS API GW 주류.</span></div>
+<h4>추천·액션</h4>
+<ul><li><strong>B 시작</strong>, 커스텀 필요 시 A로 전환</li></ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: '단일 API vs 지역 API: CN은 구조적 분리 불가피. 나머지 4국은 단일 API + Edge Middleware 라우팅.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>CN은 무조건 분리. 4국(KR/US/TW/JP)은 단일 API + Edge에서 GeoIP 분기로 충분.</p>
+<h4>추천·액션</h4>
+<ul><li>KR/US/TW/JP: 단일 API + Cloudflare Edge 라우팅</li>
+<li>CN: 완전 별도 스택 (퍼블리셔 인프라)</li>
+<li>DB는 리전별 샤딩 (KR 데이터는 ap-northeast-2 등)</li></ul>`
+          }
         ]
       },
       {
         title: '인증 제공자 통합 난이도',
         items: [
-          { level: 'low', text: 'Google OAuth: 낮음, 3~5일. 표준 OIDC.', country: 'US' },
-          { level: 'medium', text: 'Apple Sign-In: 중간, 1~2주. JWT 검증 복잡, 이메일 릴레이, 앱/웹 분기. 앱스토어 필수.', country: 'US' },
-          { level: 'medium', text: 'Naver: 중간, 1주. 한국어 문서 전용, refresh token 수명 짧음.', country: 'KR' },
-          { level: 'medium', text: 'X (Twitter): 중간, 1주. OAuth 2.0 불안정, rate limit 잦음.', country: 'US' },
-          { level: 'critical', text: 'WeChat: 높음, 3~4주. 중국 사업자 등록 필수, 웹/앱 appID 분리, 국내망 전용.', country: 'CN' },
-          { level: 'high', text: 'QQ: 높음, 2~3주. Tencent 심사 2~4주, 문서 중국어만.', country: 'CN' }
+          {
+            level: 'low', country: 'US',
+            text: 'Google OAuth: 낮음, 3~5일. 표준 OIDC.',
+            detail: `<h4>📌 요약</h4>
+<p>Google Identity Services — 가장 쉬운 OAuth. 표준 OIDC, 문서 충분, 대부분의 라이브러리 지원.</p>
+<h4>구현 포인트</h4>
+<ul><li>Web: Google Identity Services (GIS) JS 라이브러리</li>
+<li>Mobile: Google Sign-In SDK</li>
+<li>서버: ID Token 검증 (googleapis 또는 jose)</li></ul>
+<h4>주의사항</h4>
+<ul><li>OAuth Client ID · Secret 철저 관리 (공개 노출 금지)</li>
+<li>Consent Screen 검수 필요 (sensitive scope 사용 시)</li></ul>`
+          },
+          {
+            level: 'medium', country: 'US',
+            text: 'Apple Sign-In: 중간, 1~2주. JWT 검증 복잡, 이메일 릴레이, 앱/웹 분기. 앱스토어 필수.',
+            detail: `<h4>📌 요약</h4>
+<p>iOS 앱스토어 출시 시 Apple Login 강제. JWT 검증·이메일 릴레이·Web vs iOS 분기 복잡.</p>
+<h4>구현 포인트</h4>
+<ul><li>Web: Sign in with Apple JS</li>
+<li>iOS: ASAuthorizationAppleIDProvider (네이티브)</li>
+<li>서버: Apple public key로 ID Token 서명 검증 (key rotation 주기 10일)</li></ul>
+<h4>주의사항</h4>
+<ul><li>사용자가 "이메일 숨기기" 선택 시 릴레이 주소 제공 (privaterelay.appleid.com)</li>
+<li>Team ID·Key ID·Private Key(.p8) 관리</li>
+<li>iOS 앱은 반드시 Apple Login 제공 (앱스토어 심사)</li></ul>`
+          },
+          {
+            level: 'medium', country: 'KR',
+            text: 'Naver: 중간, 1주. 한국어 문서 전용, refresh token 수명 짧음.',
+            detail: `<h4>📌 요약</h4>
+<p>네이버 로그인 — 국내 표준. 한국어 문서만, 영문 지원 없음.</p>
+<h4>구현 포인트</h4>
+<ul><li>Naver Developers 앱 등록</li>
+<li>OAuth 2.0 표준 흐름</li>
+<li>Access Token 수명 1시간, Refresh Token 1년 (짧은 편)</li></ul>
+<h4>주의사항</h4>
+<ul><li>네이버는 이메일 필드가 optional scope (사용자가 거부 가능)</li>
+<li>서비스 명·앱 아이콘 심사 받기</li></ul>`
+          },
+          {
+            level: 'medium', country: 'US',
+            text: 'X (Twitter): 중간, 1주. OAuth 2.0 불안정, rate limit 잦음.',
+            detail: `<h4>📌 요약</h4>
+<p>2023 이후 X OAuth 2.0 전환, 문서·안정성 하락. Rate limit 빈번.</p>
+<h4>구현 포인트</h4>
+<ul><li>Developer Portal에서 앱 등록 (유료 tier 필요할 수 있음)</li>
+<li>OAuth 2.0 Authorization Code + PKCE</li></ul>
+<h4>주의사항</h4>
+<ul><li>API 가격 정책 변동 심함 (2023~2024)</li>
+<li>Rate limit 낮음 — 캐싱·큐 전략 필요</li></ul>`
+          },
+          {
+            level: 'critical', country: 'CN',
+            text: 'WeChat: 높음, 3~4주. 중국 사업자 등록 필수, 웹/앱 appID 분리, 국내망 전용.',
+            detail: `<h4>📌 요약</h4>
+<p>WeChat OAuth는 중국 내 사업자 등록 + 중국 본토 서버 필요. 최고 난이도.</p>
+<h4>구현 포인트</h4>
+<ul><li>微信开放平台 개발자 등록 (중국 법인 필수)</li>
+<li>웹 OAuth와 앱 OAuth appID 분리 등록</li>
+<li>QR 스캔 (PC) / 앱-to-앱 (모바일) 분기</li></ul>
+<h4>주의사항</h4>
+<ul><li>기술보다 비즈니스 심사가 병목 (2~4주)</li>
+<li>서버 응답을 국내망에서 처리해야 안정적</li>
+<li>퍼블리셔 통한 우회가 현실적</li></ul>`
+          },
+          {
+            level: 'high', country: 'CN',
+            text: 'QQ: 높음, 2~3주. Tencent 심사 2~4주, 문서 중국어만.',
+            detail: `<h4>📌 요약</h4>
+<p>QQ互联 OAuth. Tencent Open Platform 등록. 절차는 WeChat과 유사하나 조금 더 쉬움.</p>
+<h4>주의사항</h4>
+<ul><li>문서 중국어 전용</li>
+<li>대부분 모바일 앱 지원 (데스크톱 QR 스캔)</li>
+<li>WeChat이 더 범용적이라 우선순위 검토</li></ul>`
+          }
         ]
       },
       {
         title: '성능 & 보안',
         items: [
-          { level: 'high', text: 'LCP <1.5s 위험 요소: GeoIP API 콜 메인 스레드 블로킹 시 400~800ms 손실. Edge 헤더로 처리. i18n 번들 전체 로드 금지. Auth SDK 지연 로드.', country: 'ALL' },
-          { level: 'high', text: '세션 관리: HttpOnly + Secure + SameSite=Strict. JWT access 15분, refresh rotation.', country: 'ALL' },
-          { level: 'high', text: 'CSRF: 멀티 auth provider 환경에서 state parameter 검증 (provider별 별도).', country: 'ALL' },
-          { level: 'medium', text: 'Rate limiting: 국가별 로그인 시도 제한 차등 (CN IP 별도).', country: 'ALL' }
+          {
+            level: 'high', country: 'ALL',
+            text: 'LCP <1.5s 위험 요소: GeoIP API 콜 메인 스레드 블로킹 시 400~800ms 손실. Edge 헤더로 처리. i18n 번들 전체 로드 금지. Auth SDK 지연 로드.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>Core Web Vitals 악영향 = SEO·이탈률·매출 모두 타격. 핵심 최적화 포인트 많음.</p>
+<h4>최적화 체크리스트</h4>
+<ul><li>GeoIP: Edge 헤더만 사용 (Cloudflare Worker에서 주입) — 클라이언트 API 콜 금지</li>
+<li>i18n: 해당 locale만 로드 (split 번들) — 전체 로드 시 200~500KB 손실</li>
+<li>Auth SDK: 버튼 클릭 시점 지연 로드 (초기 로드 제외)</li>
+<li>이미지: AVIF/WebP + srcset, fetchpriority="high"는 히어로 1장만</li>
+<li>폰트: system font stack 우선 (Noto Sans CJK는 subset만)</li></ul>
+<h4>측정 도구</h4>
+<ul><li>Lighthouse CI, WebPageTest, PageSpeed Insights, CrUX</li></ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: '세션 관리: HttpOnly + Secure + SameSite=Strict. JWT access 15분, refresh rotation.',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>세션 쿠키·토큰 보안 미흡 시 계정 탈취 리스크. OWASP Top 10 단골.</p>
+<h4>권장 설정</h4>
+<ul><li>쿠키: HttpOnly + Secure + SameSite=Strict (또는 Lax)</li>
+<li>Access Token: 15분 수명 (JWT)</li>
+<li>Refresh Token: 14일, rotation (매번 새로 발급)</li>
+<li>로그아웃 시 Refresh Token 서버 블랙리스트</li></ul>
+<h4>타사 사례</h4>
+<div class="competitor-row"><strong>일반 웹 서비스</strong><span>상기 설정이 표준. Auth0·Firebase Auth 기본값.</span></div>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: 'CSRF: 멀티 auth provider 환경에서 state parameter 검증 (provider별 별도).',
+            detail: `<h4>📌 핵심 이슈</h4>
+<p>OAuth 2.0 state parameter 검증 누락 = CSRF 공격 가능. 멀티 provider 시 각각 별도 state.</p>
+<h4>구현</h4>
+<ul><li>로그인 시작 시 랜덤 state 생성 → 세션 저장</li>
+<li>콜백에서 state 일치 확인 (불일치 시 거절)</li>
+<li>PKCE (Proof Key for Code Exchange) 추가 권장 (모바일 필수)</li></ul>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: 'Rate limiting: 국가별 로그인 시도 제한 차등 (CN IP 별도).',
+            detail: `<h4>추천·액션</h4>
+<ul><li>IP당 분당 로그인 시도 5회 제한</li>
+<li>계정당 분당 3회 실패 시 10분 잠금</li>
+<li>CN IP 대역은 별도 낮은 임계 (GFW 우회 봇 방어)</li></ul>`
+          }
         ]
       },
       {
         title: '프로덕션 기술 스택 권장',
         items: [
-          { level: 'medium', text: '프론트엔드: Next.js 14 (App Router) + Edge Middleware GeoIP 라우팅 + ISR 정적 페이지.', country: 'ALL' },
-          { level: 'medium', text: '백엔드: Go (Fiber/Gin) 또는 Node.js BFF + Go 마이크로서비스.', country: 'ALL' },
-          { level: 'medium', text: '인프라: Cloudflare + AWS multi-region (ap-northeast-2/us-east-1/ap-northeast-1) + AliCloud (CN 전용).', country: 'ALL' },
-          { level: 'medium', text: 'DB: PostgreSQL(Supabase/RDS) + Redis. CN은 완전 미러링 별도.', country: 'ALL' }
+          {
+            level: 'medium', country: 'ALL',
+            text: '프론트엔드: Next.js 14 (App Router) + Edge Middleware GeoIP 라우팅 + ISR 정적 페이지.',
+            detail: `<h4>📌 요약</h4>
+<p>Next.js 14+ App Router — Edge Middleware로 GeoIP 라우팅 자연스럽게 구현. ISR로 국가별 정적 페이지.</p>
+<h4>대안</h4>
+<ul><li>Remix / Astro (SEO 강점)</li>
+<li>SvelteKit (번들 작음)</li></ul>
+<h4>타사</h4>
+<div class="competitor-row"><strong>쿠팡·카카오</strong><span>Next.js + 자체 Edge.</span></div>
+<div class="competitor-row"><strong>에픽 게임스토어</strong><span>자체 React SSR.</span></div>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: '백엔드: Go (Fiber/Gin) 또는 Node.js BFF + Go 마이크로서비스.',
+            detail: `<h4>📌 요약</h4>
+<p>Go = 낮은 메모리, 빠른 cold start, 높은 동시성. 인증/결제 등 핵심 API에 적합.</p>
+<h4>대안</h4>
+<ul><li>Kotlin + Spring Boot (JVM 생태계 강점)</li>
+<li>Rust + Actix (최고 성능, 러닝커브)</li>
+<li>Node.js + TypeScript (풀스택 단일 언어)</li></ul>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: '인프라: Cloudflare + AWS multi-region (ap-northeast-2/us-east-1/ap-northeast-1) + AliCloud (CN 전용).',
+            detail: `<h4>📌 요약</h4>
+<p>리전별 AWS + CN 별도(알리) + CF(엣지)가 글로벌 게임 표준.</p>
+<h4>리전 매핑</h4>
+<ul><li>KR → ap-northeast-2 (Seoul)</li>
+<li>JP → ap-northeast-1 (Tokyo)</li>
+<li>TW → ap-southeast-1 (Singapore) 또는 AWS Taiwan 신설</li>
+<li>US → us-east-1 / us-west-2</li>
+<li>CN → AliCloud Beijing/Shanghai</li></ul>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: 'DB: PostgreSQL(Supabase/RDS) + Redis. CN은 완전 미러링 별도.',
+            detail: `<h4>📌 요약</h4>
+<p>PostgreSQL = 기능·성능·커뮤니티 모두 견고. Redis = 세션·캐시·rate limit.</p>
+<h4>구성</h4>
+<ul><li>메인 DB: RDS PostgreSQL (각 리전)</li>
+<li>읽기 전용 복제본: Read Replica (리전 내)</li>
+<li>캐시: ElastiCache Redis</li>
+<li>CN: AliCloud RDS PostgreSQL (완전 분리)</li></ul>`
+          }
         ]
       }
     ]
