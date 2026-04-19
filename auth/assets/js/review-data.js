@@ -1299,21 +1299,127 @@ const REVIEW_DATA = {
       {
         title: '공통 플랫폼 리스크',
         items: [
-          { level: 'high', text: 'VPN으로 관할 우회: GeoIP + VPN 탐지(Maxmind proxy DB), 결제 시 BIN 국가 교차검증 필요.', country: 'ALL' },
-          { level: 'high', text: '관할·언어 혼동: 영어 UI를 본 한국 사용자가 "미국 약관"으로 오해. 약관 화면에 "한국 법률 적용" 고정 고지.', country: 'ALL' },
-          { level: 'high', text: '약관 버전 관리 누락: 약관마다 version + hash 저장, 변경 시 강제 재동의 트리거.', country: 'ALL' },
-          { level: 'medium', text: '소셜 이메일 변경: provider + sub 기본 키, 이메일은 검증된 경우만 표시용.', country: 'ALL' },
-          { level: 'medium', text: '마케팅 옵트인 기본값 오류: 기본값 전부 미체크, 국가별 권장 기본 별도 명시.', country: 'ALL' }
+          {
+            level: 'high', country: 'ALL',
+            text: 'VPN으로 관할 우회: GeoIP + VPN 탐지(Maxmind proxy DB), 결제 시 BIN 국가 교차검증 필요.',
+            detail: `<h4>📌 리스크 시나리오</h4>
+<p>사용자가 VPN으로 타 국가 IP로 위장 → 미성년 규제 잠탈 / 저가 지역 가입 → 고가 지역 이용.</p>
+<h4>완화책</h4>
+<ul><li>MaxMind proxy/anonymizer DB 사용 → VPN IP 감지</li>
+<li>결제 시 카드 BIN 국가와 가입 국가 교차 검증</li>
+<li>CN 대상 특히 강화 (GFW 우회 VPN 많음)</li></ul>
+<h4>타사</h4>
+<div class="competitor-row"><strong>넷플릭스</strong><span>VPN 차단 적극 (스트리밍 지역 라이선스). 지속적 IP 블랙리스트 업데이트.</span></div>
+<div class="competitor-row"><strong>스팀</strong><span>Region lock 우회 감지 시 계정 제한.</span></div>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: '관할·언어 혼동: 영어 UI를 본 한국 사용자가 "미국 약관"으로 오해. 약관 화면에 "한국 법률 적용" 고정 고지.',
+            detail: `<h4>📌 리스크 시나리오</h4>
+<p>"언어 = 관할"로 오해하면 CS·법적 분쟁 시 혼란. 사용자가 잘못된 권리 주장.</p>
+<h4>완화책</h4>
+<ul><li>약관 화면에 "귀하의 계정은 <strong>한국</strong> 법률이 적용됩니다" 고정 고지 (언어 무관)</li>
+<li>상단 헤더 "접속국가" 칩 항시 노출 (현 구현)</li></ul>`
+          },
+          {
+            level: 'high', country: 'ALL',
+            text: '약관 버전 관리 누락: 약관마다 version + hash 저장, 변경 시 강제 재동의 트리거.',
+            detail: `<h4>📌 리스크 시나리오</h4>
+<p>약관 개정 후 기존 회원 재동의 누락 → 감사 실패 → 처분·과징금.</p>
+<h4>완화책</h4>
+<ul><li>terms_acceptances 테이블: term_type + version + hash + accepted_at + user_id</li>
+<li>약관 개정 시 version 올리고 hash 변경 → 로그인 시 재동의 다이얼로그</li>
+<li>CN PIPL / KR PIPA / US COPPA 모두 감사 대응 가능해야</li></ul>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: '소셜 이메일 변경: provider + sub 기본 키, 이메일은 검증된 경우만 표시용.',
+            detail: `<h4>📌 리스크 시나리오</h4>
+<p>사용자가 구글 이메일을 변경 → 그 이메일로 타인이 가입 → 계정 인수 (ATO, Account Takeover).</p>
+<h4>완화책</h4>
+<ul><li>user_auth_providers 테이블에 provider+sub를 UNIQUE 키</li>
+<li>이메일은 표시용·복구용 보조 필드</li>
+<li>로그인 시 이메일 매칭 금지, 반드시 sub 매칭</li></ul>`
+          },
+          {
+            level: 'medium', country: 'ALL',
+            text: '마케팅 옵트인 기본값 오류: 기본값 전부 미체크, 국가별 권장 기본 별도 명시.',
+            detail: `<h4>📌 리스크 시나리오</h4>
+<p>마케팅 동의 기본값 체크 = GDPR §7 / PIPA §15 위반 = 즉시 과징금 대상.</p>
+<h4>완화책</h4>
+<ul><li>모든 선택 동의 기본값 미체크 (명시적 opt-in)</li>
+<li>UI 디자인에서 실수 없도록 공통 컴포넌트화</li>
+<li>다크패턴 감사 정기 점검</li></ul>`
+          }
         ]
       },
       {
         title: '국가별 핵심 리스크',
         items: [
-          { level: 'critical', text: '[KR] <14세 법정대리인 동의 미수령 시 과태료·행정처분 (PIPA §22-2).', country: 'KR' },
-          { level: 'critical', text: '[US] <13 COPPA VPC 미완료 전 어떠한 개인정보도 수집 금지. 막히면 즉시 폐기.', country: 'US' },
-          { level: 'high', text: '[TW] 7~17세 제한적 행위능력 — 법정대리인 동의 없이 유료 거래 불가.', country: 'TW' },
-          { level: 'high', text: '[JP] 18세 미만 결제 시 보호자 확인 필수. 전기통신사업법 외부송신 고지.', country: 'JP' },
-          { level: 'critical', text: '[CN] 실명 + 얼굴인식 스팟체크. 주3시간 제한 위반 시 서비스 중단.', country: 'CN' }
+          {
+            level: 'critical', country: 'KR',
+            text: '[KR] <14세 법정대리인 동의 미수령 시 과태료·행정처분 (PIPA §22-2).',
+            detail: `<h4>📌 법적 근거</h4>
+<p>PIPA §22조의2 — 만 14세 미만 아동의 개인정보 처리 시 법정대리인 동의 필수. 휴대폰 본인인증 등 검증 가능한 방식.</p>
+<h4>리스크 크기</h4>
+<ul><li>과태료: 최대 3천만원 (건별, 반복 시 누적)</li>
+<li>2025 개정으로 매출 최대 10% 과징금 가능</li>
+<li>행정처분 (시정명령, 공표) 가능</li></ul>
+<h4>완화책</h4>
+<ul><li>가입 시 생년월일로 <14 판정 → guardian 플로우 강제</li>
+<li>법정대리인 휴대폰 본인인증 (PASS/NICE/KMC)</li>
+<li>감사 로그 5년 보관</li></ul>`
+          },
+          {
+            level: 'critical', country: 'US',
+            text: '[US] <13 COPPA VPC 미완료 전 어떠한 개인정보도 수집 금지. 막히면 즉시 폐기.',
+            detail: `<h4>📌 법적 근거</h4>
+<p>COPPA (15 U.S.C. §§6501–6506) — 13세 미만 어린이의 개인정보 수집 시 VPC(Verifiable Parental Consent) 필수.</p>
+<h4>리스크 크기</h4>
+<ul><li>FTC 건당 최대 $51,744</li>
+<li>대형 사례: Epic $275M (2022), TikTok $5.7M (2019), YouTube $170M (2019)</li></ul>
+<h4>완화책</h4>
+<ul><li>나이 확인 화면 = Neutral Age Screen (FTC 가이드)</li>
+<li>VPC 방식: 카드 $0 인증, 신분증 업로드, KBA(Knowledge-Based Auth)</li>
+<li>VPC 실패 시 수집된 데이터 <strong>즉시 폐기</strong></li>
+<li>재시도 차단 (세션 쿠키)</li></ul>`
+          },
+          {
+            level: 'high', country: 'TW',
+            text: '[TW] 7~17세 제한적 행위능력 — 법정대리인 동의 없이 유료 거래 불가.',
+            detail: `<h4>📌 법적 근거</h4>
+<p>대만 민법 제77조 — 7세 이상 미성년은 제한행위능력자. 법정대리인 동의 없는 계약은 효력 불완전.</p>
+<h4>리스크</h4>
+<ul><li>미성년 결제 → 부모 민법상 취소 가능 → 환불 분쟁</li>
+<li>兒少法 야간(22-08) 게임 제한 관련 행정처분 가능</li></ul>
+<h4>완화책</h4>
+<ul><li>7~17세 가입 시 법정대리인 동의 UI 필수</li>
+<li>결제는 보호자 인증 후에만 활성화</li></ul>`
+          },
+          {
+            level: 'high', country: 'JP',
+            text: '[JP] 18세 미만 결제 시 보호자 확인 필수. 전기통신사업법 외부송신 고지.',
+            detail: `<h4>📌 법적 근거</h4>
+<p>일본 민법상 미성년 계약 취소 가능. 전기통신사업법(2023)은 외부송신 건별 고지 의무.</p>
+<h4>완화책</h4>
+<ul><li>18세 미만 결제 시 보호자 확인 플로우</li>
+<li>외부송신(쿠키·SDK) 공표 페이지 상설 운영</li>
+<li>가챠 확률 표시 (JOGA 자율규제)</li></ul>`
+          },
+          {
+            level: 'critical', country: 'CN',
+            text: '[CN] 실명 + 얼굴인식 스팟체크. 주3시간 제한 위반 시 서비스 중단.',
+            detail: `<h4>📌 법적 근거</h4>
+<p>国家新闻出版署《关于防止未成年人沉迷网络游戏的通知》(2021) + PIPL + 网络安全法.</p>
+<h4>리스크 크기</h4>
+<ul><li>미성년 시간/결제 제한 위반 시 즉시 서비스 중단</li>
+<li>NPPA 직접 감독 + 반복 위반 시 판호 회수</li>
+<li>데이터 해외 이전 시 CAC 심사 없으면 형사 처벌까지</li></ul>
+<h4>완화책</h4>
+<ul><li>퍼블리셔 인증 API 사용 (실명 + 얼굴 통합)</li>
+<li>미성년 플레이 시간대 서버측 강제</li>
+<li>데이터 본토 보관 (PIPL §40)</li></ul>`
+          }
         ]
       }
     ]
