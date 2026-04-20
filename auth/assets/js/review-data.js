@@ -9,7 +9,7 @@ const REVIEW_DATA = {
     title: '🎯 기획 단계 고려사항',
     sections: [
       {
-        title: '기본 운영 기준 (2026-04-17 확정)',
+        title: '기본 운영 기준',
         items: [
           {
             level: 'critical', country: 'ALL',

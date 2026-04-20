@@ -750,8 +750,17 @@ const App = {
     const wb = XLSX.utils.book_new();
 
     // ===== 1) 요약 시트 (항목 단위 한눈 보기) =====
-    const summaryRows = [['탭', '섹션', '이슈 (#번호)', '피드백 수', '메모']];
+    const summaryRows = [['탭', '섹션', '번호', '이슈 (요약)', '피드백 수', '메모']];
     let totalItems = 0, totalFeedbacks = 0;
+    // 이슈 텍스트 → 짧은 요약 (콜론 앞 또는 첫 문장, 최대 32자)
+    const shortIssue = (text) => {
+      const plain = stripHtml(text || '');
+      if (!plain) return '';
+      let s = plain.includes(':') ? plain.split(':')[0].trim()
+            : plain.split(/[.!?。！？\n]/)[0].trim();
+      if (s.length > 32) s = s.slice(0, 30) + '…';
+      return s;
+    };
 
     // ===== 2) 피드백 모음 (모든 탭의 메모를 한 곳에) =====
     const feedbackRows = [['탭', '번호', '섹션', '항목', '국가', '레벨', '상태', '피드백 일시', '피드백 내용']];
@@ -772,11 +781,12 @@ const App = {
           const itemNo = `${sIdx + 1}.${iIdx + 1}`;
           const memoJoined = memos.map(m => `[${Memo.formatStamp(m.at)}] ${m.text}`).join('\n\n');
 
-          // 요약 시트: 항목 단위 한 행 (탭 / 섹션 / #번호 이슈 / 피드백수 / 메모)
+          // 요약 시트: 탭 / 섹션 / 번호 / 이슈(요약) / 피드백수 / 메모
           summaryRows.push([
             tab.label,
             sec.title,
-            `#${itemNo} ${itemTitle}`,
+            `#${itemNo}`,
+            shortIssue(item.text),
             memos.length,
             memoJoined
           ]);
@@ -822,9 +832,9 @@ const App = {
       XLSX.utils.book_append_sheet(wb, ws, safeName);
     });
 
-    summaryRows.push(['—', '합계', `${totalItems}개 항목`, totalFeedbacks, '']);
+    summaryRows.push(['—', '합계', `${totalItems}개`, '', totalFeedbacks, '']);
     const summary = XLSX.utils.aoa_to_sheet(summaryRows);
-    summary['!cols'] = [{ wch: 16 }, { wch: 32 }, { wch: 70 }, { wch: 10 }, { wch: 80 }];
+    summary['!cols'] = [{ wch: 16 }, { wch: 30 }, { wch: 8 }, { wch: 36 }, { wch: 10 }, { wch: 80 }];
     setWrap(summary);
 
     if (feedbackRows.length === 1) {
