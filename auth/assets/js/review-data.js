@@ -9,7 +9,7 @@ const REVIEW_DATA = {
     title: '🎯 기획 단계 고려사항',
     sections: [
       {
-        title: '',
+        title: '(2026-04-17)',
         items: [
           {
             level: 'critical', country: 'ALL',
