@@ -9,69 +9,6 @@ const REVIEW_DATA = {
     title: '🎯 기획 단계 고려사항',
     sections: [
       {
-        title: '내부회의 확정사항 (2026-04-17)',
-        items: [
-          {
-            level: 'critical', country: 'ALL',
-            text: 'MaxMind GeoIP2 DB 필수 운영. IP→국가 매핑. 주 2회 자동 갱신 (최소 월 1회). Fallback: Cloudflare CF-IPCountry 헤더.',
-            detail: `<h4>📌 결정 배경</h4>
-<p>국가별 법규 분기의 기반이 되는 IP→국가 매핑 — 정확성·최신성이 핵심.</p>
-<h4>채택 이유</h4>
-<ul><li>MaxMind GeoIP2 = 업계 표준 정확도 (99%+), 상용 DB</li>
-<li>IP 대역대는 수시로 변경 (통신사 재할당) → 갱신 주기 중요</li>
-<li>DB 다운로드 실패 시를 대비해 Cloudflare CF-IPCountry 헤더를 fallback</li></ul>
-<h4>운영 요구사항</h4>
-<ul><li>주 2회 자동 갱신 (cron) — 최소 월 1회</li>
-<li>갱신 실패 시 알림 (Slack/PagerDuty)</li>
-<li>감지 결과는 쿠키에 저장하되 서버측 재검증 가능해야</li></ul>
-<h4>후속 검토 필요</h4>
-<ul><li>VPN/Proxy 탐지 연동 여부 (MaxMind Anonymous IP DB 별도 구매)</li></ul>`
-          },
-          {
-            level: 'critical', country: 'ALL',
-            text: '기본 언어 한국어 고정. 국가별 자체 번역 없음. 사용자는 구글 번역 위젯 사용. ⚠️ 약관의 구글 번역 법적 효력 확인 필요.',
-            detail: `<h4>📌 결정 배경</h4>
-<p>초기 런칭 단계에서 5개국 × 전문 번역 리소스 부담 → 한국어 기본 + 구글 번역 위젯으로 간략화.</p>
-<h4>채택 이유</h4>
-<ul><li>본사·개발팀 한국어 기준 운영 효율</li>
-<li>UI 텍스트는 구글 번역으로 일정 수준 대응 가능</li>
-<li>전문 번역은 서비스 안정화 이후 단계적 도입 예정</li></ul>
-<h4>주요 리스크·후속</h4>
-<ul><li>⚠️ <strong>약관·개인정보 처리방침</strong>의 구글 번역본은 법적 효력 불확실 — 최소 영문 공식 약관은 준비 필요</li>
-<li>CN은 PIPL에 따라 중문 공식 약관 필수</li>
-<li>핵심 CTA·에러 메시지는 수동 번역 권장</li></ul>`
-          },
-          {
-            level: 'critical', country: 'ALL',
-            text: '가입 시 국가 선택 + 쿠키 검증. 프론트 쿠키(IP 감지 국가)와 비교 → 불일치 시 "다시 선택해주세요" 안내. 가입 후 국가 변경 불가.',
-            detail: `<h4>📌 결정 배경</h4>
-<p>IP 자동 감지만으로는 교민·출장자 UX 대응 불가. 사용자 확인 절차 + 불일치 시 재선택 유도로 균형.</p>
-<h4>플로우</h4>
-<ol><li>사이트 진입 시 IP 감지 → 쿠키 저장</li>
-<li>가입 첫 화면 "관할 국가 선택" — IP 감지 국가가 기본값</li>
-<li>사용자가 다른 국가 선택 → IP와 불일치 경고 배너 + "다시 확인해주세요" 안내</li>
-<li>사용자 최종 확정 → <strong>가입 후 변경 불가</strong></li></ol>
-<h4>후속 검토 필요</h4>
-<ul><li>쿠키 조작 대응: 서버측 2차 검증 여부 (문의사항 탭 참조)</li>
-<li>불일치 시 강제 차단할지 경고 후 허용할지 (현재 PLAN = 경고 후 허용)</li></ul>`
-          },
-          {
-            level: 'critical', country: 'ALL',
-            text: 'Auth에 쿠키 국가 전달. Auth 서버는 국가 정보 직접 확인 불가. 프론트 쿠키의 국가 정보를 Auth 가입 단계에 전달.',
-            detail: `<h4>📌 결정 배경</h4>
-<p>Auth 서버는 GeoIP 로직을 직접 실행하지 않음 (책임 분리). 프론트가 감지·검증한 국가를 파라미터로 전달.</p>
-<h4>구현 방식</h4>
-<ul><li>프론트: 가입 API 호출 시 <code>jurisdiction</code> 파라미터에 쿠키 국가 값 포함</li>
-<li>Auth 서버: 전달받은 값을 user.jurisdiction 필드에 저장</li>
-<li>모든 인증 관련 결정(약관 버전·연령 기준·본인인증 수단)은 이 값에 의존</li></ul>
-<h4>보안 고려</h4>
-<ul><li>프론트 쿠키는 조작 가능 → 서버측 IP 재확인으로 검증 로그</li>
-<li>불일치 시 감사 로그 + 이상 탐지 큐</li>
-<li>결제 시점에 BIN 국가 교차검증 (별도 안전망)</li></ul>`
-          }
-        ]
-      },
-      {
         title: '비즈니스 의사결정 필요',
         items: [
           {
