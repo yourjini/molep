@@ -763,7 +763,18 @@ const App = {
     REVIEW_TABS.forEach(tab => {
       const data = REVIEW_DATA[tab.id];
       if (!data) return;
-      const rows = [['섹션', '번호', '이슈 요약', '국가', '상태', '메모']];
+
+      // 이 탭에서의 최대 메모 수 계산 → 메모 컬럼 동적 확장
+      let maxMemos = 1;
+      data.sections.forEach((sec, sIdx) => {
+        sec.items.forEach((_, iIdx) => {
+          const cnt = Memo.getAll(tab.id, sIdx, iIdx).length;
+          if (cnt > maxMemos) maxMemos = cnt;
+        });
+      });
+      const memoHeaders = [];
+      for (let i = 0; i < maxMemos; i++) memoHeaders.push(i === 0 ? '메모' : `메모${i}`);
+      const rows = [['섹션', '번호', '이슈 요약', '국가', '상태', ...memoHeaders]];
       let tabItems = 0, tabFeedbacks = 0;
       data.sections.forEach((sec, sIdx) => {
         let secItems = 0, secFeedbacks = 0;
@@ -775,21 +786,31 @@ const App = {
           const itemNo = `${sIdx + 1}.${iIdx + 1}`;
           const memoJoined = memos.map(m => `[${Memo.formatStamp(m.at)}] ${m.text}`).join('\n\n');
 
-          // 탭별 시트: 섹션 / 번호 / 이슈요약 / 국가 / 상태 / 메모
+          // 탭별 시트: 섹션 / 번호 / 이슈요약 / 국가 / 상태 / 메모[…]
+          const memoCols = [];
+          for (let mi = 0; mi < maxMemos; mi++) {
+            if (mi < memos.length) {
+              const m = memos[mi];
+              memoCols.push(`[${Memo.formatStamp(m.at)}] ${m.text}`);
+            } else {
+              memoCols.push('');
+            }
+          }
           rows.push([
             sec.title || '',
             `#${itemNo}`,
             shortIssue(item.text),
             item.country || 'ALL',
             statusLabel,
-            memoJoined
+            ...memoCols
           ]);
 
         });
       });
 
       const ws = XLSX.utils.aoa_to_sheet(rows);
-      ws['!cols'] = [{ wch: 30 }, { wch: 8 }, { wch: 38 }, { wch: 10 }, { wch: 12 }, { wch: 80 }];
+      const memoColWidths = Array(maxMemos).fill({ wch: 60 });
+      ws['!cols'] = [{ wch: 30 }, { wch: 8 }, { wch: 38 }, { wch: 10 }, { wch: 12 }, ...memoColWidths];
       setWrap(ws);
       const safeName = tab.label.replace(/[^\w가-힣\s]/g, '').trim().slice(0, 28) || tab.id;
       XLSX.utils.book_append_sheet(wb, ws, safeName);
