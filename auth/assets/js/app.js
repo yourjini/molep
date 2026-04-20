@@ -715,8 +715,8 @@ const App = {
     };
     const wb = XLSX.utils.book_new();
 
-    // ===== 1) 요약 시트 =====
-    const summaryRows = [['탭', '섹션', '항목 수', '피드백 수']];
+    // ===== 1) 요약 시트 (항목 단위 한눈 보기) =====
+    const summaryRows = [['탭', '섹션', '이슈 (#번호)', '피드백 수', '메모']];
     let totalItems = 0, totalFeedbacks = 0;
 
     // ===== 2) 피드백 모음 (모든 탭의 메모를 한 곳에) =====
@@ -736,7 +736,18 @@ const App = {
           const statusLabel = status ? (STATUS_OPTIONS.find(o => o.value === status)?.label || status) : '미정';
           const itemTitle = stripHtml(item.text);
           const itemNo = `${sIdx + 1}.${iIdx + 1}`;
+          const memoJoined = memos.map(m => `[${Memo.formatStamp(m.at)}] ${m.text}`).join('\n\n');
 
+          // 요약 시트: 항목 단위 한 행 (탭 / 섹션 / #번호 이슈 / 피드백수 / 메모)
+          summaryRows.push([
+            tab.label,
+            sec.title,
+            `#${itemNo} ${itemTitle}`,
+            memos.length,
+            memoJoined
+          ]);
+
+          // 탭별 상세 시트
           rows.push([
             itemNo,
             sec.title,
@@ -746,10 +757,10 @@ const App = {
             statusLabel,
             stripHtml(item.detail || ''),
             memos.length,
-            memos.map(m => `[${Memo.formatStamp(m.at)}] ${m.text}`).join('\n\n')
+            memoJoined
           ]);
 
-          // 피드백 모음 시트에는 메모 1개당 1행 (가독성 최우선)
+          // 피드백 모음 시트: 메모 1개당 1행
           memos.forEach(m => {
             feedbackRows.push([
               tab.label,
@@ -766,7 +777,6 @@ const App = {
 
           secItems++; secFeedbacks += memos.length;
         });
-        summaryRows.push([tab.label, sec.title, secItems, secFeedbacks]);
         tabItems += secItems; tabFeedbacks += secFeedbacks;
       });
       totalItems += tabItems; totalFeedbacks += tabFeedbacks;
@@ -778,9 +788,9 @@ const App = {
       XLSX.utils.book_append_sheet(wb, ws, safeName);
     });
 
-    summaryRows.push(['—', '합계', totalItems, totalFeedbacks]);
+    summaryRows.push(['—', '합계', `${totalItems}개 항목`, totalFeedbacks, '']);
     const summary = XLSX.utils.aoa_to_sheet(summaryRows);
-    summary['!cols'] = [{ wch: 18 }, { wch: 38 }, { wch: 10 }, { wch: 12 }];
+    summary['!cols'] = [{ wch: 16 }, { wch: 32 }, { wch: 70 }, { wch: 10 }, { wch: 80 }];
     setWrap(summary);
 
     if (feedbackRows.length === 1) {
