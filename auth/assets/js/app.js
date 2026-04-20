@@ -749,9 +749,6 @@ const App = {
     };
     const wb = XLSX.utils.book_new();
 
-    // ===== 1) 요약 시트 (항목 단위 한눈 보기) =====
-    const summaryRows = [['탭', '섹션', '번호', '이슈 (요약)', '피드백 수', '메모']];
-    let totalItems = 0, totalFeedbacks = 0;
     // 이슈 텍스트 → 짧은 요약 (콜론 앞 또는 첫 문장, 최대 32자)
     const shortIssue = (text) => {
       const plain = stripHtml(text || '');
@@ -762,14 +759,11 @@ const App = {
       return s;
     };
 
-    // ===== 2) 피드백 모음 (모든 탭의 메모를 한 곳에) =====
-    const feedbackRows = [['탭', '번호', '섹션', '항목', '국가', '레벨', '상태', '피드백 일시', '피드백 내용']];
-
-    // ===== 3) 탭별 시트 =====
+    // 탭별 시트만 생성 (요약/현황판/피드백 모음 시트 제거됨)
     REVIEW_TABS.forEach(tab => {
       const data = REVIEW_DATA[tab.id];
       if (!data) return;
-      const rows = [['번호', '섹션', '항목 (제목)', '레벨', '국가', '상태', '상세 설명', '피드백 수', '피드백 내용 (시간 | 텍스트)']];
+      const rows = [['섹션', '번호', '이슈 요약', '국가', '상태', '메모']];
       let tabItems = 0, tabFeedbacks = 0;
       data.sections.forEach((sec, sIdx) => {
         let secItems = 0, secFeedbacks = 0;
@@ -781,98 +775,25 @@ const App = {
           const itemNo = `${sIdx + 1}.${iIdx + 1}`;
           const memoJoined = memos.map(m => `[${Memo.formatStamp(m.at)}] ${m.text}`).join('\n\n');
 
-          // 요약 시트: 탭 / 섹션 / 번호 / 이슈(요약) / 피드백수 / 메모
-          summaryRows.push([
-            tab.label,
-            sec.title,
+          // 탭별 시트: 섹션 / 번호 / 이슈요약 / 국가 / 상태 / 메모
+          rows.push([
+            sec.title || '',
             `#${itemNo}`,
             shortIssue(item.text),
-            memos.length,
-            memoJoined
-          ]);
-
-          // 탭별 상세 시트
-          rows.push([
-            itemNo,
-            sec.title,
-            itemTitle,
-            item.level || '',
             item.country || 'ALL',
             statusLabel,
-            stripHtml(item.detail || ''),
-            memos.length,
             memoJoined
           ]);
 
-          // 피드백 모음 시트: 메모 1개당 1행
-          memos.forEach(m => {
-            feedbackRows.push([
-              tab.label,
-              itemNo,
-              sec.title,
-              itemTitle,
-              item.country || 'ALL',
-              item.level || '',
-              statusLabel,
-              Memo.formatStamp(m.at),
-              m.text
-            ]);
-          });
-
-          secItems++; secFeedbacks += memos.length;
         });
-        tabItems += secItems; tabFeedbacks += secFeedbacks;
       });
-      totalItems += tabItems; totalFeedbacks += tabFeedbacks;
 
       const ws = XLSX.utils.aoa_to_sheet(rows);
-      ws['!cols'] = [{ wch: 8 }, { wch: 30 }, { wch: 60 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 70 }, { wch: 10 }, { wch: 80 }];
+      ws['!cols'] = [{ wch: 30 }, { wch: 8 }, { wch: 38 }, { wch: 10 }, { wch: 12 }, { wch: 80 }];
       setWrap(ws);
       const safeName = tab.label.replace(/[^\w가-힣\s]/g, '').trim().slice(0, 28) || tab.id;
       XLSX.utils.book_append_sheet(wb, ws, safeName);
     });
-
-    summaryRows.push(['—', '합계', `${totalItems}개`, '', totalFeedbacks, '']);
-    const summary = XLSX.utils.aoa_to_sheet(summaryRows);
-    summary['!cols'] = [{ wch: 16 }, { wch: 30 }, { wch: 8 }, { wch: 36 }, { wch: 10 }, { wch: 80 }];
-    setWrap(summary);
-
-    if (feedbackRows.length === 1) {
-      // 피드백 0건일 때 안내 행 추가
-      feedbackRows.push(['(저장된 피드백 없음)', '', '', '', '', '', '', '', '']);
-    }
-    const feedbackWs = XLSX.utils.aoa_to_sheet(feedbackRows);
-    feedbackWs['!cols'] = [{ wch: 18 }, { wch: 8 }, { wch: 30 }, { wch: 60 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 18 }, { wch: 80 }];
-    setWrap(feedbackWs);
-
-    // ===== 4) 현황판 시트 (탭별 × 섹션별 상태 카운트) =====
-    const dashRows = [['탭', '섹션', '미정', '논의중', '확정', '보류', '드랍', '합계']];
-    REVIEW_TABS.forEach(tab => {
-      if (tab.id === 'qa') return; // QA는 상태 없음
-      const data = REVIEW_DATA[tab.id];
-      if (!data) return;
-      let tUnd = 0, tDis = 0, tCon = 0, tHol = 0, tDro = 0, tTot = 0;
-      data.sections.forEach((sec, sIdx) => {
-        const c = { '': 0, discussing: 0, confirmed: 0, hold: 0, dropped: 0 };
-        sec.items.forEach((_, iIdx) => {
-          const s = Status.get(tab.id, sIdx, iIdx) || '';
-          c[s] = (c[s] || 0) + 1;
-        });
-        dashRows.push([tab.label, sec.title || '(미분류)', c[''], c.discussing, c.confirmed, c.hold, c.dropped, sec.items.length]);
-        tUnd += c['']; tDis += c.discussing; tCon += c.confirmed; tHol += c.hold; tDro += c.dropped; tTot += sec.items.length;
-      });
-      dashRows.push([tab.label, '— 탭 합계 —', tUnd, tDis, tCon, tHol, tDro, tTot]);
-    });
-    const dashWs = XLSX.utils.aoa_to_sheet(dashRows);
-    dashWs['!cols'] = [{ wch: 16 }, { wch: 38 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 10 }];
-    setWrap(dashWs);
-
-    XLSX.utils.book_append_sheet(wb, summary, '요약');
-    XLSX.utils.book_append_sheet(wb, dashWs, '현황판');
-    XLSX.utils.book_append_sheet(wb, feedbackWs, '피드백 모음');
-    // 시트 순서: 요약 → 현황판 → 피드백 모음 → 각 탭
-    const order = ['요약', '현황판', '피드백 모음', ...wb.SheetNames.filter(n => !['요약','현황판','피드백 모음'].includes(n))];
-    wb.SheetNames = order;
 
     const pad = n => String(n).padStart(2, '0');
     const d = new Date();
