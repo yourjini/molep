@@ -13,7 +13,7 @@ const REVIEW_DATA = {
         items: [
           {
             level: 'critical', country: 'ALL',
-            text: '[확정] MaxMind GeoIP2 DB 필수 운영. IP→국가 매핑. 주 2회 자동 갱신 (최소 월 1회). Fallback: Cloudflare CF-IPCountry 헤더.',
+            text: 'MaxMind GeoIP2 DB 필수 운영. IP→국가 매핑. 주 2회 자동 갱신 (최소 월 1회). Fallback: Cloudflare CF-IPCountry 헤더.',
             detail: `<h4>📌 결정 배경</h4>
 <p>국가별 법규 분기의 기반이 되는 IP→국가 매핑 — 정확성·최신성이 핵심.</p>
 <h4>채택 이유</h4>
@@ -29,7 +29,7 @@ const REVIEW_DATA = {
           },
           {
             level: 'critical', country: 'ALL',
-            text: '[확정] 기본 언어 한국어 고정. 국가별 자체 번역 없음. 사용자는 구글 번역 위젯 사용. ⚠️ 약관의 구글 번역 법적 효력 확인 필요.',
+            text: '기본 언어 한국어 고정. 국가별 자체 번역 없음. 사용자는 구글 번역 위젯 사용. ⚠️ 약관의 구글 번역 법적 효력 확인 필요.',
             detail: `<h4>📌 결정 배경</h4>
 <p>초기 런칭 단계에서 5개국 × 전문 번역 리소스 부담 → 한국어 기본 + 구글 번역 위젯으로 간략화.</p>
 <h4>채택 이유</h4>
@@ -43,7 +43,7 @@ const REVIEW_DATA = {
           },
           {
             level: 'critical', country: 'ALL',
-            text: '[확정] 가입 시 국가 선택 + 쿠키 검증. 프론트 쿠키(IP 감지 국가)와 비교 → 불일치 시 "다시 선택해주세요" 안내. 가입 후 국가 변경 불가.',
+            text: '가입 시 국가 선택 + 쿠키 검증. 프론트 쿠키(IP 감지 국가)와 비교 → 불일치 시 "다시 선택해주세요" 안내. 가입 후 국가 변경 불가.',
             detail: `<h4>📌 결정 배경</h4>
 <p>IP 자동 감지만으로는 교민·출장자 UX 대응 불가. 사용자 확인 절차 + 불일치 시 재선택 유도로 균형.</p>
 <h4>플로우</h4>
@@ -57,7 +57,7 @@ const REVIEW_DATA = {
           },
           {
             level: 'critical', country: 'ALL',
-            text: '[확정] Auth에 쿠키 국가 전달. Auth 서버는 국가 정보 직접 확인 불가. 프론트 쿠키의 국가 정보를 Auth 가입 단계에 전달.',
+            text: 'Auth에 쿠키 국가 전달. Auth 서버는 국가 정보 직접 확인 불가. 프론트 쿠키의 국가 정보를 Auth 가입 단계에 전달.',
             detail: `<h4>📌 결정 배경</h4>
 <p>Auth 서버는 GeoIP 로직을 직접 실행하지 않음 (책임 분리). 프론트가 감지·검증한 국가를 파라미터로 전달.</p>
 <h4>구현 방식</h4>
