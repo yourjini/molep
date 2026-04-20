@@ -22,6 +22,29 @@ const state = {
 const COUNTRY_CODES = Object.keys(COUNTRIES);
 const t = (k) => (I18N[state.locale] && I18N[state.locale][k]) || (I18N.ko[k]) || k;
 
+// 국가별 데모 언어 옵션 (런칭 정책 기반)
+// KR + TW 정식 오픈 → TW 선택 시 zh-TW 노출. 기타는 ko/en 기본.
+const LANG_OPTIONS_BY_COUNTRY = {
+  KR: [{ v: 'ko',    l: '한국어 (ko)' },     { v: 'en',    l: 'English (en)' }],
+  TW: [{ v: 'zh-TW', l: '繁體中文 (zh-TW)' }, { v: 'ko',    l: '한국어 (ko)' },  { v: 'en', l: 'English (en)' }],
+  US: [{ v: 'en',    l: 'English (en)' },     { v: 'ko',    l: '한국어 (ko)' }],
+  JP: [{ v: 'ko',    l: '한국어 (ko)' },     { v: 'en',    l: 'English (en)' }],
+  CN: [{ v: 'ko',    l: '한국어 (ko)' },     { v: 'en',    l: 'English (en)' }]
+};
+
+function updateLangOptions(countryCode) {
+  const sel = document.getElementById('demo-lang-select');
+  if (!sel) return;
+  const opts = LANG_OPTIONS_BY_COUNTRY[countryCode] || LANG_OPTIONS_BY_COUNTRY.KR;
+  sel.innerHTML = opts.map(o => `<option value="${o.v}">${o.l}</option>`).join('');
+  // 현재 locale이 새 옵션 목록에 없으면 첫 번째로 폴백
+  const has = opts.some(o => o.v === state.locale);
+  if (!has) {
+    state.locale = opts[0].v;
+  }
+  sel.value = state.locale;
+}
+
 // ======================== Router ========================
 const ROUTES = {
   '#/landing':            'screen-landing',
@@ -609,18 +632,17 @@ const App = {
   changeCountry(code) {
     if (!COUNTRIES[code]) return;
     state.country = code;
-    // Sync locale to country's native if it's KR or EN supported
-    state.locale = (code === 'US') ? 'en' : 'ko';
-    document.getElementById('demo-lang-select').value = state.locale;
+    // 국가의 기본 locale (TW=zh-TW, US=en, 기타=ko)
+    state.locale = (code === 'TW') ? 'zh-TW' : (code === 'US') ? 'en' : 'ko';
+    updateLangOptions(code);
     applyI18n();
     updateDetectedChip();
-    // Reset flow-specific state when country changes mid-flow
     state.user.provider = null;
     onRouteChange();
   },
 
   changeLang(lang) {
-    state.locale = (lang === 'en') ? 'en' : 'ko';
+    state.locale = lang;
     applyI18n();
     updateDetectedChip();
     onRouteChange();
@@ -732,11 +754,10 @@ const App = {
     const chosen = document.querySelector('input[name=jurisdiction]:checked');
     if (!chosen) { alert('국가를 선택해주세요.'); return; }
     state.user.jurisdiction = chosen.value;
-    // 이후 플로우 컨텍스트 = 선택한 국가
     state.country = chosen.value;
     document.getElementById('demo-country-select').value = chosen.value;
-    state.locale = (chosen.value === 'US') ? 'en' : 'ko';
-    document.getElementById('demo-lang-select').value = state.locale;
+    state.locale = (chosen.value === 'TW') ? 'zh-TW' : (chosen.value === 'US') ? 'en' : 'ko';
+    updateLangOptions(chosen.value);
     applyI18n();
     updateDetectedChip();
     navigate('#/signup/method');
@@ -936,7 +957,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Wire up demo bar
   document.getElementById('demo-country-select').value = state.country;
   document.getElementById('demo-country-select').addEventListener('change', (e) => App.changeCountry(e.target.value));
-  document.getElementById('demo-lang-select').value = state.locale;
+  updateLangOptions(state.country);
   document.getElementById('demo-lang-select').addEventListener('change', (e) => App.changeLang(e.target.value));
 
   applyI18n();
