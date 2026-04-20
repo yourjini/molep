@@ -495,6 +495,7 @@ function renderReviewItem(tabId, sIdx, iIdx, item) {
   const level = item.level || 'low';
   const country = item.country || 'ALL';
   const flag = country !== 'ALL' && COUNTRIES[country] ? COUNTRIES[country].flag + ' ' + country : '공통';
+  const itemNo = `${sIdx + 1}.${iIdx + 1}`;
 
   // 상태 드롭다운 (QA 탭은 제외)
   const showStatus = tabId !== 'qa';
@@ -536,6 +537,7 @@ function renderReviewItem(tabId, sIdx, iIdx, item) {
   return `
     <div class="review-item" data-tab="${tabId}" data-s="${sIdx}" data-i="${iIdx}">
       <div class="review-item-head">
+        <span class="item-number">#${itemNo}</span>
         <span class="level-badge ${level}">${level}</span>
         <span class="country-tag ${country === 'ALL' ? 'all' : ''}">${flag}</span>
         ${statusHtml}
@@ -718,13 +720,13 @@ const App = {
     let totalItems = 0, totalFeedbacks = 0;
 
     // ===== 2) 피드백 모음 (모든 탭의 메모를 한 곳에) =====
-    const feedbackRows = [['탭', '섹션', '항목', '국가', '레벨', '상태', '피드백 일시', '피드백 내용']];
+    const feedbackRows = [['탭', '번호', '섹션', '항목', '국가', '레벨', '상태', '피드백 일시', '피드백 내용']];
 
     // ===== 3) 탭별 시트 =====
     REVIEW_TABS.forEach(tab => {
       const data = REVIEW_DATA[tab.id];
       if (!data) return;
-      const rows = [['섹션', '항목 (제목)', '레벨', '국가', '상태', '상세 설명', '피드백 수', '피드백 내용 (시간 | 텍스트)']];
+      const rows = [['번호', '섹션', '항목 (제목)', '레벨', '국가', '상태', '상세 설명', '피드백 수', '피드백 내용 (시간 | 텍스트)']];
       let tabItems = 0, tabFeedbacks = 0;
       data.sections.forEach((sec, sIdx) => {
         let secItems = 0, secFeedbacks = 0;
@@ -733,8 +735,10 @@ const App = {
           const status = (typeof Status !== 'undefined') ? Status.get(tab.id, sIdx, iIdx) : '';
           const statusLabel = status ? (STATUS_OPTIONS.find(o => o.value === status)?.label || status) : '미정';
           const itemTitle = stripHtml(item.text);
+          const itemNo = `${sIdx + 1}.${iIdx + 1}`;
 
           rows.push([
+            itemNo,
             sec.title,
             itemTitle,
             item.level || '',
@@ -749,6 +753,7 @@ const App = {
           memos.forEach(m => {
             feedbackRows.push([
               tab.label,
+              itemNo,
               sec.title,
               itemTitle,
               item.country || 'ALL',
@@ -767,7 +772,7 @@ const App = {
       totalItems += tabItems; totalFeedbacks += tabFeedbacks;
 
       const ws = XLSX.utils.aoa_to_sheet(rows);
-      ws['!cols'] = [{ wch: 30 }, { wch: 60 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 70 }, { wch: 10 }, { wch: 80 }];
+      ws['!cols'] = [{ wch: 8 }, { wch: 30 }, { wch: 60 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 70 }, { wch: 10 }, { wch: 80 }];
       setWrap(ws);
       const safeName = tab.label.replace(/[^\w가-힣\s]/g, '').trim().slice(0, 28) || tab.id;
       XLSX.utils.book_append_sheet(wb, ws, safeName);
@@ -780,10 +785,10 @@ const App = {
 
     if (feedbackRows.length === 1) {
       // 피드백 0건일 때 안내 행 추가
-      feedbackRows.push(['(저장된 피드백 없음)', '', '', '', '', '', '', '']);
+      feedbackRows.push(['(저장된 피드백 없음)', '', '', '', '', '', '', '', '']);
     }
     const feedbackWs = XLSX.utils.aoa_to_sheet(feedbackRows);
-    feedbackWs['!cols'] = [{ wch: 18 }, { wch: 30 }, { wch: 60 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 18 }, { wch: 80 }];
+    feedbackWs['!cols'] = [{ wch: 18 }, { wch: 8 }, { wch: 30 }, { wch: 60 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 18 }, { wch: 80 }];
     setWrap(feedbackWs);
 
     XLSX.utils.book_append_sheet(wb, summary, '요약');
