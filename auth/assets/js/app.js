@@ -448,7 +448,7 @@ function renderReviewContent(tabId) {
   const wrap = document.getElementById('review-content');
   if (!data) { wrap.innerHTML = ''; return; }
 
-  wrap.innerHTML = data.sections.map((sec, sIdx) => `
+  wrap.innerHTML = renderStatusDashboard(tabId, data) + data.sections.map((sec, sIdx) => `
     <div class="review-section">
       ${sec.title ? `<h3>${escapeHtml(sec.title)}</h3>` : ''}
       ${sec.items.map((item, iIdx) => renderReviewItem(tabId, sIdx, iIdx, item)).join('')}
@@ -488,6 +488,85 @@ function onStatusChange(e) {
   const iIdx = parseInt(item.getAttribute('data-i'), 10);
   Status.set(tabId, sIdx, iIdx, sel.value);
   sel.setAttribute('data-status', sel.value);
+  refreshDashboard(tabId);
+}
+
+function refreshDashboard(tabId) {
+  const dash = document.getElementById('status-dashboard');
+  if (!dash) return;
+  const data = REVIEW_DATA[tabId];
+  if (!data) return;
+  const tmp = document.createElement('div');
+  tmp.innerHTML = renderStatusDashboard(tabId, data);
+  if (tmp.firstElementChild) dash.replaceWith(tmp.firstElementChild);
+}
+
+function renderStatusDashboard(tabId, data) {
+  // QA는 상태 드롭다운 없음 → 현황판도 생략
+  if (tabId === 'qa') return '';
+
+  const sectionStats = data.sections.map((sec, sIdx) => {
+    const counts = { '': 0, discussing: 0, confirmed: 0, hold: 0, dropped: 0 };
+    sec.items.forEach((_, iIdx) => {
+      const s = Status.get(tabId, sIdx, iIdx) || '';
+      counts[s] = (counts[s] || 0) + 1;
+    });
+    return {
+      title: sec.title,
+      undecided: counts[''],
+      discussing: counts.discussing,
+      confirmed: counts.confirmed,
+      hold: counts.hold,
+      dropped: counts.dropped,
+      total: sec.items.length
+    };
+  });
+
+  const sum = (k) => sectionStats.reduce((a, s) => a + s[k], 0);
+
+  return `
+    <div class="status-dashboard" id="status-dashboard">
+      <div class="status-dashboard-head">
+        <span>📊 현황판</span>
+        <span class="status-dashboard-sub">섹션별 상태 카운트</span>
+      </div>
+      <table class="status-table">
+        <thead>
+          <tr>
+            <th class="left">섹션</th>
+            <th>미정</th>
+            <th>논의중</th>
+            <th>확정</th>
+            <th>보류</th>
+            <th>드랍</th>
+            <th>합계</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sectionStats.map(s => `
+            <tr>
+              <td class="left">${escapeHtml(s.title || '(미분류)')}</td>
+              <td class="num">${s.undecided}</td>
+              <td class="num c-discussing">${s.discussing}</td>
+              <td class="num c-confirmed">${s.confirmed}</td>
+              <td class="num c-hold">${s.hold}</td>
+              <td class="num c-dropped">${s.dropped}</td>
+              <td class="num total">${s.total}</td>
+            </tr>
+          `).join('')}
+          <tr class="total-row">
+            <td class="left"><strong>합계</strong></td>
+            <td class="num">${sum('undecided')}</td>
+            <td class="num c-discussing">${sum('discussing')}</td>
+            <td class="num c-confirmed">${sum('confirmed')}</td>
+            <td class="num c-hold">${sum('hold')}</td>
+            <td class="num c-dropped">${sum('dropped')}</td>
+            <td class="num total"><strong>${sum('total')}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 function renderReviewItem(tabId, sIdx, iIdx, item) {
@@ -801,10 +880,33 @@ const App = {
     feedbackWs['!cols'] = [{ wch: 18 }, { wch: 8 }, { wch: 30 }, { wch: 60 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 18 }, { wch: 80 }];
     setWrap(feedbackWs);
 
+    // ===== 4) 현황판 시트 (탭별 × 섹션별 상태 카운트) =====
+    const dashRows = [['탭', '섹션', '미정', '논의중', '확정', '보류', '드랍', '합계']];
+    REVIEW_TABS.forEach(tab => {
+      if (tab.id === 'qa') return; // QA는 상태 없음
+      const data = REVIEW_DATA[tab.id];
+      if (!data) return;
+      let tUnd = 0, tDis = 0, tCon = 0, tHol = 0, tDro = 0, tTot = 0;
+      data.sections.forEach((sec, sIdx) => {
+        const c = { '': 0, discussing: 0, confirmed: 0, hold: 0, dropped: 0 };
+        sec.items.forEach((_, iIdx) => {
+          const s = Status.get(tab.id, sIdx, iIdx) || '';
+          c[s] = (c[s] || 0) + 1;
+        });
+        dashRows.push([tab.label, sec.title || '(미분류)', c[''], c.discussing, c.confirmed, c.hold, c.dropped, sec.items.length]);
+        tUnd += c['']; tDis += c.discussing; tCon += c.confirmed; tHol += c.hold; tDro += c.dropped; tTot += sec.items.length;
+      });
+      dashRows.push([tab.label, '— 탭 합계 —', tUnd, tDis, tCon, tHol, tDro, tTot]);
+    });
+    const dashWs = XLSX.utils.aoa_to_sheet(dashRows);
+    dashWs['!cols'] = [{ wch: 16 }, { wch: 38 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 10 }];
+    setWrap(dashWs);
+
     XLSX.utils.book_append_sheet(wb, summary, '요약');
+    XLSX.utils.book_append_sheet(wb, dashWs, '현황판');
     XLSX.utils.book_append_sheet(wb, feedbackWs, '피드백 모음');
-    // 시트 순서: 요약 → 피드백 모음 → 각 탭
-    const order = ['요약', '피드백 모음', ...wb.SheetNames.filter(n => n !== '요약' && n !== '피드백 모음')];
+    // 시트 순서: 요약 → 현황판 → 피드백 모음 → 각 탭
+    const order = ['요약', '현황판', '피드백 모음', ...wb.SheetNames.filter(n => !['요약','현황판','피드백 모음'].includes(n))];
     wb.SheetNames = order;
 
     const pad = n => String(n).padStart(2, '0');
