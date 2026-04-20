@@ -473,6 +473,15 @@ function renderReviewItem(tabId, sIdx, iIdx, item) {
   const country = item.country || 'ALL';
   const flag = country !== 'ALL' && COUNTRIES[country] ? COUNTRIES[country].flag + ' ' + country : '공통';
 
+  // 상태 드롭다운 (QA 탭은 제외)
+  const showStatus = tabId !== 'qa';
+  const statusVal = showStatus ? Status.get(tabId, sIdx, iIdx) : '';
+  const statusHtml = showStatus
+    ? `<select class="status-select" data-status="${statusVal}" data-status-select>${
+        STATUS_OPTIONS.map(o => `<option value="${o.value}"${o.value === statusVal ? ' selected' : ''}>${o.label}</option>`).join('')
+      }</select>`
+    : '';
+
   const detailHtml = item.detail ? `
     <button class="review-more-btn" data-more-btn>자세히 보기 →</button>
   ` : '';
@@ -506,6 +515,7 @@ function renderReviewItem(tabId, sIdx, iIdx, item) {
       <div class="review-item-head">
         <span class="level-badge ${level}">${level}</span>
         <span class="country-tag ${country === 'ALL' ? 'all' : ''}">${flag}</span>
+        ${statusHtml}
       </div>
       <div class="review-item-text">${item.text}</div>
       ${detailHtml}
