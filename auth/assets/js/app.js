@@ -654,6 +654,16 @@ const App = {
     document.body.style.overflow = '';
   },
 
+  // 로고 클릭 — URL 해시 없이 /auth/ 로 정리하고 랜딩 렌더
+  goLanding() {
+    try {
+      history.pushState(null, '', location.pathname);
+    } catch (e) { /* 일부 브라우저 file:// 등 fallback */ location.hash = ''; }
+    showScreen('#/landing');
+    renderScreen('#/landing');
+    window.scrollTo(0, 0);
+  },
+
   downloadExcel() {
     if (typeof XLSX === 'undefined') {
       alert('엑셀 라이브러리 로딩 실패. 인터넷 연결을 확인해주세요.');
