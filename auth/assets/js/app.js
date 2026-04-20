@@ -502,69 +502,24 @@ function refreshDashboard(tabId) {
 }
 
 function renderStatusDashboard(tabId, data) {
-  // QA는 상태 드롭다운 없음 → 현황판도 생략
   if (tabId === 'qa') return '';
-
-  const sectionStats = data.sections.map((sec, sIdx) => {
-    const counts = { '': 0, discussing: 0, confirmed: 0, hold: 0, dropped: 0 };
+  const counts = { '': 0, discussing: 0, confirmed: 0, hold: 0, dropped: 0 };
+  let total = 0;
+  data.sections.forEach((sec, sIdx) => {
     sec.items.forEach((_, iIdx) => {
       const s = Status.get(tabId, sIdx, iIdx) || '';
       counts[s] = (counts[s] || 0) + 1;
+      total++;
     });
-    return {
-      title: sec.title,
-      undecided: counts[''],
-      discussing: counts.discussing,
-      confirmed: counts.confirmed,
-      hold: counts.hold,
-      dropped: counts.dropped,
-      total: sec.items.length
-    };
   });
-
-  const sum = (k) => sectionStats.reduce((a, s) => a + s[k], 0);
-
   return `
     <div class="status-dashboard" id="status-dashboard">
-      <div class="status-dashboard-head">
-        <span>📊 현황판</span>
-        <span class="status-dashboard-sub">섹션별 상태 카운트</span>
-      </div>
-      <table class="status-table">
-        <thead>
-          <tr>
-            <th class="left">섹션</th>
-            <th>미정</th>
-            <th>논의중</th>
-            <th>확정</th>
-            <th>보류</th>
-            <th>드랍</th>
-            <th>합계</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${sectionStats.map(s => `
-            <tr>
-              <td class="left">${escapeHtml(s.title || '(미분류)')}</td>
-              <td class="num">${s.undecided}</td>
-              <td class="num c-discussing">${s.discussing}</td>
-              <td class="num c-confirmed">${s.confirmed}</td>
-              <td class="num c-hold">${s.hold}</td>
-              <td class="num c-dropped">${s.dropped}</td>
-              <td class="num total">${s.total}</td>
-            </tr>
-          `).join('')}
-          <tr class="total-row">
-            <td class="left"><strong>합계</strong></td>
-            <td class="num">${sum('undecided')}</td>
-            <td class="num c-discussing">${sum('discussing')}</td>
-            <td class="num c-confirmed">${sum('confirmed')}</td>
-            <td class="num c-hold">${sum('hold')}</td>
-            <td class="num c-dropped">${sum('dropped')}</td>
-            <td class="num total"><strong>${sum('total')}</strong></td>
-          </tr>
-        </tbody>
-      </table>
+      <span class="status-chip"><b>${counts['']}</b> 미정</span>
+      <span class="status-chip c-discussing"><b>${counts.discussing}</b> 논의중</span>
+      <span class="status-chip c-confirmed"><b>${counts.confirmed}</b> 확정</span>
+      <span class="status-chip c-hold"><b>${counts.hold}</b> 보류</span>
+      <span class="status-chip c-dropped"><b>${counts.dropped}</b> 드랍</span>
+      <span class="status-chip total">총 <b>${total}</b>건</span>
     </div>
   `;
 }

@@ -789,49 +789,34 @@ p  { margin: 0 0 10px 0; color: var(--text-dim); }
   font-weight: 700;
 }
 
-/* Status dashboard (탭 상단 섹션별 카운트) */
+/* Status dashboard (심플 한 줄 칩) */
 .status-dashboard {
-  margin-bottom: 24px;
-  padding: 14px 16px;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-bottom: 22px;
+  padding: 10px 14px;
   background: var(--bg-soft);
   border: 1px solid var(--line);
   border-radius: var(--r);
-}
-.status-dashboard-head {
-  display: flex; gap: 10px; align-items: baseline;
-  margin-bottom: 10px;
-}
-.status-dashboard-head > span:first-child { font-weight: 700; color: var(--text); font-size: 14px; }
-.status-dashboard-sub { color: var(--text-muted); font-size: 12px; }
-.status-table {
-  width: 100%;
-  border-collapse: collapse;
   font-size: 13px;
+}
+.status-chip {
+  padding: 4px 12px;
   background: #fff;
-  border-radius: var(--r-sm);
-  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  color: var(--text-dim);
 }
-.status-table th, .status-table td {
-  padding: 7px 10px;
-  border-bottom: 1px solid var(--line);
-  text-align: center;
-  vertical-align: middle;
-}
-.status-table th {
-  background: var(--bg-muted);
-  color: var(--text-2);
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 0.04em;
-}
-.status-table td.left, .status-table th.left { text-align: left; }
-.status-table td.num { font-weight: 600; font-family: ui-monospace, monospace; }
-.status-table td.c-discussing { color: var(--brand); }
-.status-table td.c-confirmed { color: var(--ok); }
-.status-table td.c-hold { color: var(--warn); }
-.status-table td.c-dropped { color: var(--danger); }
-.status-table td.total { color: var(--text); }
-.status-table .total-row td { background: var(--bg-soft); border-bottom: none; font-weight: 700; }
+.status-chip b { color: var(--text); margin-right: 4px; font-weight: 700; }
+.status-chip.c-discussing { background: var(--brand-soft); border-color: #c7d2fe; color: var(--brand); }
+.status-chip.c-discussing b { color: var(--brand); }
+.status-chip.c-confirmed  { background: #dcfce7; border-color: #bbf7d0; color: var(--ok); }
+.status-chip.c-confirmed b { color: var(--ok); }
+.status-chip.c-hold       { background: #fffbeb; border-color: #fde68a; color: var(--warn); }
+.status-chip.c-hold b { color: var(--warn); }
+.status-chip.c-dropped    { background: #fef2f2; border-color: #fecaca; color: var(--danger); }
+.status-chip.c-dropped b { color: var(--danger); }
+.status-chip.total { margin-left: auto; background: var(--text); color: #fff; border-color: var(--text); }
+.status-chip.total b { color: #fff; }
 
 .review-section { margin-bottom: 28px; }
 .review-section h3 {
