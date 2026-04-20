@@ -450,7 +450,7 @@ function renderReviewContent(tabId) {
 
   wrap.innerHTML = data.sections.map((sec, sIdx) => `
     <div class="review-section">
-      <h3>${escapeHtml(sec.title)}</h3>
+      ${sec.title ? `<h3>${escapeHtml(sec.title)}</h3>` : ''}
       ${sec.items.map((item, iIdx) => renderReviewItem(tabId, sIdx, iIdx, item)).join('')}
     </div>
   `).join('');
